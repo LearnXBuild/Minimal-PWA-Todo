@@ -60,12 +60,20 @@
     .filter-chip { font-size: 0.72rem; padding: 3px 8px; border-radius: 99px; border: 1px solid var(--border-dark); background: var(--surface); cursor: pointer; font-family: var(--font-mono); }
     .filter-chip.active { background: var(--text); color: var(--surface); border-color: var(--text); }
 
-    /* Drag Handle & Collapsible Card */
-    .drag-handle { cursor: grab; color: var(--text-muted); font-size: 1rem; user-select: none; padding: 0 4px; }
+    /* Touch-friendly Drag Handle & Collapsible Card */
+    .drag-handle { 
+      cursor: grab; 
+      color: var(--text-muted); 
+      font-size: 1.1rem; 
+      user-select: none; 
+      padding: 4px 8px; 
+      touch-action: none; 
+      display: inline-block;
+    }
     .drag-handle:active { cursor: grabbing; }
 
     .task-list { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: var(--surface); box-shadow: var(--shadow-float); position: relative; width: 100%; box-sizing: border-box; transition: opacity 0.15s ease; }
+    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: var(--surface); box-shadow: var(--shadow-float); position: relative; width: 100%; box-sizing: border-box; transition: opacity 0.15s ease, transform 0.15s ease; }
     .task-card.dragging { opacity: 0.4; border-style: dashed; }
     .task-card.completed { opacity: 0.65; }
     .task-card.completed .task-title { text-decoration: line-through; }
@@ -92,7 +100,7 @@
     .subtask-card.dragging { opacity: 0.4; border-style: dashed; }
     .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
 
-    .subtask-grid { display: grid; grid-template-columns: 16px 20px 1fr auto; align-items: center; gap: 6px; width: 100%; }
+    .subtask-grid { display: grid; grid-template-columns: 20px 20px 1fr auto; align-items: center; gap: 6px; width: 100%; }
     .sub-title { font-size: 0.85rem; font-weight: 600; color: var(--text); min-width: 0; width: 100%; display: block; word-break: break-all; }
     .sub-desc { font-size: 0.75rem; color: var(--text-muted); grid-column: 3; word-break: break-all; }
 
@@ -253,17 +261,18 @@
     </div>
   </div>
 
-  <!-- MODAL: GITHUB IMPORT -->
+  <!-- MODAL: GITHUB IN-PROGRESS IMPORTER -->
   <div class="modal-overlay" id="github-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);">Import GitHub Issues & Sub-issues</h2>
+      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);">Import In-Progress GitHub Issues</h2>
       <div class="space-y">
         <input type="text" id="gh-repo" placeholder="owner/repo (e.g. facebook/react)">
-        <input type="password" id="gh-token" placeholder="Personal Access Token (Required for Sub-issues GraphQL API)">
+        <input type="text" id="gh-project" placeholder="Target App Project Name (e.g. Core System)">
+        <input type="password" id="gh-token" placeholder="Personal Access Token (Recommended)">
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('github-modal')">Cancel</button>
-        <button class="btn" onclick="importGithubIssues()">Import Issues</button>
+        <button class="btn" onclick="importGithubIssues()">Import In-Progress</button>
       </div>
     </div>
   </div>
@@ -305,35 +314,64 @@
   </div>
 
   <script>
+    // --- PERSIST TIME DATA & MASTER SCHEMA MIGRATION ---
     function loadAndMigrateData() {
-      const ACTIVE_KEY = 'claude_pwa_todo_master';
-      let currentData = localStorage.getItem(ACTIVE_KEY);
+      const MASTER_KEY = 'claude_pwa_todo_master';
+      const keysToSearch = [
+        MASTER_KEY,
+        'todo-pwa-v11',
+        'claude_pwa_todo_v3',
+        'claude_pwa_todo_v2',
+        'claude_pwa_todo'
+      ];
 
-      if (!currentData) {
-        const legacyKeys = ['claude_pwa_todo_v3', 'claude_pwa_todo_v2', 'claude_pwa_todo'];
-        for (let key of legacyKeys) {
-          const oldData = localStorage.getItem(key);
-          if (oldData) {
-            currentData = oldData;
-            break;
-          }
+      let mergedTasks = [];
+      let mergedLimits = {};
+      let mergedProjectColors = {};
+      let mergedTagColors = {};
+      let mergedManualTimes = {};
+      let mergedCollapsed = {};
+
+      keysToSearch.forEach(key => {
+        const item = localStorage.getItem(key);
+        if (item) {
+          try {
+            const parsed = JSON.parse(item);
+            if (parsed.tasks) {
+              parsed.tasks.forEach(t => {
+                if (!mergedTasks.some(existing => existing.id === t.id)) {
+                  mergedTasks.push(t);
+                }
+              });
+            }
+            if (parsed.projectLimits) Object.assign(mergedLimits, parsed.projectLimits);
+            if (parsed.projectColors) Object.assign(mergedProjectColors, parsed.projectColors);
+            if (parsed.tagColors) Object.assign(mergedTagColors, parsed.tagColors);
+            if (parsed.manualProjectTimes) {
+              Object.entries(parsed.manualProjectTimes).forEach(([p, time]) => {
+                mergedManualTimes[p] = Math.max(mergedManualTimes[p] || 0, time);
+              });
+            }
+            if (parsed.collapsedTasks) Object.assign(mergedCollapsed, parsed.collapsedTasks);
+          } catch(e) {}
         }
-      }
+      });
 
-      let parsed = currentData ? JSON.parse(currentData) : {};
       return {
-        tasks: parsed.tasks || [],
-        projectLimits: parsed.projectLimits || {},
-        projectColors: parsed.projectColors || {},
-        tagColors: parsed.tagColors || {},
-        manualProjectTimes: parsed.manualProjectTimes || {},
-        collapsedTasks: parsed.collapsedTasks || {}
+        tasks: mergedTasks,
+        projectLimits: mergedLimits,
+        projectColors: mergedProjectColors,
+        tagColors: mergedTagColors,
+        manualProjectTimes: mergedManualTimes,
+        collapsedTasks: mergedCollapsed
       };
     }
 
     let appData = loadAndMigrateData();
     let selectedFilterTags = new Set();
     let activeTimer = null;
+
+    // Drag States
     let draggedTaskId = null;
     let draggedSubtaskInfo = null;
 
@@ -559,13 +597,14 @@
       }
     }
 
-    /* --- GITHUB GRAPHQL SUB-ISSUES & REST IMPORTER --- */
+    /* --- GITHUB IN-PROGRESS IMPORTER --- */
     function openGithubModal() {
       document.getElementById('github-modal').style.display = 'flex';
     }
 
     async function importGithubIssues() {
       const repoStr = document.getElementById('gh-repo').value.trim();
+      const customProject = document.getElementById('gh-project').value.trim();
       const token = document.getElementById('gh-token').value.trim();
 
       if (!repoStr) return;
@@ -576,54 +615,8 @@
         return;
       }
 
-      const projectName = repo;
+      const projectName = customProject || repo;
 
-      if (token) {
-        // --- USE GRAPHQL FOR NATIVE SUB-ISSUES + CHECKLISTS ---
-        const query = `
-          query {
-            repository(owner: "${owner}", name: "${repo}") {
-              issues(first: 50, states: OPEN) {
-                nodes {
-                  id
-                  title
-                  body
-                  state
-                  labels(first: 10) { nodes { name } }
-                  subIssues(first: 20) {
-                    nodes {
-                      title
-                      state
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `;
-
-        try {
-          const res = await fetch('https://api.github.com/graphql', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ query })
-          });
-
-          const json = await res.json();
-          if (json.errors) throw new Error(json.errors[0].message);
-
-          const issues = json.data.repository.issues.nodes;
-          processGithubIssues(issues, projectName, true);
-          return;
-        } catch (err) {
-          console.warn("GraphQL failed, falling back to REST: ", err);
-        }
-      }
-
-      // --- FALLBACK REST API (MARKDOWN CHECKLISTS) ---
       const headers = { 'Accept': 'application/vnd.github.v3+json' };
       if (token) headers['Authorization'] = `token ${token}`;
 
@@ -632,76 +625,104 @@
         if (!res.ok) throw new Error('Failed to fetch issues');
 
         const issues = await res.json();
-        processGithubIssues(issues, projectName, false);
+        
+        // Filter In-Progress Issues
+        const inProgressIssues = issues.filter(issue => {
+          if (issue.pull_request) return false;
+          
+          const labels = (issue.labels || []).map(l => l.name.toLowerCase());
+          const hasInProgressLabel = labels.some(l => l.includes('in progress') || l.includes('in-progress') || l === 'wip');
+          const isAssigned = issue.assignee || (issue.assignees && issue.assignees.length > 0);
+
+          return hasInProgressLabel || isAssigned;
+        });
+
+        inProgressIssues.forEach(issue => {
+          const subtasks = [];
+          const bodyText = issue.body || '';
+
+          // Parse Markdown Checklists
+          const checklistRegex = /- \[(x| )\] (.*)/g;
+          let match;
+          while ((match = checklistRegex.exec(bodyText)) !== null) {
+            subtasks.push({
+              id: 'sub_' + Date.now() + Math.random(),
+              title: match[2].trim(),
+              completed: match[1] === 'x',
+              description: '',
+              tags: ['in-progress']
+            });
+          }
+
+          const rawLabels = (issue.labels || []).map(l => l.name.toLowerCase());
+          rawLabels.forEach(t => { if (!appData.tagColors[t]) appData.tagColors[t] = getRandomColor(); });
+
+          appData.tasks.push({
+            id: 'task_' + Date.now() + Math.random(),
+            title: issue.title,
+            description: bodyText ? bodyText.slice(0, 150) + '...' : '',
+            project: projectName,
+            tags: rawLabels,
+            dependsOn: null,
+            completed: false,
+            subtasks,
+            timeSpent: 0
+          });
+        });
+
+        saveData();
+        closeModal('github-modal');
+        updateProjectDropdowns();
+        renderTagFilters();
+        renderTasks();
       } catch (err) {
         alert("Error importing GitHub issues: " + err.message);
       }
     }
 
-    function processGithubIssues(issues, projectName, isGraphQL) {
-      issues.forEach(issue => {
-        if (!isGraphQL && issue.pull_request) return; // Skip PRs in REST
+    /* --- APPLE/IOS TOUCH DRAG & DROP ENGINE --- */
+    let touchElem = null;
+    let touchStartY = 0;
 
-        const subtasks = [];
+    function attachTouchDrag(handleElem, itemType, itemId, parentId = null) {
+      handleElem.addEventListener('touchstart', (e) => {
+        const touch = e.touches[0];
+        touchStartY = touch.clientY;
+        touchElem = handleElem.closest(itemType === 'task' ? '.task-card' : '.subtask-card');
+        if (touchElem) touchElem.classList.add('dragging');
+      }, { passive: true });
 
-        // 1. Convert Native Sub-issues (GraphQL)
-        if (isGraphQL && issue.subIssues && issue.subIssues.nodes) {
-          issue.subIssues.nodes.forEach(sub => {
-            subtasks.push({
-              id: 'sub_' + Date.now() + Math.random(),
-              title: sub.title,
-              completed: sub.state === 'CLOSED',
-              description: 'Native GitHub Sub-issue',
-              tags: ['sub-issue']
-            });
-          });
+      handleElem.addEventListener('touchmove', (e) => {
+        if (!touchElem) return;
+        const touch = e.touches[0];
+        const currentY = touch.clientY;
+        const targetCard = document.elementFromPoint(touch.clientX, currentY);
+        
+        if (itemType === 'task') {
+          const overTask = targetCard ? targetCard.closest('.task-card') : null;
+          if (overTask && overTask !== touchElem) {
+            const overId = overTask.dataset.id;
+            const fromIdx = appData.tasks.findIndex(t => t.id === itemId);
+            const toIdx = appData.tasks.findIndex(t => t.id === overId);
+            if (fromIdx !== -1 && toIdx !== -1) {
+              const [moved] = appData.tasks.splice(fromIdx, 1);
+              appData.tasks.splice(toIdx, 0, moved);
+              saveData();
+              renderTasks();
+            }
+          }
         }
+      }, { passive: true });
 
-        // 2. Convert Markdown Checklist Items (- [ ])
-        const bodyText = issue.body || '';
-        const checklistRegex = /- \[(x| )\] (.*)/g;
-        let match;
-        while ((match = checklistRegex.exec(bodyText)) !== null) {
-          subtasks.push({
-            id: 'sub_' + Date.now() + Math.random(),
-            title: match[2].trim(),
-            completed: match[1] === 'x',
-            description: '',
-            tags: []
-          });
+      handleElem.addEventListener('touchend', () => {
+        if (touchElem) {
+          touchElem.classList.remove('dragging');
+          touchElem = null;
         }
-
-        // Parse Labels -> Tags
-        let rawLabels = [];
-        if (isGraphQL && issue.labels) {
-          rawLabels = issue.labels.nodes.map(l => l.name.toLowerCase());
-        } else if (issue.labels) {
-          rawLabels = issue.labels.map(l => l.name.toLowerCase());
-        }
-
-        rawLabels.forEach(t => { if (!appData.tagColors[t]) appData.tagColors[t] = getRandomColor(); });
-
-        appData.tasks.push({
-          id: 'task_' + Date.now() + Math.random(),
-          title: issue.title,
-          description: bodyText ? bodyText.slice(0, 150) + '...' : '',
-          project: projectName,
-          tags: rawLabels,
-          dependsOn: null,
-          completed: isGraphQL ? issue.state === 'CLOSED' : issue.state === 'closed',
-          subtasks,
-          timeSpent: 0
-        });
       });
-
-      saveData();
-      closeModal('github-modal');
-      updateProjectDropdowns();
-      renderTagFilters();
-      renderTasks();
     }
 
-    /* --- DRAG AND DROP REORDERING --- */
+    /* --- HTML5 DESKTOP DRAG AND DROP --- */
     function handleTaskDragStart(e, taskId) {
       draggedTaskId = taskId;
       e.target.classList.add('dragging');
@@ -725,39 +746,6 @@
         appData.tasks.splice(toIndex, 0, movedTask);
         saveData();
         renderTasks();
-      }
-    }
-
-    function handleSubtaskDragStart(e, parentTaskId, subtaskId) {
-      draggedSubtaskInfo = { parentTaskId, subtaskId };
-      e.target.classList.add('dragging');
-      e.stopPropagation();
-    }
-
-    function handleSubtaskDragEnd(e) {
-      e.target.classList.remove('dragging');
-      draggedSubtaskInfo = null;
-    }
-
-    function handleSubtaskDragOver(e, targetParentTaskId, targetSubtaskId) {
-      e.preventDefault();
-      e.stopPropagation();
-      if (!draggedSubtaskInfo) return;
-
-      const { parentTaskId, subtaskId } = draggedSubtaskInfo;
-      if (parentTaskId !== targetParentTaskId || subtaskId === targetSubtaskId) return;
-
-      const task = appData.tasks.find(t => t.id === parentTaskId);
-      if (task) {
-        const fromIndex = task.subtasks.findIndex(s => s.id === subtaskId);
-        const toIndex = task.subtasks.findIndex(s => s.id === targetSubtaskId);
-
-        if (fromIndex !== -1 && toIndex !== -1) {
-          const [movedSub] = task.subtasks.splice(fromIndex, 1);
-          task.subtasks.splice(toIndex, 0, movedSub);
-          saveData();
-          renderTasks();
-        }
       }
     }
 
@@ -853,6 +841,7 @@
 
         const card = document.createElement('div');
         card.className = `task-card ${task.completed ? 'completed' : ''} ${isCollapsed ? 'collapsed' : ''}`;
+        card.dataset.id = task.id;
         card.draggable = true;
         card.ondragstart = (e) => handleTaskDragStart(e, task.id);
         card.ondragend = (e) => handleTaskDragEnd(e);
@@ -861,7 +850,7 @@
         card.innerHTML = `
           <div class="task-header">
             <button class="collapse-btn" onclick="toggleCollapseTask('${task.id}')">▼</button>
-            <span class="drag-handle">⋮⋮</span>
+            <span class="drag-handle" id="handle-task-${task.id}">⋮⋮</span>
             <div class="task-title">
               <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 16px; height: 16px; cursor: pointer;">
               <span>${task.title}</span>
@@ -897,13 +886,9 @@
 
             <div class="subtask-tree">
               ${task.subtasks.map(sub => `
-                <div class="subtask-card ${sub.completed ? 'completed' : ''}" 
-                     draggable="true" 
-                     ondragstart="handleSubtaskDragStart(event, '${task.id}', '${sub.id}')"
-                     ondragend="handleSubtaskDragEnd(event)"
-                     ondragover="handleSubtaskDragOver(event, '${task.id}', '${sub.id}')">
+                <div class="subtask-card ${sub.completed ? 'completed' : ''}">
                   <div class="subtask-grid">
-                    <span class="drag-handle" style="font-size:0.8rem;">⋮⋮</span>
+                    <span class="drag-handle" id="handle-sub-${sub.id}">⋮⋮</span>
                     <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer;">
                     <span class="sub-title">${sub.title}</span>
                     <div class="flex-gap">
@@ -928,6 +913,12 @@
           </div>
         `;
         container.appendChild(card);
+
+        // Attach Touch Drag Listeners for Apple iOS
+        setTimeout(() => {
+          const handle = document.getElementById(`handle-task-${task.id}`);
+          if (handle) attachTouchDrag(handle, 'task', task.id);
+        }, 0);
       });
     }
 
@@ -1109,7 +1100,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v11';
+        const CACHE_NAME = 'todo-pwa-v12';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
