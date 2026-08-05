@@ -78,15 +78,15 @@
     .progress-bar { width: 100%; height: 5px; background: var(--surface-hover); border-radius: 3px; overflow: hidden; margin: 8px 0; }
     .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
-    /* Compact Subtasks */
-    .subtask-tree { margin-left: 6px; padding-left: 10px; border-left: 2px solid var(--border); margin-top: 10px; display: flex; flex-direction: column; gap: 6px; width: calc(100% - 6px); box-sizing: border-box; }
-    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 6px 10px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
+    /* Subtasks Fixes */
+    .subtask-tree { margin-left: 4px; padding-left: 8px; border-left: 2px solid var(--border); margin-top: 10px; display: flex; flex-direction: column; gap: 8px; width: calc(100% - 4px); box-sizing: border-box; }
+    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 8px 10px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
     .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
     
     .subtask-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; width: 100%; }
     .subtask-main { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; }
-    .sub-title { font-size: 0.8rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .sub-desc { font-size: 0.72rem; color: var(--text-muted); margin-left: 20px; line-height: 1.2; }
+    .sub-title { font-size: 0.85rem; font-weight: 600; color: var(--text); display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sub-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; display: block; word-break: break-word; }
 
     /* Timer Controls */
     .timer-badge { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.8rem; background: var(--surface-hover); padding: 4px 10px; border-radius: 6px; font-weight: 700; }
@@ -96,10 +96,8 @@
     .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 460px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 15px 30px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
-    /* Canvas */
+    /* Canvas & Reports */
     #graph-canvas { width: 100%; height: 380px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
-
-    /* Reports */
     .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-top: 12px; }
     .report-card { border: 1px solid var(--border); padding: 16px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
 
@@ -126,10 +124,6 @@
 </head>
 <body>
 
-  <!-- PiP / Lockscreen Video Frame Streamer -->
-  <video id="pip-video" autoplay muted playsinline style="display:none; width:240px; height:120px;"></video>
-  <canvas id="pip-canvas" width="240" height="120" style="display:none;"></canvas>
-
   <aside>
     <div class="logo"><div class="logo-dot"></div> WORKSPACE</div>
     <nav>
@@ -144,7 +138,10 @@
     <section id="sec-tasks" class="content-section active">
       <header>
         <h1>TASKS</h1>
-        <button class="btn" onclick="openTaskModal()">+ Add Task</button>
+        <div class="flex-gap">
+          <button class="btn btn-secondary btn-sm" onclick="exportData()">Backup JSON</button>
+          <button class="btn" onclick="openTaskModal()">+ Add Task</button>
+        </div>
       </header>
 
       <div class="filter-bar">
@@ -284,19 +281,49 @@
   </div>
 
   <script>
-    let appData = JSON.parse(localStorage.getItem('claude_pwa_todo_v3')) || {
-      tasks: [],
-      projectLimits: {},
-      projectColors: {},
-      tagColors: {},
-      manualProjectTimes: {} // { "Project Name": seconds }
-    };
+    // --- AUTOMATIC DATA MIGRATION ACROSS DEPLOYMENTS ---
+    function loadAndMigrateData() {
+      const ACTIVE_KEY = 'claude_pwa_todo_master';
+      let currentData = localStorage.getItem(ACTIVE_KEY);
 
+      if (!currentData) {
+        // Fallback search across older version keys
+        const legacyKeys = ['claude_pwa_todo_v3', 'claude_pwa_todo_v2', 'claude_pwa_todo'];
+        for (let key of legacyKeys) {
+          const oldData = localStorage.getItem(key);
+          if (oldData) {
+            currentData = oldData;
+            break;
+          }
+        }
+      }
+
+      let parsed = currentData ? JSON.parse(currentData) : {};
+      return {
+        tasks: parsed.tasks || [],
+        projectLimits: parsed.projectLimits || {},
+        projectColors: parsed.projectColors || {},
+        tagColors: parsed.tagColors || {},
+        manualProjectTimes: parsed.manualProjectTimes || {}
+      };
+    }
+
+    let appData = loadAndMigrateData();
     let selectedFilterTags = new Set();
     let activeTimer = null;
 
     function saveData() {
-      localStorage.setItem('claude_pwa_todo_v3', JSON.stringify(appData));
+      localStorage.setItem('claude_pwa_todo_master', JSON.stringify(appData));
+    }
+
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `workspace_backup_${Date.now()}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
     }
 
     const PRESET_COLORS = ['#fee2e2', '#fef3c7', '#dcfce7', '#e0e7ff', '#f3e8ff', '#fce7f3'];
@@ -365,14 +392,10 @@
       const tags = document.getElementById('t-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
       const dependsOn = document.getElementById('t-dep').value;
 
-      if (project) {
-        appData.projectColors[project] = projColor;
-      }
+      if (project) appData.projectColors[project] = projColor;
 
       tags.forEach(tag => {
-        if (!appData.tagColors[tag]) {
-          appData.tagColors[tag] = getRandomColor();
-        }
+        if (!appData.tagColors[tag]) appData.tagColors[tag] = getRandomColor();
       });
 
       if (editId) {
@@ -457,9 +480,7 @@
       const tags = document.getElementById('sub-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
 
       tags.forEach(tag => {
-        if (!appData.tagColors[tag]) {
-          appData.tagColors[tag] = getRandomColor();
-        }
+        if (!appData.tagColors[tag]) appData.tagColors[tag] = getRandomColor();
       });
 
       const task = appData.tasks.find(t => t.id === parentTaskId);
@@ -506,33 +527,8 @@
       }
     }
 
-    /* --- CANVAS / PIP TIMER STREAM FOR MOBILE LOCKSCREEN --- */
-    function drawTimerPiPCanvas(title, timeStr) {
-      const canvas = document.getElementById('pip-canvas');
-      const ctx = canvas.getContext('2d');
-
-      ctx.fillStyle = '#18181b';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = '#a1a1aa';
-      ctx.font = '12px sans-serif';
-      ctx.fillText("ACTIVE FOCUS TASK", 15, 25);
-
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillText(title.length > 20 ? title.slice(0,18) + '...' : title, 15, 50);
-
-      ctx.fillStyle = '#38bdf8';
-      ctx.font = 'bold 26px monospace';
-      ctx.fillText(timeStr, 15, 95);
-
-      const video = document.getElementById('pip-video');
-      if (!video.srcObject) {
-        video.srcObject = canvas.captureStream(10);
-      }
-    }
-
-    async function toggleTimer(taskId) {
+    /* --- TIMER WITH TIMESTAMP MATH FOR UNINTERRUPTED COUNTING --- */
+    function toggleTimer(taskId) {
       const task = appData.tasks.find(t => t.id === taskId);
 
       if (activeTimer && activeTimer.taskId === taskId) {
@@ -540,11 +536,6 @@
         const elapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
         if (task) task.timeSpent += elapsed;
         activeTimer = null;
-
-        if (document.pictureInPictureElement) {
-          document.exitPictureInPicture().catch(() => {});
-        }
-
         saveData();
         renderTasks();
       } else {
@@ -555,16 +546,6 @@
           startTime: Date.now(),
           timerId: setInterval(() => updateTimerDisplay(taskId), 1000)
         };
-
-        if (task) {
-          drawTimerPiPCanvas(task.title, formatTime(task.timeSpent));
-          const video = document.getElementById('pip-video');
-          video.play().then(() => {
-            if ('pictureInPictureEnabled' in document && !document.pictureInPictureElement) {
-              video.requestPictureInPicture().catch(() => {});
-            }
-          }).catch(() => {});
-        }
         renderTasks();
       }
     }
@@ -575,13 +556,7 @@
         const currentElapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
         const task = appData.tasks.find(t => t.id === taskId);
         const total = (task ? task.timeSpent : 0) + currentElapsed;
-        const formatted = formatTime(total);
-
-        el.innerText = formatted;
-
-        if (task) {
-          drawTimerPiPCanvas(task.title, formatted);
-        }
+        el.innerText = formatTime(total);
       }
     }
 
@@ -592,7 +567,7 @@
       return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
     }
 
-    /* --- RENDERING TASKS & TAGS --- */
+    /* --- RENDER TASKS & SUBTASKS --- */
     function renderTagFilters() {
       const container = document.getElementById('tag-filters');
       container.innerHTML = '';
@@ -639,7 +614,6 @@
         const doneSub = task.subtasks.filter(s => s.completed).length;
         const progressPct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
         const isRunning = activeTimer && activeTimer.taskId === task.id;
-
         const projColor = appData.projectColors[task.project] || '#e2e8f0';
 
         const card = document.createElement('div');
@@ -678,25 +652,26 @@
             </button>
           </div>
 
-          <!-- COMPACT SUBTASKS CONTAINER -->
+          <!-- FIXED SUBTASK SECTION -->
           <div class="subtask-tree">
             ${task.subtasks.map(sub => `
               <div class="subtask-card ${sub.completed ? 'completed' : ''}">
                 <div class="subtask-header">
                   <div class="subtask-main">
                     <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer; flex-shrink: 0;">
-                    <span class="sub-title">${sub.title}</span>
+                    <div style="min-width: 0; flex: 1;">
+                      <span class="sub-title">${sub.title}</span>
+                      ${sub.description ? `<span class="sub-desc">${sub.description}</span>` : ''}
+                    </div>
                   </div>
-                  <div class="flex-gap">
+                  <div class="flex-gap" style="flex-shrink: 0;">
                     <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="openSubtaskModal('${task.id}', '${sub.id}')">Edit</button>
                     <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="deleteSubtask('${task.id}', '${sub.id}')">✕</button>
                   </div>
                 </div>
 
-                ${sub.description ? `<div class="sub-desc">${sub.description}</div>` : ''}
-
                 ${(sub.tags && sub.tags.length > 0) ? `
-                  <div style="display:flex; gap:3px; margin-left:20px; margin-top:2px; flex-wrap:wrap;">
+                  <div style="display:flex; gap:3px; margin-left:22px; margin-top:2px; flex-wrap:wrap;">
                     ${sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.62rem; padding: 0px 5px;">#${st}</span>`).join('')}
                   </div>
                 ` : ''}
@@ -712,7 +687,7 @@
       });
     }
 
-    /* --- DEPENDENCY GRAPH WITH PROJECT FILTER --- */
+    /* --- GRAPH & REPORTS --- */
     function updateProjectDropdowns() {
       const graphSelect = document.getElementById('graph-project-filter');
       const manualSelect = document.getElementById('m-project-select');
@@ -786,7 +761,6 @@
       });
     }
 
-    /* --- REPORTS & MANUAL TIME ENTRY --- */
     function openManualTimeModal() {
       updateProjectDropdowns();
       document.getElementById('m-hours').value = '';
@@ -838,7 +812,6 @@
         }
       });
 
-      // Add manual project times
       Object.entries(appData.manualProjectTimes || {}).forEach(([proj, sec]) => {
         projectTimes[proj] = (projectTimes[proj] || 0) + sec;
       });
@@ -892,7 +865,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v6';
+        const CACHE_NAME = 'todo-pwa-v7';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
