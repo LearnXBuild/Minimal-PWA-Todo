@@ -42,7 +42,7 @@
     .content-section { display: none; padding: 24px 16px; max-width: 900px; margin: 0 auto; width: 100%; box-sizing: border-box; }
     .content-section.active { display: block; }
 
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
     h1 { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
 
     /* Buttons & Inputs */
@@ -60,16 +60,24 @@
     .filter-chip { font-size: 0.72rem; padding: 3px 8px; border-radius: 99px; border: 1px solid var(--border-dark); background: var(--surface); cursor: pointer; font-family: var(--font-mono); }
     .filter-chip.active { background: var(--text); color: var(--surface); border-color: var(--text); }
 
-    /* Task Cards */
+    /* Drag Handle & Collapsible Card */
+    .drag-handle { cursor: grab; color: var(--text-muted); font-size: 1rem; user-select: none; padding: 0 4px; }
+    .drag-handle:active { cursor: grabbing; }
+
     .task-list { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: var(--surface); box-shadow: var(--shadow-float); position: relative; width: 100%; box-sizing: border-box; }
+    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: var(--surface); box-shadow: var(--shadow-float); position: relative; width: 100%; box-sizing: border-box; transition: opacity 0.15s ease; }
+    .task-card.dragging { opacity: 0.4; border-style: dashed; }
     .task-card.completed { opacity: 0.65; }
     .task-card.completed .task-title { text-decoration: line-through; }
     
-    .task-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; margin-bottom: 6px; }
+    .task-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; }
     .task-title { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
     .task-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+
+    .collapse-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: var(--text-muted); padding: 2px 4px; display: inline-flex; align-items: center; transition: transform 0.2s ease; }
+    .task-card.collapsed .collapse-btn { transform: rotate(-90deg); }
+    .task-card.collapsed .task-body { display: none; }
 
     .pill { display: inline-flex; align-items: center; font-size: 0.68rem; padding: 2px 8px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); }
     .pill-tag { font-family: var(--font-sans); font-weight: 500; border: 1px solid rgba(0,0,0,0.08); }
@@ -78,56 +86,15 @@
     .progress-bar { width: 100%; height: 5px; background: var(--surface-hover); border-radius: 3px; overflow: hidden; margin: 8px 0; }
     .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
-    /* --- STRICT GRID-BASED SUBTASK FIX --- */
-    .subtask-tree { 
-      margin-left: 4px; 
-      padding-left: 8px; 
-      border-left: 2px solid var(--border); 
-      margin-top: 10px; 
-      display: flex; 
-      flex-direction: column; 
-      gap: 8px; 
-      width: calc(100% - 4px); 
-      box-sizing: border-box; 
-    }
-
-    .subtask-card { 
-      border: 1px solid var(--border); 
-      background: var(--bg); 
-      padding: 8px 10px; 
-      border-radius: 6px; 
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      width: 100%; 
-      box-sizing: border-box; 
-    }
+    /* Subtasks Grid */
+    .subtask-tree { margin-left: 4px; padding-left: 8px; border-left: 2px solid var(--border); margin-top: 10px; display: flex; flex-direction: column; gap: 8px; width: calc(100% - 4px); box-sizing: border-box; }
+    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 8px 10px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; transition: opacity 0.15s ease; }
+    .subtask-card.dragging { opacity: 0.4; border-style: dashed; }
     .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
 
-    .subtask-grid {
-      display: grid;
-      grid-template-columns: 20px 1fr auto;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-    }
-
-    .sub-title { 
-      font-size: 0.85rem; 
-      font-weight: 600; 
-      color: var(--text); 
-      min-width: 0;
-      width: 100%;
-      display: block;
-      word-break: break-all;
-    }
-    
-    .sub-desc { 
-      font-size: 0.75rem; 
-      color: var(--text-muted); 
-      grid-column: 2;
-      word-break: break-all;
-    }
+    .subtask-grid { display: grid; grid-template-columns: 16px 20px 1fr auto; align-items: center; gap: 6px; width: 100%; }
+    .sub-title { font-size: 0.85rem; font-weight: 600; color: var(--text); min-width: 0; width: 100%; display: block; word-break: break-all; }
+    .sub-desc { font-size: 0.75rem; color: var(--text-muted); grid-column: 3; word-break: break-all; }
 
     /* Timer Controls */
     .timer-badge { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.8rem; background: var(--surface-hover); padding: 4px 10px; border-radius: 6px; font-weight: 700; }
@@ -180,6 +147,7 @@
       <header>
         <h1>TASKS</h1>
         <div class="flex-gap">
+          <button class="btn btn-secondary btn-sm" onclick="openGithubModal()">Import GitHub</button>
           <button class="btn btn-secondary btn-sm" onclick="exportData()">Backup JSON</button>
           <button class="btn" onclick="openTaskModal()">+ Add Task</button>
         </div>
@@ -285,6 +253,21 @@
     </div>
   </div>
 
+  <!-- MODAL: GITHUB IMPORT -->
+  <div class="modal-overlay" id="github-modal">
+    <div class="modal">
+      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);">Import GitHub Issues & Sub-issues</h2>
+      <div class="space-y">
+        <input type="text" id="gh-repo" placeholder="owner/repo (e.g. facebook/react)">
+        <input type="password" id="gh-token" placeholder="Personal Access Token (Required for Sub-issues GraphQL API)">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('github-modal')">Cancel</button>
+        <button class="btn" onclick="importGithubIssues()">Import Issues</button>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: MANUAL TIME ENTRY -->
   <div class="modal-overlay" id="manual-time-modal">
     <div class="modal">
@@ -343,13 +326,16 @@
         projectLimits: parsed.projectLimits || {},
         projectColors: parsed.projectColors || {},
         tagColors: parsed.tagColors || {},
-        manualProjectTimes: parsed.manualProjectTimes || {}
+        manualProjectTimes: parsed.manualProjectTimes || {},
+        collapsedTasks: parsed.collapsedTasks || {}
       };
     }
 
     let appData = loadAndMigrateData();
     let selectedFilterTags = new Set();
     let activeTimer = null;
+    let draggedTaskId = null;
+    let draggedSubtaskInfo = null;
 
     function saveData() {
       localStorage.setItem('claude_pwa_todo_master', JSON.stringify(appData));
@@ -384,6 +370,13 @@
     }
 
     /* --- TASK FUNCTIONS --- */
+    function toggleCollapseTask(taskId) {
+      if (!appData.collapsedTasks) appData.collapsedTasks = {};
+      appData.collapsedTasks[taskId] = !appData.collapsedTasks[taskId];
+      saveData();
+      renderTasks();
+    }
+
     function openTaskModal(taskId = null) {
       const depSelect = document.getElementById('t-dep');
       depSelect.innerHTML = '<option value="">None</option>';
@@ -566,6 +559,208 @@
       }
     }
 
+    /* --- GITHUB GRAPHQL SUB-ISSUES & REST IMPORTER --- */
+    function openGithubModal() {
+      document.getElementById('github-modal').style.display = 'flex';
+    }
+
+    async function importGithubIssues() {
+      const repoStr = document.getElementById('gh-repo').value.trim();
+      const token = document.getElementById('gh-token').value.trim();
+
+      if (!repoStr) return;
+
+      const [owner, repo] = repoStr.split('/');
+      if (!owner || !repo) {
+        alert("Please enter format owner/repo");
+        return;
+      }
+
+      const projectName = repo;
+
+      if (token) {
+        // --- USE GRAPHQL FOR NATIVE SUB-ISSUES + CHECKLISTS ---
+        const query = `
+          query {
+            repository(owner: "${owner}", name: "${repo}") {
+              issues(first: 50, states: OPEN) {
+                nodes {
+                  id
+                  title
+                  body
+                  state
+                  labels(first: 10) { nodes { name } }
+                  subIssues(first: 20) {
+                    nodes {
+                      title
+                      state
+                    }
+                  }
+                }
+              }
+            }
+          }
+        `;
+
+        try {
+          const res = await fetch('https://api.github.com/graphql', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ query })
+          });
+
+          const json = await res.json();
+          if (json.errors) throw new Error(json.errors[0].message);
+
+          const issues = json.data.repository.issues.nodes;
+          processGithubIssues(issues, projectName, true);
+          return;
+        } catch (err) {
+          console.warn("GraphQL failed, falling back to REST: ", err);
+        }
+      }
+
+      // --- FALLBACK REST API (MARKDOWN CHECKLISTS) ---
+      const headers = { 'Accept': 'application/vnd.github.v3+json' };
+      if (token) headers['Authorization'] = `token ${token}`;
+
+      try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues?state=open`, { headers });
+        if (!res.ok) throw new Error('Failed to fetch issues');
+
+        const issues = await res.json();
+        processGithubIssues(issues, projectName, false);
+      } catch (err) {
+        alert("Error importing GitHub issues: " + err.message);
+      }
+    }
+
+    function processGithubIssues(issues, projectName, isGraphQL) {
+      issues.forEach(issue => {
+        if (!isGraphQL && issue.pull_request) return; // Skip PRs in REST
+
+        const subtasks = [];
+
+        // 1. Convert Native Sub-issues (GraphQL)
+        if (isGraphQL && issue.subIssues && issue.subIssues.nodes) {
+          issue.subIssues.nodes.forEach(sub => {
+            subtasks.push({
+              id: 'sub_' + Date.now() + Math.random(),
+              title: sub.title,
+              completed: sub.state === 'CLOSED',
+              description: 'Native GitHub Sub-issue',
+              tags: ['sub-issue']
+            });
+          });
+        }
+
+        // 2. Convert Markdown Checklist Items (- [ ])
+        const bodyText = issue.body || '';
+        const checklistRegex = /- \[(x| )\] (.*)/g;
+        let match;
+        while ((match = checklistRegex.exec(bodyText)) !== null) {
+          subtasks.push({
+            id: 'sub_' + Date.now() + Math.random(),
+            title: match[2].trim(),
+            completed: match[1] === 'x',
+            description: '',
+            tags: []
+          });
+        }
+
+        // Parse Labels -> Tags
+        let rawLabels = [];
+        if (isGraphQL && issue.labels) {
+          rawLabels = issue.labels.nodes.map(l => l.name.toLowerCase());
+        } else if (issue.labels) {
+          rawLabels = issue.labels.map(l => l.name.toLowerCase());
+        }
+
+        rawLabels.forEach(t => { if (!appData.tagColors[t]) appData.tagColors[t] = getRandomColor(); });
+
+        appData.tasks.push({
+          id: 'task_' + Date.now() + Math.random(),
+          title: issue.title,
+          description: bodyText ? bodyText.slice(0, 150) + '...' : '',
+          project: projectName,
+          tags: rawLabels,
+          dependsOn: null,
+          completed: isGraphQL ? issue.state === 'CLOSED' : issue.state === 'closed',
+          subtasks,
+          timeSpent: 0
+        });
+      });
+
+      saveData();
+      closeModal('github-modal');
+      updateProjectDropdowns();
+      renderTagFilters();
+      renderTasks();
+    }
+
+    /* --- DRAG AND DROP REORDERING --- */
+    function handleTaskDragStart(e, taskId) {
+      draggedTaskId = taskId;
+      e.target.classList.add('dragging');
+      e.stopPropagation();
+    }
+
+    function handleTaskDragEnd(e) {
+      e.target.classList.remove('dragging');
+      draggedTaskId = null;
+    }
+
+    function handleTaskDragOver(e, targetTaskId) {
+      e.preventDefault();
+      if (!draggedTaskId || draggedTaskId === targetTaskId) return;
+
+      const fromIndex = appData.tasks.findIndex(t => t.id === draggedTaskId);
+      const toIndex = appData.tasks.findIndex(t => t.id === targetTaskId);
+
+      if (fromIndex !== -1 && toIndex !== -1) {
+        const [movedTask] = appData.tasks.splice(fromIndex, 1);
+        appData.tasks.splice(toIndex, 0, movedTask);
+        saveData();
+        renderTasks();
+      }
+    }
+
+    function handleSubtaskDragStart(e, parentTaskId, subtaskId) {
+      draggedSubtaskInfo = { parentTaskId, subtaskId };
+      e.target.classList.add('dragging');
+      e.stopPropagation();
+    }
+
+    function handleSubtaskDragEnd(e) {
+      e.target.classList.remove('dragging');
+      draggedSubtaskInfo = null;
+    }
+
+    function handleSubtaskDragOver(e, targetParentTaskId, targetSubtaskId) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!draggedSubtaskInfo) return;
+
+      const { parentTaskId, subtaskId } = draggedSubtaskInfo;
+      if (parentTaskId !== targetParentTaskId || subtaskId === targetSubtaskId) return;
+
+      const task = appData.tasks.find(t => t.id === parentTaskId);
+      if (task) {
+        const fromIndex = task.subtasks.findIndex(s => s.id === subtaskId);
+        const toIndex = task.subtasks.findIndex(s => s.id === targetSubtaskId);
+
+        if (fromIndex !== -1 && toIndex !== -1) {
+          const [movedSub] = task.subtasks.splice(fromIndex, 1);
+          task.subtasks.splice(toIndex, 0, movedSub);
+          saveData();
+          renderTasks();
+        }
+      }
+    }
+
     /* --- TIMER FUNCTIONS --- */
     function toggleTimer(taskId) {
       const task = appData.tasks.find(t => t.id === taskId);
@@ -654,11 +849,19 @@
         const progressPct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
         const isRunning = activeTimer && activeTimer.taskId === task.id;
         const projColor = appData.projectColors[task.project] || '#e2e8f0';
+        const isCollapsed = appData.collapsedTasks && appData.collapsedTasks[task.id];
 
         const card = document.createElement('div');
-        card.className = `task-card ${task.completed ? 'completed' : ''}`;
+        card.className = `task-card ${task.completed ? 'completed' : ''} ${isCollapsed ? 'collapsed' : ''}`;
+        card.draggable = true;
+        card.ondragstart = (e) => handleTaskDragStart(e, task.id);
+        card.ondragend = (e) => handleTaskDragEnd(e);
+        card.ondragover = (e) => handleTaskDragOver(e, task.id);
+
         card.innerHTML = `
           <div class="task-header">
+            <button class="collapse-btn" onclick="toggleCollapseTask('${task.id}')">▼</button>
+            <span class="drag-handle">⋮⋮</span>
             <div class="task-title">
               <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 16px; height: 16px; cursor: pointer;">
               <span>${task.title}</span>
@@ -669,53 +872,59 @@
             </div>
           </div>
 
-          ${task.description ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">${task.description}</div>` : ''}
+          <div class="task-body">
+            ${task.description ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin: 6px 0;">${task.description}</div>` : ''}
 
-          <div class="task-meta">
-            ${task.project ? `<span class="pill" style="background:${projColor}; color:#1e293b;">${task.project}</span>` : ''}
-            ${(task.tags || []).map(t => `<span class="pill pill-tag" style="background:${appData.tagColors[t] || '#f1f5f9'};">#${t}</span>`).join('')}
-          </div>
-
-          <div style="font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; font-family: var(--font-mono);">
-            <span>Progress</span>
-            <span>${doneSub}/${totalSub} (${progressPct}%)</span>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" style="width: ${progressPct}%"></div></div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-            <div class="timer-badge">
-              <span id="timer-val-${task.id}">${formatTime(task.timeSpent)}</span>
+            <div class="task-meta">
+              ${task.project ? `<span class="pill" style="background:${projColor}; color:#1e293b;">${task.project}</span>` : ''}
+              ${(task.tags || []).map(t => `<span class="pill pill-tag" style="background:${appData.tagColors[t] || '#f1f5f9'};">#${t}</span>`).join('')}
             </div>
-            <button class="btn btn-sm ${isRunning ? 'btn-secondary' : ''}" onclick="toggleTimer('${task.id}')">
-              ${isRunning ? 'Pause' : 'Start Timer'}
-            </button>
-          </div>
 
-          <!-- GRID SUBTASK RENDERER -->
-          <div class="subtask-tree">
-            ${task.subtasks.map(sub => `
-              <div class="subtask-card ${sub.completed ? 'completed' : ''}">
-                <div class="subtask-grid">
-                  <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer;">
-                  <span class="sub-title">${sub.title}</span>
-                  <div class="flex-gap">
-                    <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="openSubtaskModal('${task.id}', '${sub.id}')">Edit</button>
-                    <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="deleteSubtask('${task.id}', '${sub.id}')">✕</button>
-                  </div>
-                  ${sub.description ? `<span class="sub-desc">${sub.description}</span>` : ''}
-                </div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; font-family: var(--font-mono);">
+              <span>Progress</span>
+              <span>${doneSub}/${totalSub} (${progressPct}%)</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: ${progressPct}%"></div></div>
 
-                ${(sub.tags && sub.tags.length > 0) ? `
-                  <div style="display:flex; gap:3px; margin-left:28px; margin-top:4px; flex-wrap:wrap;">
-                    ${sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.62rem; padding: 0px 5px;">#${st}</span>`).join('')}
-                  </div>
-                ` : ''}
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+              <div class="timer-badge">
+                <span id="timer-val-${task.id}">${formatTime(task.timeSpent)}</span>
               </div>
-            `).join('')}
-            
-            <button class="btn btn-secondary btn-sm" style="align-self: flex-start; margin-top: 2px;" onclick="openSubtaskModal('${task.id}')">
-              + Add Subtask
-            </button>
+              <button class="btn btn-sm ${isRunning ? 'btn-secondary' : ''}" onclick="toggleTimer('${task.id}')">
+                ${isRunning ? 'Pause' : 'Start Timer'}
+              </button>
+            </div>
+
+            <div class="subtask-tree">
+              ${task.subtasks.map(sub => `
+                <div class="subtask-card ${sub.completed ? 'completed' : ''}" 
+                     draggable="true" 
+                     ondragstart="handleSubtaskDragStart(event, '${task.id}', '${sub.id}')"
+                     ondragend="handleSubtaskDragEnd(event)"
+                     ondragover="handleSubtaskDragOver(event, '${task.id}', '${sub.id}')">
+                  <div class="subtask-grid">
+                    <span class="drag-handle" style="font-size:0.8rem;">⋮⋮</span>
+                    <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer;">
+                    <span class="sub-title">${sub.title}</span>
+                    <div class="flex-gap">
+                      <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="openSubtaskModal('${task.id}', '${sub.id}')">Edit</button>
+                      <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="deleteSubtask('${task.id}', '${sub.id}')">✕</button>
+                    </div>
+                    ${sub.description ? `<span class="sub-desc">${sub.description}</span>` : ''}
+                  </div>
+
+                  ${(sub.tags && sub.tags.length > 0) ? `
+                    <div style="display:flex; gap:3px; margin-left:28px; margin-top:4px; flex-wrap:wrap;">
+                      ${sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.62rem; padding: 0px 5px;">#${st}</span>`).join('')}
+                    </div>
+                  ` : ''}
+                </div>
+              `).join('')}
+              
+              <button class="btn btn-secondary btn-sm" style="align-self: flex-start; margin-top: 2px;" onclick="openSubtaskModal('${task.id}')">
+                + Add Subtask
+              </button>
+            </div>
           </div>
         `;
         container.appendChild(card);
@@ -900,7 +1109,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v9';
+        const CACHE_NAME = 'todo-pwa-v11';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
