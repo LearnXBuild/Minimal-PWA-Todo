@@ -30,7 +30,7 @@
 
     /* Desktop Sidebar */
     aside { width: 250px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; }
-    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 80px; }
+    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 80px; width: 100%; min-width: 0; }
     
     .logo { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 32px; display: flex; align-items: center; gap: 10px; }
     .logo-dot { width: 10px; height: 10px; background: var(--text); border-radius: 50%; }
@@ -61,18 +61,18 @@
     .filter-chip { font-size: 0.75rem; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--border-dark); background: var(--surface); cursor: pointer; font-family: var(--font-mono); user-select: none; }
     .filter-chip.active { background: var(--text); color: var(--surface); border-color: var(--text); }
 
-    /* Task Floating Cards */
-    .task-list { display: flex; flex-direction: column; gap: 16px; }
-    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; background: var(--surface); box-shadow: var(--shadow-float); transition: transform 0.15s ease, box-shadow 0.15s ease; position: relative; }
+    /* Task Cards */
+    .task-list { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; background: var(--surface); box-shadow: var(--shadow-float); transition: transform 0.15s ease, box-shadow 0.15s ease; position: relative; width: 100%; box-sizing: border-box; overflow: hidden; }
     .task-card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.08); }
     .task-card.completed { opacity: 0.6; }
     .task-card.completed .task-title { text-decoration: line-through; }
     
-    .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
-    .task-title { font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 10px; }
+    .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; width: 100%; }
+    .task-title { font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 10px; min-width: 0; word-break: break-word; }
     .task-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
 
-    .pill { display: inline-flex; align-items: center; font-size: 0.72rem; padding: 3px 10px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); }
+    .pill { display: inline-flex; align-items: center; font-size: 0.72rem; padding: 3px 10px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .pill-tag { font-family: var(--font-sans); font-weight: 500; border: 1px solid rgba(0,0,0,0.1); }
 
     /* Progress bar */
@@ -80,9 +80,14 @@
     .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
     /* Subtasks */
-    .subtask-tree { margin-left: 12px; padding-left: 12px; border-left: 2px solid var(--border); margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
-    .subtask-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
-    .subtask-item.completed span { text-decoration: line-through; color: var(--text-muted); }
+    .subtask-tree { margin-left: 8px; padding-left: 12px; border-left: 2px solid var(--border); margin-top: 14px; display: flex; flex-direction: column; gap: 10px; width: calc(100% - 8px); box-sizing: border-box; }
+    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 10px 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px; width: 100%; box-sizing: border-box; }
+    .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
+    
+    .subtask-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; }
+    .subtask-main { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+    .sub-title { font-size: 0.88rem; font-weight: 500; word-break: break-word; min-width: 0; }
+    .sub-desc { font-size: 0.78rem; color: var(--text-muted); margin-left: 26px; word-break: break-word; }
 
     /* Timer Controls */
     .timer-badge { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.85rem; background: var(--surface-hover); padding: 6px 12px; border-radius: 8px; font-weight: 700; }
@@ -98,10 +103,6 @@
     /* Reports Grid */
     .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 16px; }
     .report-card { border: 1px solid var(--border); padding: 20px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
-
-    .color-picker { display: flex; gap: 8px; margin-top: 6px; }
-    .color-option { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-    .color-option.selected { border-color: var(--text); transform: scale(1.1); }
 
     .flex-gap { display: flex; gap: 8px; }
     .space-y { display: flex; flex-direction: column; gap: 12px; }
@@ -125,6 +126,9 @@
   </style>
 </head>
 <body>
+
+  <!-- Audio Element for iOS LockScreen MediaSession -->
+  <audio id="silent-audio" loop playsinline src="data:audio/mp3;base64,SUQ3BAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA////xAAAAAAAAAAAAAAAAAAAAAAAAAAA="></audio>
 
   <!-- DESKTOP SIDEBAR -->
   <aside>
@@ -189,7 +193,6 @@
         <input type="text" id="t-title" placeholder="Task Title">
         <textarea id="t-desc" placeholder="Description (optional)" rows="2"></textarea>
         
-        <!-- Single Project Selection -->
         <div>
           <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">PROJECT:</label>
           <div class="flex-gap">
@@ -198,13 +201,11 @@
           </div>
         </div>
 
-        <!-- Tags Selection -->
         <div>
           <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
           <input type="text" id="t-tags" placeholder="e.g. urgent, backend, bug">
         </div>
 
-        <!-- Dependency Selection -->
         <div>
           <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">DEPENDS ON:</label>
           <select id="t-dep"><option value="">None</option></select>
@@ -214,6 +215,29 @@
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
         <button class="btn" onclick="saveTask()">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADD/EDIT SUBTASK MODAL -->
+  <div class="modal-overlay" id="subtask-modal">
+    <div class="modal">
+      <h2 style="font-size: 1.1rem; margin-bottom: 14px; font-family: var(--font-mono);" id="submodal-title">Add Subtask</h2>
+      <input type="hidden" id="sub-parent-task-id">
+      <input type="hidden" id="sub-edit-id">
+      
+      <div class="space-y">
+        <input type="text" id="sub-title" placeholder="Subtask Title">
+        <textarea id="sub-desc" placeholder="Description (optional)" rows="2"></textarea>
+        <div>
+          <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
+          <input type="text" id="sub-tags" placeholder="e.g. review, fix">
+        </div>
+      </div>
+      
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('subtask-modal')">Cancel</button>
+        <button class="btn" onclick="saveSubtask()">Save Subtask</button>
       </div>
     </div>
   </div>
@@ -243,13 +267,11 @@
 
     let selectedFilterTags = new Set();
     let activeTimer = null;
-    let audioCtx = null; // For Lock Screen Session Support
 
     function saveData() {
       localStorage.setItem('claude_pwa_todo_v2', JSON.stringify(appData));
     }
 
-    // Color Helpers
     const PRESET_COLORS = ['#fee2e2', '#fef3c7', '#dcfce7', '#e0e7ff', '#f3e8ff', '#fce7f3'];
     function getRandomColor() {
       return PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)];
@@ -268,7 +290,7 @@
       if (tab === 'reports') renderReports();
     }
 
-    // --- TASK MODAL (ADD & UPDATE) ---
+    /* --- TASK MODAL --- */
     function openTaskModal(taskId = null) {
       const depSelect = document.getElementById('t-dep');
       depSelect.innerHTML = '<option value="">None</option>';
@@ -327,7 +349,6 @@
       });
 
       if (editId) {
-        // Update Existing Task
         const task = appData.tasks.find(t => t.id === editId);
         if (task) {
           task.title = title;
@@ -337,7 +358,6 @@
           task.dependsOn = dependsOn || null;
         }
       } else {
-        // Create New Task
         appData.tasks.push({
           id: 'task_' + Date.now(),
           title,
@@ -373,16 +393,67 @@
       renderTasks();
     }
 
-    // --- SUBTASKS ---
-    function addSubtask(taskId) {
-      const input = document.getElementById(`sub-input-${taskId}`);
-      const val = input.value.trim();
-      if (!val) return;
+    /* --- RICH SUBTASK MODAL --- */
+    function openSubtaskModal(parentTaskId, subId = null) {
+      document.getElementById('sub-parent-task-id').value = parentTaskId;
+      document.getElementById('sub-edit-id').value = subId || '';
 
-      const task = appData.tasks.find(t => t.id === taskId);
+      if (subId) {
+        const task = appData.tasks.find(t => t.id === parentTaskId);
+        const sub = task ? task.subtasks.find(s => s.id === subId) : null;
+        if (sub) {
+          document.getElementById('submodal-title').innerText = 'Edit Subtask';
+          document.getElementById('sub-title').value = sub.title;
+          document.getElementById('sub-desc').value = sub.description || '';
+          document.getElementById('sub-tags').value = sub.tags ? sub.tags.join(', ') : '';
+        }
+      } else {
+        document.getElementById('submodal-title').innerText = 'Add Subtask';
+        document.getElementById('sub-title').value = '';
+        document.getElementById('sub-desc').value = '';
+        document.getElementById('sub-tags').value = '';
+      }
+
+      document.getElementById('subtask-modal').style.display = 'flex';
+    }
+
+    function saveSubtask() {
+      const parentTaskId = document.getElementById('sub-parent-task-id').value;
+      const subId = document.getElementById('sub-edit-id').value;
+      const title = document.getElementById('sub-title').value.trim();
+      
+      if (!title) return;
+
+      const desc = document.getElementById('sub-desc').value;
+      const tags = document.getElementById('sub-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+
+      tags.forEach(tag => {
+        if (!appData.tagColors[tag]) {
+          appData.tagColors[tag] = getRandomColor();
+        }
+      });
+
+      const task = appData.tasks.find(t => t.id === parentTaskId);
       if (task) {
-        task.subtasks.push({ id: 'sub_' + Date.now(), title: val, completed: false });
+        if (subId) {
+          const sub = task.subtasks.find(s => s.id === subId);
+          if (sub) {
+            sub.title = title;
+            sub.description = desc;
+            sub.tags = tags;
+          }
+        } else {
+          task.subtasks.push({
+            id: 'sub_' + Date.now(),
+            title,
+            description: desc,
+            tags,
+            completed: false
+          });
+        }
         saveData();
+        closeModal('subtask-modal');
+        renderTagFilters();
         renderTasks();
       }
     }
@@ -397,29 +468,39 @@
       }
     }
 
-    // --- TIMER & APPLE LOCKSCREEN INTEGRATION ---
-    function setupLockScreenMediaSession(taskTitle) {
+    function deleteSubtask(taskId, subId) {
+      const task = appData.tasks.find(t => t.id === taskId);
+      if (task) {
+        task.subtasks = task.subtasks.filter(s => s.id !== subId);
+        saveData();
+        renderTasks();
+      }
+    }
+
+    /* --- APPLE LOCKSCREEN MEDIA SESSION --- */
+    function updateLockScreenMedia(taskTitle, formattedTime) {
       if ('mediaSession' in navigator) {
+        const audio = document.getElementById('silent-audio');
+        if (audio.paused) {
+          audio.play().catch(() => {});
+        }
+
         navigator.mediaSession.metadata = new MediaMetadata({
           title: taskTitle,
-          artist: "Task Workspace Timer",
-          album: "Active Task Focus"
+          artist: `Time Tracked: ${formattedTime}`,
+          album: "Workspace Focus Timer"
         });
-
-        // Silent Audio Loop to trigger MediaSession background runtime on Mobile Safari
-        if (!audioCtx) {
-          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          gain.gain.value = 0.001; // Silent volume
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.start();
-        }
 
         navigator.mediaSession.setActionHandler('pause', () => {
           if (activeTimer) toggleTimer(activeTimer.taskId);
         });
+      }
+    }
+
+    function stopLockScreenMedia() {
+      if ('mediaSession' in navigator) {
+        const audio = document.getElementById('silent-audio');
+        audio.pause();
       }
     }
 
@@ -431,16 +512,21 @@
         const elapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
         if (task) task.timeSpent += elapsed;
         activeTimer = null;
+        stopLockScreenMedia();
         saveData();
         renderTasks();
       } else {
         if (activeTimer) toggleTimer(activeTimer.taskId);
+        
         activeTimer = {
           taskId,
           startTime: Date.now(),
           timerId: setInterval(() => updateTimerDisplay(taskId), 1000)
         };
-        if (task) setupLockScreenMediaSession(task.title);
+        
+        if (task) {
+          updateLockScreenMedia(task.title, formatTime(task.timeSpent));
+        }
         renderTasks();
       }
     }
@@ -451,7 +537,13 @@
         const currentElapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
         const task = appData.tasks.find(t => t.id === taskId);
         const total = (task ? task.timeSpent : 0) + currentElapsed;
-        el.innerText = formatTime(total);
+        const formatted = formatTime(total);
+        
+        el.innerText = formatted;
+        
+        if (task) {
+          updateLockScreenMedia(task.title, formatted);
+        }
       }
     }
 
@@ -462,13 +554,16 @@
       return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
     }
 
-    // --- SEARCH & FILTERING ---
+    /* --- RENDER TASKS & TAGS --- */
     function renderTagFilters() {
       const container = document.getElementById('tag-filters');
       container.innerHTML = '';
       
       const allTags = new Set();
-      appData.tasks.forEach(t => (t.tags || []).forEach(tag => allTags.add(tag)));
+      appData.tasks.forEach(t => {
+        (t.tags || []).forEach(tag => allTags.add(tag));
+        (t.subtasks || []).forEach(sub => (sub.tags || []).forEach(tag => allTags.add(tag)));
+      });
 
       allTags.forEach(tag => {
         const chip = document.createElement('span');
@@ -514,10 +609,10 @@
         card.innerHTML = `
           <div class="task-header">
             <div class="task-title">
-              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 18px; height: 18px; cursor: pointer;">
+              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;">
               <span>${task.title}</span>
             </div>
-            <div class="flex-gap">
+            <div class="flex-gap" style="flex-shrink: 0;">
               <button class="btn btn-secondary btn-sm" onclick="openTaskModal('${task.id}')">Edit</button>
               <button class="btn btn-secondary btn-sm" onclick="deleteTask('${task.id}')">Delete</button>
             </div>
@@ -545,24 +640,41 @@
             </button>
           </div>
 
+          <!-- SUBTASKS CONTAINER -->
           <div class="subtask-tree">
             ${task.subtasks.map(sub => `
-              <div class="subtask-item ${sub.completed ? 'completed' : ''}">
-                <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')">
-                <span>${sub.title}</span>
+              <div class="subtask-card ${sub.completed ? 'completed' : ''}">
+                <div class="subtask-header">
+                  <div class="subtask-main">
+                    <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer; flex-shrink: 0;">
+                    <span class="sub-title">${sub.title}</span>
+                  </div>
+                  <div class="flex-gap">
+                    <button class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="openSubtaskModal('${task.id}', '${sub.id}')">Edit</button>
+                    <button class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="deleteSubtask('${task.id}', '${sub.id}')">✕</button>
+                  </div>
+                </div>
+
+                ${sub.description ? `<div class="sub-desc">${sub.description}</div>` : ''}
+
+                ${(sub.tags && sub.tags.length > 0) ? `
+                  <div style="display:flex; gap:4px; margin-left:26px; margin-top:4px; flex-wrap:wrap;">
+                    ${sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.65rem; padding: 1px 6px;">#${st}</span>`).join('')}
+                  </div>
+                ` : ''}
               </div>
             `).join('')}
-            <div class="flex-gap" style="margin-top: 6px;">
-              <input type="text" id="sub-input-${task.id}" placeholder="Add subtask..." style="padding: 6px 10px; font-size: 0.8rem;">
-              <button class="btn btn-secondary btn-sm" onclick="addSubtask('${task.id}')">Add</button>
-            </div>
+            
+            <button class="btn btn-secondary btn-sm" style="align-self: flex-start; margin-top: 4px;" onclick="openSubtaskModal('${task.id}')">
+              + Add Subtask
+            </button>
           </div>
         `;
         container.appendChild(card);
       });
     }
 
-    // --- DEPENDENCY GRAPH ---
+    /* --- DEPENDENCY GRAPH & REPORTS --- */
     function renderGraph() {
       const canvas = document.getElementById('graph-canvas');
       const ctx = canvas.getContext('2d');
@@ -608,7 +720,6 @@
       });
     }
 
-    // --- REPORTS ---
     function openProjectLimitModal() {
       document.getElementById('p-name').value = '';
       document.getElementById('p-limit').value = '';
@@ -672,7 +783,7 @@
       });
     }
 
-    // PWA Setup
+    /* --- PWA SETUP --- */
     const manifestBlob = new Blob([JSON.stringify({
       name: "Minimal Task Workspace",
       short_name: "Tasks",
@@ -686,7 +797,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v3';
+        const CACHE_NAME = 'todo-pwa-v5';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
