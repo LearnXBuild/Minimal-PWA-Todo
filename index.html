@@ -6,127 +6,117 @@
   <title>Minimal Task Workspace</title>
   <meta name="theme-color" content="#18181b">
   <link rel="manifest" id="pwa-manifest">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #ffffff;
-      --surface: #fcfcfc;
-      --surface-hover: #f4f4f5;
-      --border: #e4e4e7;
-      --text: #09090b;
-      --text-muted: #71717a;
-      --pill-bg: #f4f4f5;
-      --pill-border: #d4d4d8;
-      --radius: 8px;
+      --bg: #f8f9fa;
+      --surface: #ffffff;
+      --surface-hover: #f1f3f5;
+      --border: #e9ecef;
+      --border-dark: #ced4da;
+      --text: #111827;
+      --text-muted: #6b7280;
+      --radius: 12px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.06);
+      --shadow-float: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      --font-mono: 'Space Mono', monospace;
+      --font-sans: 'Inter', -apple-system, sans-serif;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-sans); }
     body { background: var(--bg); color: var(--text); display: flex; height: 100vh; height: 100dvh; overflow: hidden; flex-direction: row; }
 
     /* Desktop Sidebar */
-    aside { width: 240px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 20px; flex-shrink: 0; }
-    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 70px; }
+    aside { width: 250px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; }
+    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 80px; }
     
-    .logo { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 28px; display: flex; align-items: center; gap: 8px; }
-    .logo-dot { width: 8px; height: 8px; background: var(--text); border-radius: 50%; }
+    .logo { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 32px; display: flex; align-items: center; gap: 10px; }
+    .logo-dot { width: 10px; height: 10px; background: var(--text); border-radius: 50%; }
 
-    nav { display: flex; flex-direction: column; gap: 4px; }
-    nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 10px 12px; background: none; border: none; border-radius: var(--radius); font-size: 0.9rem; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s ease; }
+    nav { display: flex; flex-direction: column; gap: 6px; }
+    nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 10px 14px; background: none; border: none; border-radius: var(--radius); font-size: 0.88rem; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s ease; }
     nav button.active, nav button:hover { background: var(--surface-hover); color: var(--text); }
 
-    .content-section { display: none; padding: 24px; max-width: 900px; margin: 0 auto; width: 100%; }
+    .content-section { display: none; padding: 32px; max-width: 960px; margin: 0 auto; width: 100%; }
     .content-section.active { display: block; }
 
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; }
-    h1 { font-size: 1.3rem; font-weight: 600; letter-spacing: -0.02em; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); gap: 12px; }
+    h1 { font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
 
     /* Buttons & Inputs */
-    .btn { background: var(--text); color: var(--bg); border: none; padding: 8px 14px; border-radius: var(--radius); font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn { background: var(--text); color: #fff; border: none; padding: 8px 16px; border-radius: var(--radius); font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: transform 0.1s ease; }
+    .btn:active { transform: scale(0.98); }
+    .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border-dark); }
     .btn-secondary:hover { background: var(--surface-hover); }
-    .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
+    .btn-sm { padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; }
 
-    input, select, textarea { border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-size: 0.9rem; width: 100%; background: var(--bg); color: var(--text); outline: none; }
+    input, select, textarea { border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 10px 14px; font-size: 0.88rem; width: 100%; background: var(--surface); color: var(--text); outline: none; }
     input:focus, select:focus, textarea:focus { border-color: var(--text); }
 
-    /* Task Card & Subtasks */
-    .task-list { display: flex; flex-direction: column; gap: 12px; }
-    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; background: var(--bg); transition: border-color 0.15s ease; }
-    
-    .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
-    .task-title { font-weight: 600; font-size: 0.95rem; }
-    .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 10px 0; }
+    /* Search & Filters */
+    .filter-bar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; background: var(--surface); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+    .filter-pills { display: flex; flex-wrap: wrap; gap: 8px; }
+    .filter-chip { font-size: 0.75rem; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--border-dark); background: var(--surface); cursor: pointer; font-family: var(--font-mono); user-select: none; }
+    .filter-chip.active { background: var(--text); color: var(--surface); border-color: var(--text); }
 
-    .pill { display: inline-flex; align-items: center; font-size: 0.72rem; padding: 2px 8px; border-radius: 99px; background: var(--pill-bg); border: 1px solid var(--pill-border); font-weight: 500; }
-    .pill-tag { border-style: dashed; }
+    /* Task Floating Cards */
+    .task-list { display: flex; flex-direction: column; gap: 16px; }
+    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; background: var(--surface); box-shadow: var(--shadow-float); transition: transform 0.15s ease, box-shadow 0.15s ease; position: relative; }
+    .task-card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.08); }
+    .task-card.completed { opacity: 0.6; }
+    .task-card.completed .task-title { text-decoration: line-through; }
+    
+    .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; }
+    .task-title { font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 10px; }
+    .task-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+
+    .pill { display: inline-flex; align-items: center; font-size: 0.72rem; padding: 3px 10px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); }
+    .pill-tag { font-family: var(--font-sans); font-weight: 500; border: 1px solid rgba(0,0,0,0.1); }
 
     /* Progress bar */
-    .progress-bar { width: 100%; height: 4px; background: var(--surface-hover); border-radius: 2px; overflow: hidden; margin: 8px 0; }
+    .progress-bar { width: 100%; height: 6px; background: var(--surface-hover); border-radius: 3px; overflow: hidden; margin: 10px 0; }
     .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
-    /* Subtask tree */
-    .subtask-tree { margin-left: 12px; padding-left: 10px; border-left: 2px solid var(--border); margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+    /* Subtasks */
+    .subtask-tree { margin-left: 12px; padding-left: 12px; border-left: 2px solid var(--border); margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
     .subtask-item { display: flex; align-items: center; gap: 8px; font-size: 0.85rem; }
     .subtask-item.completed span { text-decoration: line-through; color: var(--text-muted); }
 
     /* Timer Controls */
-    .timer-badge { display: flex; align-items: center; gap: 8px; font-family: monospace; font-size: 0.82rem; background: var(--surface-hover); padding: 4px 8px; border-radius: var(--radius); }
+    .timer-badge { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.85rem; background: var(--surface-hover); padding: 6px 12px; border-radius: 8px; font-weight: 700; }
 
     /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
-    .modal { background: var(--bg); border-radius: var(--radius); width: 100%; max-width: 480px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
+    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 520px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
 
     /* Graph Canvas */
-    #graph-canvas { width: 100%; height: 400px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    #graph-canvas { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
 
     /* Reports Grid */
-    .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-top: 16px; }
-    .report-card { border: 1px solid var(--border); padding: 16px; border-radius: var(--radius); background: var(--surface); }
+    .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 16px; }
+    .report-card { border: 1px solid var(--border); padding: 20px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
+
+    .color-picker { display: flex; gap: 8px; margin-top: 6px; }
+    .color-option { width: 24px; height: 24px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+    .color-option.selected { border-color: var(--text); transform: scale(1.1); }
 
     .flex-gap { display: flex; gap: 8px; }
-    .space-y { display: flex; flex-direction: column; gap: 10px; }
+    .space-y { display: flex; flex-direction: column; gap: 12px; }
 
-    /* MOBILE BREAKPOINT STYLES */
     @media (max-width: 640px) {
       body { flex-direction: column; }
-      aside { display: none; } /* Hide sidebar on mobile */
-      
-      main { padding-bottom: 80px; }
+      aside { display: none; }
+      main { padding-bottom: 90px; }
       .content-section { padding: 16px; }
 
-      /* Mobile Bottom Navigation Bar */
       .mobile-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 60px;
-        background: var(--bg);
-        border-top: 1px solid var(--border);
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        z-index: 50;
-        padding-bottom: env(safe-area-inset-bottom, 0px);
+        position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -4px 10px rgba(0,0,0,0.03);
       }
-
-      .mobile-nav button {
-        background: none;
-        border: none;
-        font-size: 0.75rem;
-        font-weight: 500;
-        color: var(--text-muted);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        padding: 6px;
-      }
-
-      .mobile-nav button.active {
-        color: var(--text);
-        font-weight: 600;
-      }
+      .mobile-nav button { background: none; border: none; font-size: 0.75rem; font-weight: 500; font-family: var(--font-mono); color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; }
+      .mobile-nav button.active { color: var(--text); font-weight: 700; }
     }
 
     @media (min-width: 641px) {
@@ -138,7 +128,7 @@
 
   <!-- DESKTOP SIDEBAR -->
   <aside>
-    <div class="logo"><div class="logo-dot"></div> Workspace</div>
+    <div class="logo"><div class="logo-dot"></div> WORKSPACE</div>
     <nav>
       <button class="nav-btn active" onclick="switchTab('tasks', this)">Tasks & Subtasks</button>
       <button class="nav-btn" onclick="switchTab('graph', this)">Dependency Graph</button>
@@ -150,16 +140,24 @@
     <!-- TASKS SECTION -->
     <section id="sec-tasks" class="content-section active">
       <header>
-        <h1>Tasks</h1>
+        <h1>TASKS</h1>
         <button class="btn" onclick="openTaskModal()">+ Add Task</button>
       </header>
+
+      <!-- SEARCH & FILTERS -->
+      <div class="filter-bar">
+        <input type="text" id="search-input" placeholder="Search tasks by title..." oninput="renderTasks()">
+        <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">FILTER BY TAGS:</div>
+        <div class="filter-pills" id="tag-filters"></div>
+      </div>
+
       <div class="task-list" id="task-container"></div>
     </section>
 
     <!-- DEPENDENCY GRAPH SECTION -->
     <section id="sec-graph" class="content-section">
       <header>
-        <h1>Dependency Graph</h1>
+        <h1>DEPENDENCY GRAPH</h1>
       </header>
       <canvas id="graph-canvas"></canvas>
     </section>
@@ -167,8 +165,8 @@
     <!-- REPORTS SECTION -->
     <section id="sec-reports" class="content-section">
       <header>
-        <h1>Reports & Limits</h1>
-        <button class="btn btn-secondary" onclick="openProjectLimitModal()">Limits</button>
+        <h1>REPORTS & LIMITS</h1>
+        <button class="btn btn-secondary" onclick="openProjectLimitModal()">Project Limits</button>
       </header>
       <div class="report-grid" id="report-container"></div>
     </section>
@@ -184,17 +182,35 @@
   <!-- ADD/EDIT TASK MODAL -->
   <div class="modal-overlay" id="task-modal">
     <div class="modal">
-      <h2 style="font-size: 1.1rem; margin-bottom: 12px;" id="modal-title">Create Task</h2>
+      <h2 style="font-size: 1.1rem; margin-bottom: 14px; font-family: var(--font-mono);" id="modal-title">Create Task</h2>
+      <input type="hidden" id="edit-task-id">
+      
       <div class="space-y">
         <input type="text" id="t-title" placeholder="Task Title">
         <textarea id="t-desc" placeholder="Description (optional)" rows="2"></textarea>
-        <input type="text" id="t-projects" placeholder="Projects (e.g. Mobile, Core)">
-        <input type="text" id="t-tags" placeholder="Tags (e.g. bug, high-prio)">
+        
+        <!-- Single Project Selection -->
         <div>
-          <label style="font-size: 0.75rem; color: var(--text-muted); display: block; margin-bottom: 4px;">Depends On:</label>
+          <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">PROJECT:</label>
+          <div class="flex-gap">
+            <input type="text" id="t-project" placeholder="Project Name (e.g. Core App)">
+            <input type="color" id="t-project-color" value="#e2e8f0" style="width: 50px; padding: 2px; height: 38px; cursor: pointer;">
+          </div>
+        </div>
+
+        <!-- Tags Selection -->
+        <div>
+          <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
+          <input type="text" id="t-tags" placeholder="e.g. urgent, backend, bug">
+        </div>
+
+        <!-- Dependency Selection -->
+        <div>
+          <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">DEPENDS ON:</label>
           <select id="t-dep"><option value="">None</option></select>
         </div>
       </div>
+      
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
         <button class="btn" onclick="saveTask()">Save Task</button>
@@ -205,7 +221,7 @@
   <!-- CONFIGURE LIMITS MODAL -->
   <div class="modal-overlay" id="limit-modal">
     <div class="modal">
-      <h2 style="font-size: 1.1rem; margin-bottom: 12px;">Set Project Time Limit</h2>
+      <h2 style="font-size: 1.1rem; margin-bottom: 14px; font-family: var(--font-mono);">Set Project Time Limit</h2>
       <div class="space-y">
         <input type="text" id="p-name" placeholder="Project Name">
         <input type="number" id="p-limit" placeholder="Target Hours Limit">
@@ -218,15 +234,25 @@
   </div>
 
   <script>
-    let appData = JSON.parse(localStorage.getItem('claude_pwa_todo')) || {
+    let appData = JSON.parse(localStorage.getItem('claude_pwa_todo_v2')) || {
       tasks: [],
-      projectLimits: {}
+      projectLimits: {},
+      projectColors: {},
+      tagColors: {}
     };
 
+    let selectedFilterTags = new Set();
     let activeTimer = null;
+    let audioCtx = null; // For Lock Screen Session Support
 
     function saveData() {
-      localStorage.setItem('claude_pwa_todo', JSON.stringify(appData));
+      localStorage.setItem('claude_pwa_todo_v2', JSON.stringify(appData));
+    }
+
+    // Color Helpers
+    const PRESET_COLORS = ['#fee2e2', '#fef3c7', '#dcfce7', '#e0e7ff', '#f3e8ff', '#fce7f3'];
+    function getRandomColor() {
+      return PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)];
     }
 
     function switchTab(tab, element) {
@@ -242,17 +268,36 @@
       if (tab === 'reports') renderReports();
     }
 
-    function openTaskModal() {
-      document.getElementById('t-title').value = '';
-      document.getElementById('t-desc').value = '';
-      document.getElementById('t-projects').value = '';
-      document.getElementById('t-tags').value = '';
-
+    // --- TASK MODAL (ADD & UPDATE) ---
+    function openTaskModal(taskId = null) {
       const depSelect = document.getElementById('t-dep');
       depSelect.innerHTML = '<option value="">None</option>';
+      
       appData.tasks.forEach(t => {
-        depSelect.innerHTML += `<option value="${t.id}">${t.title}</option>`;
+        if (t.id !== taskId) {
+          depSelect.innerHTML += `<option value="${t.id}">${t.title}</option>`;
+        }
       });
+
+      if (taskId) {
+        const task = appData.tasks.find(t => t.id === taskId);
+        document.getElementById('modal-title').innerText = 'Edit Task';
+        document.getElementById('edit-task-id').value = task.id;
+        document.getElementById('t-title').value = task.title;
+        document.getElementById('t-desc').value = task.description || '';
+        document.getElementById('t-project').value = task.project || '';
+        document.getElementById('t-project-color').value = appData.projectColors[task.project] || '#e2e8f0';
+        document.getElementById('t-tags').value = task.tags ? task.tags.join(', ') : '';
+        document.getElementById('t-dep').value = task.dependsOn || '';
+      } else {
+        document.getElementById('modal-title').innerText = 'Create Task';
+        document.getElementById('edit-task-id').value = '';
+        document.getElementById('t-title').value = '';
+        document.getElementById('t-desc').value = '';
+        document.getElementById('t-project').value = '';
+        document.getElementById('t-tags').value = '';
+        document.getElementById('t-dep').value = '';
+      }
 
       document.getElementById('task-modal').style.display = 'flex';
     }
@@ -265,26 +310,70 @@
       const title = document.getElementById('t-title').value.trim();
       if (!title) return;
 
-      const projects = document.getElementById('t-projects').value.split(',').map(p => p.trim()).filter(Boolean);
-      const tags = document.getElementById('t-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+      const editId = document.getElementById('edit-task-id').value;
+      const project = document.getElementById('t-project').value.trim();
+      const projColor = document.getElementById('t-project-color').value;
+      const tags = document.getElementById('t-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
       const dependsOn = document.getElementById('t-dep').value;
 
-      appData.tasks.push({
-        id: 'task_' + Date.now(),
-        title,
-        description: document.getElementById('t-desc').value,
-        projects,
-        tags,
-        dependsOn: dependsOn || null,
-        subtasks: [],
-        timeSpent: 0
+      if (project) {
+        appData.projectColors[project] = projColor;
+      }
+
+      tags.forEach(tag => {
+        if (!appData.tagColors[tag]) {
+          appData.tagColors[tag] = getRandomColor();
+        }
       });
+
+      if (editId) {
+        // Update Existing Task
+        const task = appData.tasks.find(t => t.id === editId);
+        if (task) {
+          task.title = title;
+          task.description = document.getElementById('t-desc').value;
+          task.project = project;
+          task.tags = tags;
+          task.dependsOn = dependsOn || null;
+        }
+      } else {
+        // Create New Task
+        appData.tasks.push({
+          id: 'task_' + Date.now(),
+          title,
+          description: document.getElementById('t-desc').value,
+          project,
+          tags,
+          dependsOn: dependsOn || null,
+          completed: false,
+          subtasks: [],
+          timeSpent: 0
+        });
+      }
 
       saveData();
       closeModal('task-modal');
+      renderTagFilters();
       renderTasks();
     }
 
+    function toggleTaskComplete(taskId) {
+      const task = appData.tasks.find(t => t.id === taskId);
+      if (task) {
+        task.completed = !task.completed;
+        saveData();
+        renderTasks();
+      }
+    }
+
+    function deleteTask(id) {
+      appData.tasks = appData.tasks.filter(t => t.id !== id);
+      saveData();
+      renderTagFilters();
+      renderTasks();
+    }
+
+    // --- SUBTASKS ---
     function addSubtask(taskId) {
       const input = document.getElementById(`sub-input-${taskId}`);
       const val = input.value.trim();
@@ -308,17 +397,38 @@
       }
     }
 
-    function deleteTask(id) {
-      appData.tasks = appData.tasks.filter(t => t.id !== id);
-      saveData();
-      renderTasks();
+    // --- TIMER & APPLE LOCKSCREEN INTEGRATION ---
+    function setupLockScreenMediaSession(taskTitle) {
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: taskTitle,
+          artist: "Task Workspace Timer",
+          album: "Active Task Focus"
+        });
+
+        // Silent Audio Loop to trigger MediaSession background runtime on Mobile Safari
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          gain.gain.value = 0.001; // Silent volume
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start();
+        }
+
+        navigator.mediaSession.setActionHandler('pause', () => {
+          if (activeTimer) toggleTimer(activeTimer.taskId);
+        });
+      }
     }
 
     function toggleTimer(taskId) {
+      const task = appData.tasks.find(t => t.id === taskId);
+
       if (activeTimer && activeTimer.taskId === taskId) {
         clearInterval(activeTimer.timerId);
         const elapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
-        const task = appData.tasks.find(t => t.id === taskId);
         if (task) task.timeSpent += elapsed;
         activeTimer = null;
         saveData();
@@ -330,6 +440,7 @@
           startTime: Date.now(),
           timerId: setInterval(() => updateTimerDisplay(taskId), 1000)
         };
+        if (task) setupLockScreenMediaSession(task.title);
         renderTasks();
       }
     }
@@ -351,49 +462,86 @@
       return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
     }
 
+    // --- SEARCH & FILTERING ---
+    function renderTagFilters() {
+      const container = document.getElementById('tag-filters');
+      container.innerHTML = '';
+      
+      const allTags = new Set();
+      appData.tasks.forEach(t => (t.tags || []).forEach(tag => allTags.add(tag)));
+
+      allTags.forEach(tag => {
+        const chip = document.createElement('span');
+        chip.className = `filter-chip ${selectedFilterTags.has(tag) ? 'active' : ''}`;
+        chip.innerText = `#${tag}`;
+        chip.onclick = () => {
+          if (selectedFilterTags.has(tag)) selectedFilterTags.delete(tag);
+          else selectedFilterTags.add(tag);
+          renderTagFilters();
+          renderTasks();
+        };
+        container.appendChild(chip);
+      });
+    }
+
     function renderTasks() {
       const container = document.getElementById('task-container');
+      const searchQuery = document.getElementById('search-input').value.toLowerCase();
       container.innerHTML = '';
 
-      if (appData.tasks.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px 0;">No tasks created yet.</div>`;
+      let filtered = appData.tasks.filter(task => {
+        const matchesSearch = task.title.toLowerCase().includes(searchQuery);
+        const matchesTags = selectedFilterTags.size === 0 || 
+          Array.from(selectedFilterTags).every(t => (task.tags || []).includes(t));
+        return matchesSearch && matchesTags;
+      });
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px 0; font-family: var(--font-mono);">No matching tasks found.</div>`;
         return;
       }
 
-      appData.tasks.forEach(task => {
+      filtered.forEach(task => {
         const totalSub = task.subtasks.length;
         const doneSub = task.subtasks.filter(s => s.completed).length;
         const progressPct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
         const isRunning = activeTimer && activeTimer.taskId === task.id;
 
+        const projColor = appData.projectColors[task.project] || '#e2e8f0';
+
         const card = document.createElement('div');
-        card.className = 'task-card';
+        card.className = `task-card ${task.completed ? 'completed' : ''}`;
         card.innerHTML = `
           <div class="task-header">
-            <div>
-              <div class="task-title">${task.title}</div>
-              ${task.description ? `<div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">${task.description}</div>` : ''}
+            <div class="task-title">
+              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 18px; height: 18px; cursor: pointer;">
+              <span>${task.title}</span>
             </div>
-            <button class="btn btn-secondary btn-sm" onclick="deleteTask('${task.id}')">Delete</button>
+            <div class="flex-gap">
+              <button class="btn btn-secondary btn-sm" onclick="openTaskModal('${task.id}')">Edit</button>
+              <button class="btn btn-secondary btn-sm" onclick="deleteTask('${task.id}')">Delete</button>
+            </div>
           </div>
+
+          ${task.description ? `<div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">${task.description}</div>` : ''}
 
           <div class="task-meta">
-            ${task.projects.map(p => `<span class="pill">${p}</span>`).join('')}
-            ${task.tags.map(t => `<span class="pill pill-tag">#${t}</span>`).join('')}
+            ${task.project ? `<span class="pill" style="background:${projColor}; color:#1e293b;">${task.project}</span>` : ''}
+            ${(task.tags || []).map(t => `<span class="pill pill-tag" style="background:${appData.tagColors[t] || '#f1f5f9'};">#${t}</span>`).join('')}
           </div>
 
-          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; font-family: var(--font-mono);">
             <span>Progress</span>
             <span>${doneSub}/${totalSub} (${progressPct}%)</span>
           </div>
           <div class="progress-bar"><div class="progress-fill" style="width: ${progressPct}%"></div></div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px;">
             <div class="timer-badge">
               <span id="timer-val-${task.id}">${formatTime(task.timeSpent)}</span>
             </div>
             <button class="btn btn-sm ${isRunning ? 'btn-secondary' : ''}" onclick="toggleTimer('${task.id}')">
-              ${isRunning ? 'Pause' : 'Start'}
+              ${isRunning ? 'Pause' : 'Start Timer'}
             </button>
           </div>
 
@@ -404,9 +552,8 @@
                 <span>${sub.title}</span>
               </div>
             `).join('')}
-            
-            <div class="flex-gap" style="margin-top: 4px;">
-              <input type="text" id="sub-input-${task.id}" placeholder="Add subtask..." style="padding: 4px 8px; font-size: 0.8rem;">
+            <div class="flex-gap" style="margin-top: 6px;">
+              <input type="text" id="sub-input-${task.id}" placeholder="Add subtask..." style="padding: 6px 10px; font-size: 0.8rem;">
               <button class="btn btn-secondary btn-sm" onclick="addSubtask('${task.id}')">Add</button>
             </div>
           </div>
@@ -415,20 +562,20 @@
       });
     }
 
+    // --- DEPENDENCY GRAPH ---
     function renderGraph() {
       const canvas = document.getElementById('graph-canvas');
       const ctx = canvas.getContext('2d');
-      canvas.width = canvas.parentElement.clientWidth - 32;
-      canvas.height = 360;
+      canvas.width = canvas.parentElement.clientWidth - 64;
+      canvas.height = 400;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-
       if (appData.tasks.length === 0) return;
 
       const nodes = appData.tasks.map((t, i) => ({
         ...t,
-        x: 60 + (i % 2) * (canvas.width - 120),
-        y: 60 + Math.floor(i / 2) * 80
+        x: 80 + (i % 2) * (canvas.width - 160),
+        y: 60 + Math.floor(i / 2) * 90
       }));
 
       nodes.forEach(node => {
@@ -438,7 +585,7 @@
             ctx.beginPath();
             ctx.moveTo(target.x, target.y);
             ctx.lineTo(node.x, node.y);
-            ctx.strokeStyle = '#a1a1aa';
+            ctx.strokeStyle = '#94a3b8';
             ctx.lineWidth = 2;
             ctx.stroke();
           }
@@ -447,20 +594,21 @@
 
       nodes.forEach(node => {
         ctx.fillStyle = '#ffffff';
-        ctx.strokeStyle = '#09090b';
+        ctx.strokeStyle = '#1e293b';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.roundRect(node.x - 50, node.y - 18, 100, 36, 6);
+        ctx.roundRect(node.x - 60, node.y - 20, 120, 40, 8);
         ctx.fill();
         ctx.stroke();
 
-        ctx.fillStyle = '#09090b';
-        ctx.font = '11px -apple-system, sans-serif';
+        ctx.fillStyle = '#0f172a';
+        ctx.font = '11px Space Mono, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText(node.title.length > 10 ? node.title.slice(0, 9) + '...' : node.title, node.x, node.y + 4);
+        ctx.fillText(node.title.length > 12 ? node.title.slice(0, 10) + '...' : node.title, node.x, node.y + 4);
       });
     }
 
+    // --- REPORTS ---
     function openProjectLimitModal() {
       document.getElementById('p-name').value = '';
       document.getElementById('p-limit').value = '';
@@ -484,15 +632,15 @@
 
       const projectTimes = {};
       appData.tasks.forEach(task => {
-        task.projects.forEach(p => {
-          projectTimes[p] = (projectTimes[p] || 0) + task.timeSpent;
-        });
+        if (task.project) {
+          projectTimes[task.project] = (projectTimes[task.project] || 0) + task.timeSpent;
+        }
       });
 
       const allProjects = new Set([...Object.keys(projectTimes), ...Object.keys(appData.projectLimits)]);
 
       if (allProjects.size === 0) {
-        container.innerHTML = `<div style="color: var(--text-muted); font-size: 0.9rem;">No project data recorded.</div>`;
+        container.innerHTML = `<div style="color: var(--text-muted); font-family: var(--font-mono);">No project time tracked yet.</div>`;
         return;
       }
 
@@ -512,8 +660,8 @@
         const card = document.createElement('div');
         card.className = 'report-card';
         card.innerHTML = `
-          <div style="font-weight: 600; font-size: 1rem; margin-bottom: 4px;">${proj}</div>
-          <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px;">${statusText}</div>
+          <div style="font-weight: 700; font-family: var(--font-mono); font-size: 1rem; margin-bottom: 6px;">${proj}</div>
+          <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px;">${statusText}</div>
           ${limitHours ? `
             <div class="progress-bar">
               <div class="progress-fill" style="width: ${pct}%; background: ${pct >= 100 ? '#ef4444' : 'var(--text)'};"></div>
@@ -524,7 +672,7 @@
       });
     }
 
-    // PWA Manifest & Service Worker
+    // PWA Setup
     const manifestBlob = new Blob([JSON.stringify({
       name: "Minimal Task Workspace",
       short_name: "Tasks",
@@ -538,7 +686,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v2';
+        const CACHE_NAME = 'todo-pwa-v3';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
@@ -550,6 +698,7 @@
       navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
     }
 
+    renderTagFilters();
     renderTasks();
   </script>
 </body>
