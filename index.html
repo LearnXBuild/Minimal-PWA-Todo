@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimal Task Workspace</title>
+  <meta name="theme-color" content="#18181b">
+  <link rel="manifest" id="pwa-manifest">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --surface: #fcfcfc;
+      --surface-hover: #f4f4f5;
+      --border: #e4e4e7;
+      --text: #09090b;
+      --text-muted: #71717a;
+      --pill-bg: #f4f4f5;
+      --pill-border: #d4d4d8;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif; }
+    body { background: var(--bg); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+    /* Layout */
+    aside { width: 260px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 20px; }
+    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); }
+    
+    .logo { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; margin-bottom: 28px; display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; background: var(--text); border-radius: 50%; }
+
+    nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 10px 12px; background: none; border: none; border-radius: var(--radius); font-size: 0.9rem; font-weight: 500; color: var(--text-muted); cursor: pointer; margin-bottom: 4px; transition: all 0.15s ease; }
+    nav button.active, nav button:hover { background: var(--surface-hover); color: var(--text); }
+
+    .content-section { display: none; padding: 32px; max-width: 1000px; margin: 0 auto; width: 100%; }
+    .content-section.active { display: block; }
+
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+    h1 { font-size: 1.4rem; font-weight: 600; letter-spacing: -0.02em; }
+
+    /* Buttons & Inputs */
+    .btn { background: var(--text); color: var(--bg); border: none; padding: 8px 14px; border-radius: var(--radius); font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-secondary:hover { background: var(--surface-hover); }
+    .btn-sm { padding: 4px 8px; font-size: 0.75rem; }
+
+    input, select, textarea { border: 1px solid var(--border); border-radius: var(--radius); padding: 8px 12px; font-size: 0.9rem; width: 100%; background: var(--bg); color: var(--text); outline: none; }
+    input:focus, select:focus, textarea:focus { border-color: var(--text); }
+
+    /* Task Card & Subtasks */
+    .task-list { display: flex; flex-direction: column; gap: 12px; }
+    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; background: var(--bg); transition: border-color 0.15s ease; }
+    .task-card:hover { border-color: #a1a1aa; }
+    
+    .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 8px; }
+    .task-title { font-weight: 600; font-size: 1rem; }
+    .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 10px 0; }
+
+    .pill { display: inline-flex; align-items: center; font-size: 0.72rem; padding: 2px 8px; border-radius: 99px; background: var(--pill-bg); border: 1px solid var(--pill-border); font-weight: 500; }
+    .pill-tag { border-style: dashed; }
+
+    /* Progress bar */
+    .progress-bar { width: 100%; height: 4px; background: var(--surface-hover); border-radius: 2px; overflow: hidden; margin: 10px 0; }
+    .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
+
+    /* Subtask tree */
+    .subtask-tree { margin-left: 20px; padding-left: 12px; border-left: 2px solid var(--border); margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+    .subtask-item { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; }
+    .subtask-item.completed span { text-decoration: line-through; color: var(--text-muted); }
+
+    /* Timer Controls */
+    .timer-badge { display: flex; align-items: center; gap: 8px; font-family: monospace; font-size: 0.85rem; background: var(--surface-hover); padding: 4px 10px; border-radius: var(--radius); }
+
+    /* Modal */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: center; z-index: 100; }
+    .modal { background: var(--bg); border-radius: var(--radius); width: 90%; max-width: 500px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+
+    /* Graph Canvas */
+    #graph-canvas { width: 100%; height: 500px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+
+    /* Reports Grid */
+    .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 16px; }
+    .report-card { border: 1px solid var(--border); padding: 20px; border-radius: var(--radius); background: var(--surface); }
+
+    .flex-gap { display: flex; gap: 8px; }
+    .space-y { display: flex; flex-direction: column; gap: 12px; }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <div class="logo"><div class="logo-dot"></div> Workspace</div>
+    <nav>
+      <button class="active" onclick="switchTab('tasks')">Tasks & Subtasks</button>
+      <button onclick="switchTab('graph')">Dependency Graph</button>
+      <button onclick="switchTab('reports')">Reports & Limits</button>
+    </nav>
+  </aside>
+
+  <main>
+    <!-- TASKS SECTION -->
+    <section id="sec-tasks" class="content-section active">
+      <header>
+        <h1>Tasks</h1>
+        <button class="btn" onclick="openTaskModal()">+ Add Task</button>
+      </header>
+
+      <div class="task-list" id="task-container"></div>
+    </section>
+
+    <!-- DEPENDENCY GRAPH SECTION -->
+    <section id="sec-graph" class="content-section">
+      <header>
+        <h1>Task Dependency Graph</h1>
+      </header>
+      <canvas id="graph-canvas"></canvas>
+    </section>
+
+    <!-- REPORTS SECTION -->
+    <section id="sec-reports" class="content-section">
+      <header>
+        <h1>Project Reports & Limits</h1>
+        <button class="btn btn-secondary" onclick="openProjectLimitModal()">Configure Limits</button>
+      </header>
+
+      <div class="report-grid" id="report-container"></div>
+    </section>
+  </main>
+
+  <!-- ADD/EDIT TASK MODAL -->
+  <div class="modal-overlay" id="task-modal">
+    <div class="modal">
+      <h2 style="font-size: 1.1rem; margin-bottom: 16px;" id="modal-title">Create Task</h2>
+      <div class="space-y">
+        <input type="text" id="t-title" placeholder="Task Title">
+        <textarea id="t-desc" placeholder="Description (optional)" rows="2"></textarea>
+        
+        <input type="text" id="t-projects" placeholder="Projects (comma separated, e.g. Frontend, Design)">
+        <input type="text" id="t-tags" placeholder="Tags (comma separated, e.g. urgent, bug)">
+        
+        <div>
+          <label style="font-size: 0.8rem; color: var(--text-muted);">Depends On (Task ID or Title match):</label>
+          <select id="t-dep">
+            <option value="">None</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
+        <button class="btn" onclick="saveTask()">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONFIGURE LIMITS MODAL -->
+  <div class="modal-overlay" id="limit-modal">
+    <div class="modal">
+      <h2 style="font-size: 1.1rem; margin-bottom: 16px;">Set Project Time Limit</h2>
+      <div class="space-y">
+        <input type="text" id="p-name" placeholder="Project Name">
+        <input type="number" id="p-limit" placeholder="Target Hours Limit (e.g. 10)">
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('limit-modal')">Cancel</button>
+        <button class="btn" onclick="saveProjectLimit()">Save Limit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- APP STATE & LOCALSTORAGE ---
+    let appData = JSON.parse(localStorage.getItem('claude_pwa_todo')) || {
+      tasks: [],
+      projectLimits: {} // { "Frontend": 10 } in hours
+    };
+
+    let activeTimer = null; // { taskId, startTime, timerId }
+
+    function saveData() {
+      localStorage.setItem('claude_pwa_todo', JSON.stringify(appData));
+    }
+
+    // --- NAVIGATION ---
+    function switchTab(tab) {
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+      
+      event.target.classList.add('active');
+      document.getElementById(`sec-${tab}`).classList.add('active');
+
+      if (tab === 'graph') renderGraph();
+      if (tab === 'reports') renderReports();
+    }
+
+    // --- TASK MANAGEMENT ---
+    function openTaskModal() {
+      document.getElementById('t-title').value = '';
+      document.getElementById('t-desc').value = '';
+      document.getElementById('t-projects').value = '';
+      document.getElementById('t-tags').value = '';
+
+      const depSelect = document.getElementById('t-dep');
+      depSelect.innerHTML = '<option value="">None</option>';
+      appData.tasks.forEach(t => {
+        depSelect.innerHTML += `<option value="${t.id}">${t.title}</option>`;
+      });
+
+      document.getElementById('task-modal').style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function saveTask() {
+      const title = document.getElementById('t-title').value.trim();
+      if (!title) return;
+
+      const projects = document.getElementById('t-projects').value.split(',').map(p => p.trim()).filter(Boolean);
+      const tags = document.getElementById('t-tags').value.split(',').map(t => t.trim()).filter(Boolean);
+      const dependsOn = document.getElementById('t-dep').value;
+
+      const newTask = {
+        id: 'task_' + Date.now(),
+        title,
+        description: document.getElementById('t-desc').value,
+        projects,
+        tags,
+        dependsOn: dependsOn || null,
+        subtasks: [],
+        timeSpent: 0 // seconds
+      };
+
+      appData.tasks.push(newTask);
+      saveData();
+      closeModal('task-modal');
+      renderTasks();
+    }
+
+    function addSubtask(taskId) {
+      const input = document.getElementById(`sub-input-${taskId}`);
+      const val = input.value.trim();
+      if (!val) return;
+
+      const task = appData.tasks.find(t => t.id === taskId);
+      if (task) {
+        task.subtasks.push({ id: 'sub_' + Date.now(), title: val, completed: false });
+        saveData();
+        renderTasks();
+      }
+    }
+
+    function toggleSubtask(taskId, subId) {
+      const task = appData.tasks.find(t => t.id === taskId);
+      if (task) {
+        const sub = task.subtasks.find(s => s.id === subId);
+        if (sub) sub.completed = !sub.completed;
+        saveData();
+        renderTasks();
+      }
+    }
+
+    function deleteTask(id) {
+      appData.tasks = appData.tasks.filter(t => t.id !== id);
+      saveData();
+      renderTasks();
+    }
+
+    // --- TIMERS ---
+    function toggleTimer(taskId) {
+      if (activeTimer && activeTimer.taskId === taskId) {
+        // Stop Timer
+        clearInterval(activeTimer.timerId);
+        const elapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
+        const task = appData.tasks.find(t => t.id === taskId);
+        if (task) task.timeSpent += elapsed;
+        activeTimer = null;
+        saveData();
+        renderTasks();
+      } else {
+        // Stop current if playing elsewhere
+        if (activeTimer) toggleTimer(activeTimer.taskId);
+        
+        // Start Timer
+        activeTimer = {
+          taskId,
+          startTime: Date.now(),
+          timerId: setInterval(() => updateTimerDisplay(taskId), 1000)
+        };
+        renderTasks();
+      }
+    }
+
+    function updateTimerDisplay(taskId) {
+      const el = document.getElementById(`timer-val-${taskId}`);
+      if (el && activeTimer) {
+        const currentElapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
+        const task = appData.tasks.find(t => t.id === taskId);
+        const total = (task ? task.timeSpent : 0) + currentElapsed;
+        el.innerText = formatTime(total);
+      }
+    }
+
+    function formatTime(sec) {
+      const h = Math.floor(sec / 3600);
+      const m = Math.floor((sec % 3600) / 60);
+      const s = sec % 60;
+      return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
+    }
+
+    // --- RENDER TASKS ---
+    function renderTasks() {
+      const container = document.getElementById('task-container');
+      container.innerHTML = '';
+
+      if (appData.tasks.length === 0) {
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px;">No tasks created yet.</div>`;
+        return;
+      }
+
+      appData.tasks.forEach(task => {
+        const totalSub = task.subtasks.length;
+        const doneSub = task.subtasks.filter(s => s.completed).length;
+        const progressPct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
+
+        const isRunning = activeTimer && activeTimer.taskId === task.id;
+
+        const card = document.createElement('div');
+        card.className = 'task-card';
+        card.innerHTML = `
+          <div class="task-header">
+            <div>
+              <div class="task-title">${task.title}</div>
+              ${task.description ? `<div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 2px;">${task.description}</div>` : ''}
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="deleteTask('${task.id}')">Delete</button>
+          </div>
+
+          <div class="task-meta">
+            ${task.projects.map(p => `<span class="pill">${p}</span>`).join('')}
+            ${task.tags.map(t => `<span class="pill pill-tag">#${t}</span>`).join('')}
+          </div>
+
+          <!-- Progress -->
+          <div style="font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between;">
+            <span>Subtasks progress</span>
+            <span>${doneSub}/${totalSub} (${progressPct}%)</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width: ${progressPct}%"></div></div>
+
+          <!-- Timer Controls -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
+            <div class="timer-badge">
+              <span id="timer-val-${task.id}">${formatTime(task.timeSpent)}</span>
+            </div>
+            <button class="btn btn-sm ${isRunning ? 'btn-secondary' : ''}" onclick="toggleTimer('${task.id}')">
+              ${isRunning ? 'Pause Timer' : 'Start Timer'}
+            </button>
+          </div>
+
+          <!-- Subtasks -->
+          <div class="subtask-tree">
+            ${task.subtasks.map(sub => `
+              <div class="subtask-item ${sub.completed ? 'completed' : ''}">
+                <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')">
+                <span>${sub.title}</span>
+              </div>
+            `).join('')}
+            
+            <div class="flex-gap" style="margin-top: 6px;">
+              <input type="text" id="sub-input-${task.id}" placeholder="Add subtask..." style="padding: 4px 8px; font-size: 0.8rem;">
+              <button class="btn btn-secondary btn-sm" onclick="addSubtask('${task.id}')">Add</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- DEPENDENCY GRAPH (CANVAS) ---
+    function renderGraph() {
+      const canvas = document.getElementById('graph-canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.parentElement.clientWidth - 64;
+      canvas.height = 480;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (appData.tasks.length === 0) return;
+
+      // Positioning logic
+      const nodes = appData.tasks.map((t, i) => ({
+        ...t,
+        x: 100 + (i % 3) * 220,
+        y: 80 + Math.floor(i / 3) * 120
+      }));
+
+      // Draw Edges/Dependencies
+      nodes.forEach(node => {
+        if (node.dependsOn) {
+          const target = nodes.find(n => n.id === node.dependsOn);
+          if (target) {
+            ctx.beginPath();
+            ctx.moveTo(target.x, target.y);
+            ctx.lineTo(node.x, node.y);
+            ctx.strokeStyle = '#a1a1aa';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // Arrow tip
+            ctx.beginPath();
+            ctx.arc(node.x, node.y, 4, 0, Math.PI * 2);
+            ctx.fillStyle = '#09090b';
+            ctx.fill();
+          }
+        }
+      });
+
+      // Draw Nodes
+      nodes.forEach(node => {
+        ctx.fillStyle = '#ffffff';
+        ctx.strokeStyle = '#09090b';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.roundRect(node.x - 70, node.y - 20, 140, 40, 6);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#09090b';
+        ctx.font = '12px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(node.title.length > 15 ? node.title.slice(0, 13) + '...' : node.title, node.x, node.y + 4);
+      });
+    }
+
+    // --- REPORTS SECTION ---
+    function openProjectLimitModal() {
+      document.getElementById('p-name').value = '';
+      document.getElementById('p-limit').value = '';
+      document.getElementById('limit-modal').style.display = 'flex';
+    }
+
+    function saveProjectLimit() {
+      const name = document.getElementById('p-name').value.trim();
+      const limit = parseFloat(document.getElementById('p-limit').value);
+      if (name && !isNaN(limit)) {
+        appData.projectLimits[name] = limit;
+        saveData();
+        closeModal('limit-modal');
+        renderReports();
+      }
+    }
+
+    function renderReports() {
+      const container = document.getElementById('report-container');
+      container.innerHTML = '';
+
+      // Aggregate time per project
+      const projectTimes = {}; // project -> total seconds
+
+      appData.tasks.forEach(task => {
+        task.projects.forEach(p => {
+          projectTimes[p] = (projectTimes[p] || 0) + task.timeSpent;
+        });
+      });
+
+      const allProjects = new Set([...Object.keys(projectTimes), ...Object.keys(appData.projectLimits)]);
+
+      if (allProjects.size === 0) {
+        container.innerHTML = `<div style="color: var(--text-muted);">No project metrics available yet.</div>`;
+        return;
+      }
+
+      allProjects.forEach(proj => {
+        const spentSec = projectTimes[proj] || 0;
+        const spentHours = (spentSec / 3600).toFixed(2);
+        const limitHours = appData.projectLimits[proj] || null;
+
+        let statusText = `${spentHours} hrs spent`;
+        let pct = 0;
+
+        if (limitHours) {
+          pct = Math.min(Math.round((spentHours / limitHours) * 100), 100);
+          statusText += ` of ${limitHours} hrs limit (${pct}%)`;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'report-card';
+        card.innerHTML = `
+          <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 6px;">${proj}</div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">${statusText}</div>
+          ${limitHours ? `
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: ${pct}%; background: ${pct >= 100 ? '#ef4444' : 'var(--text)'};"></div>
+            </div>
+          ` : ''}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // --- PWA SERVICE WORKER & MANIFEST GENERATION ---
+    const manifestBlob = new Blob([JSON.stringify({
+      name: "Minimal Task Workspace",
+      short_name: "Tasks",
+      start_url: "./",
+      display: "standalone",
+      background_color: "#ffffff",
+      theme_color: "#18181b",
+      icons: [{ src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%2309090b'/></svg>", sizes: "192x192 512x512", type: "image/svg+xml" }]
+    })], { type: 'application/json' });
+    document.getElementById('pwa-manifest').href = URL.createObjectURL(manifestBlob);
+
+    if ('serviceWorker' in navigator) {
+      const swCode = `
+        const CACHE_NAME = 'todo-pwa-v1';
+        self.addEventListener('install', e => {
+          e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
+        });
+        self.addEventListener('fetch', e => {
+          e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+        });
+      `;
+      const swBlob = new Blob([swCode], { type: 'application/javascript' });
+      navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
+    }
+
+    // Initial Render
+    renderTasks();
+  </script>
+</body>
+</html>
