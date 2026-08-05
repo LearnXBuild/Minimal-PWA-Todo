@@ -18,9 +18,9 @@
       --border-dark: #ced4da;
       --text: #111827;
       --text-muted: #6b7280;
-      --radius: 12px;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.06);
-      --shadow-float: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      --radius: 10px;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+      --shadow-float: 0 8px 20px -4px rgba(0, 0, 0, 0.05);
       --font-mono: 'Space Mono', monospace;
       --font-sans: 'Inter', -apple-system, sans-serif;
     }
@@ -29,94 +29,93 @@
     body { background: var(--bg); color: var(--text); display: flex; height: 100vh; height: 100dvh; overflow: hidden; flex-direction: row; }
 
     /* Desktop Sidebar */
-    aside { width: 250px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 24px 16px; flex-shrink: 0; }
+    aside { width: 240px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 20px 14px; flex-shrink: 0; }
     main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 80px; width: 100%; min-width: 0; }
     
-    .logo { font-family: var(--font-mono); font-size: 1rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 32px; display: flex; align-items: center; gap: 10px; }
-    .logo-dot { width: 10px; height: 10px; background: var(--text); border-radius: 50%; }
+    .logo { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; letter-spacing: -0.03em; margin-bottom: 24px; display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 8px; height: 8px; background: var(--text); border-radius: 50%; }
 
-    nav { display: flex; flex-direction: column; gap: 6px; }
-    nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 10px 14px; background: none; border: none; border-radius: var(--radius); font-size: 0.88rem; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s ease; }
+    nav { display: flex; flex-direction: column; gap: 4px; }
+    nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; border-radius: var(--radius); font-size: 0.85rem; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s ease; }
     nav button.active, nav button:hover { background: var(--surface-hover); color: var(--text); }
 
-    .content-section { display: none; padding: 32px; max-width: 960px; margin: 0 auto; width: 100%; }
+    .content-section { display: none; padding: 24px 16px; max-width: 900px; margin: 0 auto; width: 100%; box-sizing: border-box; }
     .content-section.active { display: block; }
 
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); gap: 12px; }
-    h1 { font-family: var(--font-mono); font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; }
+    h1 { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
 
     /* Buttons & Inputs */
-    .btn { background: var(--text); color: #fff; border: none; padding: 8px 16px; border-radius: var(--radius); font-size: 0.85rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: transform 0.1s ease; }
-    .btn:active { transform: scale(0.98); }
+    .btn { background: var(--text); color: #fff; border: none; padding: 6px 14px; border-radius: var(--radius); font-size: 0.82rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
     .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border-dark); }
     .btn-secondary:hover { background: var(--surface-hover); }
-    .btn-sm { padding: 4px 10px; font-size: 0.75rem; border-radius: 8px; }
+    .btn-sm { padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; }
 
-    input, select, textarea { border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 10px 14px; font-size: 0.88rem; width: 100%; background: var(--surface); color: var(--text); outline: none; }
+    input, select, textarea { border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 8px 12px; font-size: 0.85rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; }
     input:focus, select:focus, textarea:focus { border-color: var(--text); }
 
-    /* Search & Filters */
-    .filter-bar { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; background: var(--surface); padding: 16px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
-    .filter-pills { display: flex; flex-wrap: wrap; gap: 8px; }
-    .filter-chip { font-size: 0.75rem; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--border-dark); background: var(--surface); cursor: pointer; font-family: var(--font-mono); user-select: none; }
+    /* Filters */
+    .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; background: var(--surface); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+    .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .filter-chip { font-size: 0.72rem; padding: 3px 8px; border-radius: 99px; border: 1px solid var(--border-dark); background: var(--surface); cursor: pointer; font-family: var(--font-mono); }
     .filter-chip.active { background: var(--text); color: var(--surface); border-color: var(--text); }
 
     /* Task Cards */
-    .task-list { display: flex; flex-direction: column; gap: 16px; width: 100%; }
-    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; background: var(--surface); box-shadow: var(--shadow-float); transition: transform 0.15s ease, box-shadow 0.15s ease; position: relative; width: 100%; box-sizing: border-box; overflow: hidden; }
-    .task-card:hover { transform: translateY(-2px); box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.08); }
-    .task-card.completed { opacity: 0.6; }
+    .task-list { display: flex; flex-direction: column; gap: 12px; width: 100%; }
+    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: var(--surface); box-shadow: var(--shadow-float); position: relative; width: 100%; box-sizing: border-box; }
+    .task-card.completed { opacity: 0.65; }
     .task-card.completed .task-title { text-decoration: line-through; }
     
-    .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 10px; width: 100%; }
-    .task-title { font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 10px; min-width: 0; word-break: break-word; }
-    .task-meta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0; }
+    .task-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; margin-bottom: 6px; }
+    .task-title { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+    .task-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
 
-    .pill { display: inline-flex; align-items: center; font-size: 0.72rem; padding: 3px 10px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .pill-tag { font-family: var(--font-sans); font-weight: 500; border: 1px solid rgba(0,0,0,0.1); }
+    .pill { display: inline-flex; align-items: center; font-size: 0.68rem; padding: 2px 8px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); }
+    .pill-tag { font-family: var(--font-sans); font-weight: 500; border: 1px solid rgba(0,0,0,0.08); }
 
     /* Progress bar */
-    .progress-bar { width: 100%; height: 6px; background: var(--surface-hover); border-radius: 3px; overflow: hidden; margin: 10px 0; }
+    .progress-bar { width: 100%; height: 5px; background: var(--surface-hover); border-radius: 3px; overflow: hidden; margin: 8px 0; }
     .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
-    /* Subtasks */
-    .subtask-tree { margin-left: 8px; padding-left: 12px; border-left: 2px solid var(--border); margin-top: 14px; display: flex; flex-direction: column; gap: 10px; width: calc(100% - 8px); box-sizing: border-box; }
-    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 10px 12px; border-radius: 8px; display: flex; flex-direction: column; gap: 6px; width: 100%; box-sizing: border-box; }
+    /* Compact Subtasks */
+    .subtask-tree { margin-left: 6px; padding-left: 10px; border-left: 2px solid var(--border); margin-top: 10px; display: flex; flex-direction: column; gap: 6px; width: calc(100% - 6px); box-sizing: border-box; }
+    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 6px 10px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
     .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
     
-    .subtask-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; }
-    .subtask-main { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
-    .sub-title { font-size: 0.88rem; font-weight: 500; word-break: break-word; min-width: 0; }
-    .sub-desc { font-size: 0.78rem; color: var(--text-muted); margin-left: 26px; word-break: break-word; }
+    .subtask-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; width: 100%; }
+    .subtask-main { display: flex; align-items: center; gap: 6px; min-width: 0; flex: 1; }
+    .sub-title { font-size: 0.8rem; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .sub-desc { font-size: 0.72rem; color: var(--text-muted); margin-left: 20px; line-height: 1.2; }
 
     /* Timer Controls */
-    .timer-badge { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 0.85rem; background: var(--surface-hover); padding: 6px 12px; border-radius: 8px; font-weight: 700; }
+    .timer-badge { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.8rem; background: var(--surface-hover); padding: 4px 10px; border-radius: 6px; font-weight: 700; }
 
-    /* Modal */
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
-    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 520px; padding: 24px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
+    /* Modals */
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
+    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 460px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 15px 30px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
-    /* Graph Canvas */
-    #graph-canvas { width: 100%; height: 420px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
+    /* Canvas */
+    #graph-canvas { width: 100%; height: 380px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
 
-    /* Reports Grid */
-    .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 16px; }
-    .report-card { border: 1px solid var(--border); padding: 20px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
+    /* Reports */
+    .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-top: 12px; }
+    .report-card { border: 1px solid var(--border); padding: 16px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
 
-    .flex-gap { display: flex; gap: 8px; }
-    .space-y { display: flex; flex-direction: column; gap: 12px; }
+    .flex-gap { display: flex; gap: 6px; }
+    .space-y { display: flex; flex-direction: column; gap: 10px; }
 
     @media (max-width: 640px) {
       body { flex-direction: column; }
       aside { display: none; }
-      main { padding-bottom: 90px; }
-      .content-section { padding: 16px; }
+      main { padding-bottom: 80px; }
+      .content-section { padding: 12px; }
 
       .mobile-nav {
-        position: fixed; bottom: 0; left: 0; right: 0; height: 64px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -4px 10px rgba(0,0,0,0.03);
+        position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px);
       }
-      .mobile-nav button { background: none; border: none; font-size: 0.75rem; font-weight: 500; font-family: var(--font-mono); color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px; }
+      .mobile-nav button { background: none; border: none; font-size: 0.72rem; font-weight: 500; font-family: var(--font-mono); color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; }
       .mobile-nav button.active { color: var(--text); font-weight: 700; }
     }
 
@@ -127,10 +126,10 @@
 </head>
 <body>
 
-  <!-- Audio Element for iOS LockScreen MediaSession -->
-  <audio id="silent-audio" loop playsinline src="data:audio/mp3;base64,SUQ3BAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA////xAAAAAAAAAAAAAAAAAAAAAAAAAAA="></audio>
+  <!-- PiP / Lockscreen Video Frame Streamer -->
+  <video id="pip-video" autoplay muted playsinline style="display:none; width:240px; height:120px;"></video>
+  <canvas id="pip-canvas" width="240" height="120" style="display:none;"></canvas>
 
-  <!-- DESKTOP SIDEBAR -->
   <aside>
     <div class="logo"><div class="logo-dot"></div> WORKSPACE</div>
     <nav>
@@ -148,10 +147,9 @@
         <button class="btn" onclick="openTaskModal()">+ Add Task</button>
       </header>
 
-      <!-- SEARCH & FILTERS -->
       <div class="filter-bar">
-        <input type="text" id="search-input" placeholder="Search tasks by title..." oninput="renderTasks()">
-        <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">FILTER BY TAGS:</div>
+        <input type="text" id="search-input" placeholder="Search tasks..." oninput="renderTasks()">
+        <div style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono);">FILTER BY TAGS:</div>
         <div class="filter-pills" id="tag-filters"></div>
       </div>
 
@@ -161,7 +159,12 @@
     <!-- DEPENDENCY GRAPH SECTION -->
     <section id="sec-graph" class="content-section">
       <header>
-        <h1>DEPENDENCY GRAPH</h1>
+        <h1>GRAPH</h1>
+        <div style="width: 180px;">
+          <select id="graph-project-filter" onchange="renderGraph()">
+            <option value="ALL">All Projects</option>
+          </select>
+        </div>
       </header>
       <canvas id="graph-canvas"></canvas>
     </section>
@@ -170,23 +173,25 @@
     <section id="sec-reports" class="content-section">
       <header>
         <h1>REPORTS & LIMITS</h1>
-        <button class="btn btn-secondary" onclick="openProjectLimitModal()">Project Limits</button>
+        <div class="flex-gap">
+          <button class="btn btn-secondary" onclick="openManualTimeModal()">+ Log Time</button>
+          <button class="btn btn-secondary" onclick="openProjectLimitModal()">Limits</button>
+        </div>
       </header>
       <div class="report-grid" id="report-container"></div>
     </section>
   </main>
 
-  <!-- MOBILE BOTTOM NAVIGATION -->
   <div class="mobile-nav">
     <button class="nav-btn active" onclick="switchTab('tasks', this)">Tasks</button>
     <button class="nav-btn" onclick="switchTab('graph', this)">Graph</button>
     <button class="nav-btn" onclick="switchTab('reports', this)">Reports</button>
   </div>
 
-  <!-- ADD/EDIT TASK MODAL -->
+  <!-- MODAL: ADD/EDIT TASK -->
   <div class="modal-overlay" id="task-modal">
     <div class="modal">
-      <h2 style="font-size: 1.1rem; margin-bottom: 14px; font-family: var(--font-mono);" id="modal-title">Create Task</h2>
+      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);" id="modal-title">Create Task</h2>
       <input type="hidden" id="edit-task-id">
       
       <div class="space-y">
@@ -194,20 +199,20 @@
         <textarea id="t-desc" placeholder="Description (optional)" rows="2"></textarea>
         
         <div>
-          <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">PROJECT:</label>
+          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">PROJECT:</label>
           <div class="flex-gap">
-            <input type="text" id="t-project" placeholder="Project Name (e.g. Core App)">
-            <input type="color" id="t-project-color" value="#e2e8f0" style="width: 50px; padding: 2px; height: 38px; cursor: pointer;">
+            <input type="text" id="t-project" placeholder="Project Name">
+            <input type="color" id="t-project-color" value="#e2e8f0" style="width: 44px; padding: 2px; height: 34px; cursor: pointer;">
           </div>
         </div>
 
         <div>
-          <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
-          <input type="text" id="t-tags" placeholder="e.g. urgent, backend, bug">
+          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
+          <input type="text" id="t-tags" placeholder="urgent, bug">
         </div>
 
         <div>
-          <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">DEPENDS ON:</label>
+          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">DEPENDS ON:</label>
           <select id="t-dep"><option value="">None</option></select>
         </div>
       </div>
@@ -219,10 +224,10 @@
     </div>
   </div>
 
-  <!-- ADD/EDIT SUBTASK MODAL -->
+  <!-- MODAL: ADD/EDIT SUBTASK -->
   <div class="modal-overlay" id="subtask-modal">
     <div class="modal">
-      <h2 style="font-size: 1.1rem; margin-bottom: 14px; font-family: var(--font-mono);" id="submodal-title">Add Subtask</h2>
+      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);" id="submodal-title">Subtask</h2>
       <input type="hidden" id="sub-parent-task-id">
       <input type="hidden" id="sub-edit-id">
       
@@ -230,8 +235,8 @@
         <input type="text" id="sub-title" placeholder="Subtask Title">
         <textarea id="sub-desc" placeholder="Description (optional)" rows="2"></textarea>
         <div>
-          <label style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
-          <input type="text" id="sub-tags" placeholder="e.g. review, fix">
+          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS:</label>
+          <input type="text" id="sub-tags" placeholder="review, fix">
         </div>
       </div>
       
@@ -242,13 +247,34 @@
     </div>
   </div>
 
-  <!-- CONFIGURE LIMITS MODAL -->
+  <!-- MODAL: MANUAL TIME ENTRY -->
+  <div class="modal-overlay" id="manual-time-modal">
+    <div class="modal">
+      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);">Manual Time Entry</h2>
+      <div class="space-y">
+        <div>
+          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">PROJECT:</label>
+          <select id="m-project-select"></select>
+        </div>
+        <div class="flex-gap">
+          <input type="number" id="m-hours" placeholder="Hours" min="0">
+          <input type="number" id="m-minutes" placeholder="Minutes" min="0" max="59">
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('manual-time-modal')">Cancel</button>
+        <button class="btn" onclick="saveManualTime()">Log Time</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PROJECT LIMITS -->
   <div class="modal-overlay" id="limit-modal">
     <div class="modal">
-      <h2 style="font-size: 1.1rem; margin-bottom: 14px; font-family: var(--font-mono);">Set Project Time Limit</h2>
+      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);">Set Project Time Limit</h2>
       <div class="space-y">
         <input type="text" id="p-name" placeholder="Project Name">
-        <input type="number" id="p-limit" placeholder="Target Hours Limit">
+        <input type="number" id="p-limit" placeholder="Limit in Hours">
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('limit-modal')">Cancel</button>
@@ -258,18 +284,19 @@
   </div>
 
   <script>
-    let appData = JSON.parse(localStorage.getItem('claude_pwa_todo_v2')) || {
+    let appData = JSON.parse(localStorage.getItem('claude_pwa_todo_v3')) || {
       tasks: [],
       projectLimits: {},
       projectColors: {},
-      tagColors: {}
+      tagColors: {},
+      manualProjectTimes: {} // { "Project Name": seconds }
     };
 
     let selectedFilterTags = new Set();
     let activeTimer = null;
 
     function saveData() {
-      localStorage.setItem('claude_pwa_todo_v2', JSON.stringify(appData));
+      localStorage.setItem('claude_pwa_todo_v3', JSON.stringify(appData));
     }
 
     const PRESET_COLORS = ['#fee2e2', '#fef3c7', '#dcfce7', '#e0e7ff', '#f3e8ff', '#fce7f3'];
@@ -290,7 +317,7 @@
       if (tab === 'reports') renderReports();
     }
 
-    /* --- TASK MODAL --- */
+    /* --- TASK FUNCTIONS --- */
     function openTaskModal(taskId = null) {
       const depSelect = document.getElementById('t-dep');
       depSelect.innerHTML = '<option value="">None</option>';
@@ -373,6 +400,7 @@
 
       saveData();
       closeModal('task-modal');
+      updateProjectDropdowns();
       renderTagFilters();
       renderTasks();
     }
@@ -389,11 +417,12 @@
     function deleteTask(id) {
       appData.tasks = appData.tasks.filter(t => t.id !== id);
       saveData();
+      updateProjectDropdowns();
       renderTagFilters();
       renderTasks();
     }
 
-    /* --- RICH SUBTASK MODAL --- */
+    /* --- SUBTASK FUNCTIONS --- */
     function openSubtaskModal(parentTaskId, subId = null) {
       document.getElementById('sub-parent-task-id').value = parentTaskId;
       document.getElementById('sub-edit-id').value = subId || '';
@@ -477,34 +506,33 @@
       }
     }
 
-    /* --- APPLE LOCKSCREEN MEDIA SESSION --- */
-    function updateLockScreenMedia(taskTitle, formattedTime) {
-      if ('mediaSession' in navigator) {
-        const audio = document.getElementById('silent-audio');
-        if (audio.paused) {
-          audio.play().catch(() => {});
-        }
+    /* --- CANVAS / PIP TIMER STREAM FOR MOBILE LOCKSCREEN --- */
+    function drawTimerPiPCanvas(title, timeStr) {
+      const canvas = document.getElementById('pip-canvas');
+      const ctx = canvas.getContext('2d');
 
-        navigator.mediaSession.metadata = new MediaMetadata({
-          title: taskTitle,
-          artist: `Time Tracked: ${formattedTime}`,
-          album: "Workspace Focus Timer"
-        });
+      ctx.fillStyle = '#18181b';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        navigator.mediaSession.setActionHandler('pause', () => {
-          if (activeTimer) toggleTimer(activeTimer.taskId);
-        });
+      ctx.fillStyle = '#a1a1aa';
+      ctx.font = '12px sans-serif';
+      ctx.fillText("ACTIVE FOCUS TASK", 15, 25);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 14px sans-serif';
+      ctx.fillText(title.length > 20 ? title.slice(0,18) + '...' : title, 15, 50);
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 26px monospace';
+      ctx.fillText(timeStr, 15, 95);
+
+      const video = document.getElementById('pip-video');
+      if (!video.srcObject) {
+        video.srcObject = canvas.captureStream(10);
       }
     }
 
-    function stopLockScreenMedia() {
-      if ('mediaSession' in navigator) {
-        const audio = document.getElementById('silent-audio');
-        audio.pause();
-      }
-    }
-
-    function toggleTimer(taskId) {
+    async function toggleTimer(taskId) {
       const task = appData.tasks.find(t => t.id === taskId);
 
       if (activeTimer && activeTimer.taskId === taskId) {
@@ -512,20 +540,30 @@
         const elapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
         if (task) task.timeSpent += elapsed;
         activeTimer = null;
-        stopLockScreenMedia();
+
+        if (document.pictureInPictureElement) {
+          document.exitPictureInPicture().catch(() => {});
+        }
+
         saveData();
         renderTasks();
       } else {
         if (activeTimer) toggleTimer(activeTimer.taskId);
-        
+
         activeTimer = {
           taskId,
           startTime: Date.now(),
           timerId: setInterval(() => updateTimerDisplay(taskId), 1000)
         };
-        
+
         if (task) {
-          updateLockScreenMedia(task.title, formatTime(task.timeSpent));
+          drawTimerPiPCanvas(task.title, formatTime(task.timeSpent));
+          const video = document.getElementById('pip-video');
+          video.play().then(() => {
+            if ('pictureInPictureEnabled' in document && !document.pictureInPictureElement) {
+              video.requestPictureInPicture().catch(() => {});
+            }
+          }).catch(() => {});
         }
         renderTasks();
       }
@@ -538,11 +576,11 @@
         const task = appData.tasks.find(t => t.id === taskId);
         const total = (task ? task.timeSpent : 0) + currentElapsed;
         const formatted = formatTime(total);
-        
+
         el.innerText = formatted;
-        
+
         if (task) {
-          updateLockScreenMedia(task.title, formatted);
+          drawTimerPiPCanvas(task.title, formatted);
         }
       }
     }
@@ -554,7 +592,7 @@
       return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
     }
 
-    /* --- RENDER TASKS & TAGS --- */
+    /* --- RENDERING TASKS & TAGS --- */
     function renderTagFilters() {
       const container = document.getElementById('tag-filters');
       container.innerHTML = '';
@@ -592,7 +630,7 @@
       });
 
       if (filtered.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 40px 0; font-family: var(--font-mono);">No matching tasks found.</div>`;
+        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px 0; font-family: var(--font-mono); font-size: 0.85rem;">No tasks found.</div>`;
         return;
       }
 
@@ -609,29 +647,29 @@
         card.innerHTML = `
           <div class="task-header">
             <div class="task-title">
-              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 18px; height: 18px; cursor: pointer; flex-shrink: 0;">
+              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 16px; height: 16px; cursor: pointer;">
               <span>${task.title}</span>
             </div>
-            <div class="flex-gap" style="flex-shrink: 0;">
+            <div class="flex-gap">
               <button class="btn btn-secondary btn-sm" onclick="openTaskModal('${task.id}')">Edit</button>
               <button class="btn btn-secondary btn-sm" onclick="deleteTask('${task.id}')">Delete</button>
             </div>
           </div>
 
-          ${task.description ? `<div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 8px;">${task.description}</div>` : ''}
+          ${task.description ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px;">${task.description}</div>` : ''}
 
           <div class="task-meta">
             ${task.project ? `<span class="pill" style="background:${projColor}; color:#1e293b;">${task.project}</span>` : ''}
             ${(task.tags || []).map(t => `<span class="pill pill-tag" style="background:${appData.tagColors[t] || '#f1f5f9'};">#${t}</span>`).join('')}
           </div>
 
-          <div style="font-size: 0.72rem; color: var(--text-muted); display: flex; justify-content: space-between; font-family: var(--font-mono);">
+          <div style="font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; font-family: var(--font-mono);">
             <span>Progress</span>
             <span>${doneSub}/${totalSub} (${progressPct}%)</span>
           </div>
           <div class="progress-bar"><div class="progress-fill" style="width: ${progressPct}%"></div></div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
             <div class="timer-badge">
               <span id="timer-val-${task.id}">${formatTime(task.timeSpent)}</span>
             </div>
@@ -640,7 +678,7 @@
             </button>
           </div>
 
-          <!-- SUBTASKS CONTAINER -->
+          <!-- COMPACT SUBTASKS CONTAINER -->
           <div class="subtask-tree">
             ${task.subtasks.map(sub => `
               <div class="subtask-card ${sub.completed ? 'completed' : ''}">
@@ -650,22 +688,22 @@
                     <span class="sub-title">${sub.title}</span>
                   </div>
                   <div class="flex-gap">
-                    <button class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="openSubtaskModal('${task.id}', '${sub.id}')">Edit</button>
-                    <button class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="deleteSubtask('${task.id}', '${sub.id}')">✕</button>
+                    <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="openSubtaskModal('${task.id}', '${sub.id}')">Edit</button>
+                    <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="deleteSubtask('${task.id}', '${sub.id}')">✕</button>
                   </div>
                 </div>
 
                 ${sub.description ? `<div class="sub-desc">${sub.description}</div>` : ''}
 
                 ${(sub.tags && sub.tags.length > 0) ? `
-                  <div style="display:flex; gap:4px; margin-left:26px; margin-top:4px; flex-wrap:wrap;">
-                    ${sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.65rem; padding: 1px 6px;">#${st}</span>`).join('')}
+                  <div style="display:flex; gap:3px; margin-left:20px; margin-top:2px; flex-wrap:wrap;">
+                    ${sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.62rem; padding: 0px 5px;">#${st}</span>`).join('')}
                   </div>
                 ` : ''}
               </div>
             `).join('')}
             
-            <button class="btn btn-secondary btn-sm" style="align-self: flex-start; margin-top: 4px;" onclick="openSubtaskModal('${task.id}')">
+            <button class="btn btn-secondary btn-sm" style="align-self: flex-start; margin-top: 2px;" onclick="openSubtaskModal('${task.id}')">
               + Add Subtask
             </button>
           </div>
@@ -674,20 +712,48 @@
       });
     }
 
-    /* --- DEPENDENCY GRAPH & REPORTS --- */
+    /* --- DEPENDENCY GRAPH WITH PROJECT FILTER --- */
+    function updateProjectDropdowns() {
+      const graphSelect = document.getElementById('graph-project-filter');
+      const manualSelect = document.getElementById('m-project-select');
+
+      const allProjects = new Set();
+      appData.tasks.forEach(t => { if (t.project) allProjects.add(t.project); });
+      Object.keys(appData.manualProjectTimes || {}).forEach(p => allProjects.add(p));
+
+      const currGraphVal = graphSelect.value;
+      graphSelect.innerHTML = '<option value="ALL">All Projects</option>';
+      manualSelect.innerHTML = '';
+
+      allProjects.forEach(proj => {
+        graphSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
+        manualSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
+      });
+
+      graphSelect.value = currGraphVal || 'ALL';
+    }
+
     function renderGraph() {
       const canvas = document.getElementById('graph-canvas');
       const ctx = canvas.getContext('2d');
-      canvas.width = canvas.parentElement.clientWidth - 64;
-      canvas.height = 400;
+      const selectedProj = document.getElementById('graph-project-filter').value;
+
+      canvas.width = canvas.parentElement.clientWidth - 32;
+      canvas.height = 380;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (appData.tasks.length === 0) return;
 
-      const nodes = appData.tasks.map((t, i) => ({
+      let tasksToRender = appData.tasks;
+      if (selectedProj !== 'ALL') {
+        tasksToRender = appData.tasks.filter(t => t.project === selectedProj);
+      }
+
+      if (tasksToRender.length === 0) return;
+
+      const nodes = tasksToRender.map((t, i) => ({
         ...t,
-        x: 80 + (i % 2) * (canvas.width - 160),
-        y: 60 + Math.floor(i / 2) * 90
+        x: 70 + (i % 2) * (canvas.width - 140),
+        y: 50 + Math.floor(i / 2) * 80
       }));
 
       nodes.forEach(node => {
@@ -698,7 +764,7 @@
             ctx.moveTo(target.x, target.y);
             ctx.lineTo(node.x, node.y);
             ctx.strokeStyle = '#94a3b8';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 1.5;
             ctx.stroke();
           }
         }
@@ -709,15 +775,38 @@
         ctx.strokeStyle = '#1e293b';
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.roundRect(node.x - 60, node.y - 20, 120, 40, 8);
+        ctx.roundRect(node.x - 55, node.y - 18, 110, 36, 6);
         ctx.fill();
         ctx.stroke();
 
         ctx.fillStyle = '#0f172a';
-        ctx.font = '11px Space Mono, monospace';
+        ctx.font = '10px Space Mono, monospace';
         ctx.textAlign = 'center';
         ctx.fillText(node.title.length > 12 ? node.title.slice(0, 10) + '...' : node.title, node.x, node.y + 4);
       });
+    }
+
+    /* --- REPORTS & MANUAL TIME ENTRY --- */
+    function openManualTimeModal() {
+      updateProjectDropdowns();
+      document.getElementById('m-hours').value = '';
+      document.getElementById('m-minutes').value = '';
+      document.getElementById('manual-time-modal').style.display = 'flex';
+    }
+
+    function saveManualTime() {
+      const project = document.getElementById('m-project-select').value;
+      const hrs = parseFloat(document.getElementById('m-hours').value) || 0;
+      const mins = parseFloat(document.getElementById('m-minutes').value) || 0;
+
+      const totalSec = (hrs * 3600) + (mins * 60);
+      if (project && totalSec > 0) {
+        if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
+        appData.manualProjectTimes[project] = (appData.manualProjectTimes[project] || 0) + totalSec;
+        saveData();
+        closeModal('manual-time-modal');
+        renderReports();
+      }
     }
 
     function openProjectLimitModal() {
@@ -742,16 +831,22 @@
       container.innerHTML = '';
 
       const projectTimes = {};
+
       appData.tasks.forEach(task => {
         if (task.project) {
           projectTimes[task.project] = (projectTimes[task.project] || 0) + task.timeSpent;
         }
       });
 
+      // Add manual project times
+      Object.entries(appData.manualProjectTimes || {}).forEach(([proj, sec]) => {
+        projectTimes[proj] = (projectTimes[proj] || 0) + sec;
+      });
+
       const allProjects = new Set([...Object.keys(projectTimes), ...Object.keys(appData.projectLimits)]);
 
       if (allProjects.size === 0) {
-        container.innerHTML = `<div style="color: var(--text-muted); font-family: var(--font-mono);">No project time tracked yet.</div>`;
+        container.innerHTML = `<div style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.85rem;">No project time tracked yet.</div>`;
         return;
       }
 
@@ -771,8 +866,8 @@
         const card = document.createElement('div');
         card.className = 'report-card';
         card.innerHTML = `
-          <div style="font-weight: 700; font-family: var(--font-mono); font-size: 1rem; margin-bottom: 6px;">${proj}</div>
-          <div style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 10px;">${statusText}</div>
+          <div style="font-weight: 700; font-family: var(--font-mono); font-size: 0.95rem; margin-bottom: 4px;">${proj}</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px;">${statusText}</div>
           ${limitHours ? `
             <div class="progress-bar">
               <div class="progress-fill" style="width: ${pct}%; background: ${pct >= 100 ? '#ef4444' : 'var(--text)'};"></div>
@@ -783,7 +878,7 @@
       });
     }
 
-    /* --- PWA SETUP --- */
+    /* --- PWA REGISTRATION --- */
     const manifestBlob = new Blob([JSON.stringify({
       name: "Minimal Task Workspace",
       short_name: "Tasks",
@@ -797,7 +892,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v5';
+        const CACHE_NAME = 'todo-pwa-v6';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
@@ -809,6 +904,7 @@
       navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
     }
 
+    updateProjectDropdowns();
     renderTagFilters();
     renderTasks();
   </script>
