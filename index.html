@@ -78,17 +78,56 @@
     .progress-bar { width: 100%; height: 5px; background: var(--surface-hover); border-radius: 3px; overflow: hidden; margin: 8px 0; }
     .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
-    /* SUBTASK LAYOUT FIX - STAGGERED HORIZONTAL EXPANSION */
-    .subtask-tree { margin-left: 4px; padding-left: 8px; border-left: 2px solid var(--border); margin-top: 10px; display: flex; flex-direction: column; gap: 8px; width: calc(100% - 4px); box-sizing: border-box; }
-    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 8px 10px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
+    /* --- STRICT GRID-BASED SUBTASK FIX --- */
+    .subtask-tree { 
+      margin-left: 4px; 
+      padding-left: 8px; 
+      border-left: 2px solid var(--border); 
+      margin-top: 10px; 
+      display: flex; 
+      flex-direction: column; 
+      gap: 8px; 
+      width: calc(100% - 4px); 
+      box-sizing: border-box; 
+    }
+
+    .subtask-card { 
+      border: 1px solid var(--border); 
+      background: var(--bg); 
+      padding: 8px 10px; 
+      border-radius: 6px; 
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      width: 100%; 
+      box-sizing: border-box; 
+    }
     .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
+
+    .subtask-grid {
+      display: grid;
+      grid-template-columns: 20px 1fr auto;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .sub-title { 
+      font-size: 0.85rem; 
+      font-weight: 600; 
+      color: var(--text); 
+      min-width: 0;
+      width: 100%;
+      display: block;
+      word-break: break-all;
+    }
     
-    .subtask-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; width: 100%; }
-    .subtask-main { display: flex; align-items: flex-start; gap: 8px; width: 100%; flex: 1; }
-    .subtask-content { display: flex; flex-direction: column; width: 100%; min-width: 0; }
-    
-    .sub-title { font-size: 0.85rem; font-weight: 600; color: var(--text); display: block; word-break: break-word; white-space: normal; width: 100%; }
-    .sub-desc { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; display: block; word-break: break-word; white-space: normal; width: 100%; }
+    .sub-desc { 
+      font-size: 0.75rem; 
+      color: var(--text-muted); 
+      grid-column: 2;
+      word-break: break-all;
+    }
 
     /* Timer Controls */
     .timer-badge { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.8rem; background: var(--surface-hover); padding: 4px 10px; border-radius: 6px; font-weight: 700; }
@@ -652,26 +691,22 @@
             </button>
           </div>
 
-          <!-- FIXED STAGGERED SUBTASK RENDERER -->
+          <!-- GRID SUBTASK RENDERER -->
           <div class="subtask-tree">
             ${task.subtasks.map(sub => `
               <div class="subtask-card ${sub.completed ? 'completed' : ''}">
-                <div class="subtask-header">
-                  <div class="subtask-main">
-                    <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer; flex-shrink: 0; margin-top: 2px;">
-                    <div class="subtask-content">
-                      <span class="sub-title">${sub.title}</span>
-                      ${sub.description ? `<span class="sub-desc">${sub.description}</span>` : ''}
-                    </div>
-                  </div>
-                  <div class="flex-gap" style="flex-shrink: 0;">
+                <div class="subtask-grid">
+                  <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer;">
+                  <span class="sub-title">${sub.title}</span>
+                  <div class="flex-gap">
                     <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="openSubtaskModal('${task.id}', '${sub.id}')">Edit</button>
                     <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="deleteSubtask('${task.id}', '${sub.id}')">✕</button>
                   </div>
+                  ${sub.description ? `<span class="sub-desc">${sub.description}</span>` : ''}
                 </div>
 
                 ${(sub.tags && sub.tags.length > 0) ? `
-                  <div style="display:flex; gap:3px; margin-left:22px; margin-top:4px; flex-wrap:wrap;">
+                  <div style="display:flex; gap:3px; margin-left:28px; margin-top:4px; flex-wrap:wrap;">
                     ${sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.62rem; padding: 0px 5px;">#${st}</span>`).join('')}
                   </div>
                 ` : ''}
@@ -865,7 +900,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v8';
+        const CACHE_NAME = 'todo-pwa-v9';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
