@@ -109,9 +109,12 @@
     .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: background 0.15s ease; border-left: 4px solid var(--text); box-shadow: var(--shadow-sm); }
     .time-block-card:hover { background: var(--surface-hover); }
 
+    /* Project Manager List */
+    .project-mgr-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
+
     /* Modals & Profile Drawer */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
-    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 460px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 15px 30px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
+    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 480px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 15px 30px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
     /* Canvas & Reports */
@@ -170,10 +173,11 @@
       <header>
         <h1>TASKS</h1>
         <div class="flex-gap" style="align-items: center;">
-          <select id="task-project-filter" onchange="filterTasksByProjectSelect()" style="width: 150px; padding: 6px 10px;">
+          <select id="task-project-filter" onchange="filterTasksByProjectSelect()" style="width: 140px; padding: 6px 10px;">
             <option value="ALL">All Projects</option>
           </select>
-          <button class="btn btn-secondary btn-sm" id="resync-btn" onclick="resyncSelectedProject()">↻ Sync Selected</button>
+          <button class="btn btn-secondary btn-sm" id="resync-btn" onclick="resyncSelectedProject()">↻ Sync</button>
+          <button class="btn btn-secondary btn-sm" onclick="openProjectManagerModal()">+ Manage Projects</button>
           <button class="btn" onclick="openTaskModal()">+ Add Task</button>
         </div>
       </header>
@@ -243,7 +247,7 @@
   <!-- PROFILE / SETTINGS DRAWER MODAL -->
   <div class="modal-overlay" id="profile-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; margin-bottom: 16px; font-family: var(--font-mono);">Profile & Global Settings</h2>
+      <h2 style="font-size: 1rem; margin-bottom: 16px; font-family: var(--font-mono);">Profile & Settings</h2>
       <div class="space-y">
         <div>
           <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">GLOBAL GITHUB ACCESS TOKEN:</label>
@@ -254,11 +258,43 @@
           <input type="text" id="global-gh-org" placeholder="e.g. LearnXBuild" onchange="saveGlobalOrg()">
         </div>
         <hr style="border: 0; border-top: 1px solid var(--border); margin: 8px 0;">
+        <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="closeModal('profile-modal'); openProjectManagerModal();">📂 Manage & Add Projects</button>
         <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="exportData()">💾 Backup Workspace JSON</button>
         <button class="btn btn-danger" style="width: 100%; justify-content: flex-start;" onclick="clearCompletedTasks()">🗑️ Clear All Completed Tasks</button>
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('profile-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: MANAGE & ADD PROJECTS -->
+  <div class="modal-overlay" id="project-mgr-modal">
+    <div class="modal">
+      <h2 style="font-size: 1rem; margin-bottom: 14px; font-family: var(--font-mono);">Manage & Add Projects</h2>
+      
+      <div class="space-y" style="margin-bottom: 20px;">
+        <div style="font-size: 0.75rem; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted);">+ CREATE LOCAL PROJECT</div>
+        <div class="flex-gap">
+          <input type="text" id="new-local-proj-name" placeholder="Project Name">
+          <input type="color" id="new-local-proj-color" value="#e2e8f0" style="width: 44px; padding: 2px; height: 34px; cursor: pointer;">
+          <button class="btn btn-sm" onclick="createLocalProject()">Add</button>
+        </div>
+      </div>
+
+      <div class="space-y" style="margin-bottom: 20px;">
+        <div style="font-size: 0.75rem; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted);">+ ADD & SYNC GITHUB PROJECT BOARD</div>
+        <div class="space-y">
+          <input type="text" id="new-gh-proj-title" placeholder="GitHub Project Board Title (e.g. Pass Generator)">
+          <button class="btn btn-sm btn-secondary" onclick="addAndSyncNewGithubProject()">Sync & Add Project</button>
+        </div>
+      </div>
+
+      <div style="font-size: 0.75rem; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 8px;">EXISTING PROJECTS</div>
+      <div class="space-y" id="project-list-wrapper"></div>
+
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('project-mgr-modal')">Done</button>
       </div>
     </div>
   </div>
@@ -390,7 +426,7 @@
   <script>
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v15', 'todo-pwa-v14'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v16', 'todo-pwa-v15', 'todo-pwa-v14'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -504,6 +540,91 @@
       if (tab === 'calendar') renderScheduleCalendar();
       if (tab === 'graph') renderGraph();
       if (tab === 'reports') renderReports();
+    }
+
+    /* --- PROJECT MANAGER --- */
+    function openProjectManagerModal() {
+      renderProjectManagerList();
+      document.getElementById('project-mgr-modal').style.display = 'flex';
+    }
+
+    function createLocalProject() {
+      const name = document.getElementById('new-local-proj-name').value.trim();
+      const color = document.getElementById('new-local-proj-color').value;
+
+      if (name) {
+        appData.projectColors[name] = color;
+        saveData();
+        document.getElementById('new-local-proj-name').value = '';
+        renderProjectManagerList();
+        updateProjectDropdowns();
+        renderTasks();
+      }
+    }
+
+    async function addAndSyncNewGithubProject() {
+      const projTitle = document.getElementById('new-gh-proj-title').value.trim();
+      if (!projTitle) return;
+
+      if (!appData.ghToken || !appData.ghOrg) {
+        alert("Please configure your GitHub Access Token and Org Name in Profile Settings (👤) first.");
+        openProfileModal();
+        return;
+      }
+
+      await syncGithubProjectByName(projTitle);
+      document.getElementById('new-gh-proj-title').value = '';
+      renderProjectManagerList();
+    }
+
+    function deleteProject(projName) {
+      if (confirm(`Are you sure you want to delete project '${projName}' and remove its associated tasks?`)) {
+        appData.tasks = appData.tasks.filter(t => t.project !== projName);
+        delete appData.projectColors[projName];
+        delete appData.projectLimits[projName];
+        delete appData.manualProjectTimes[projName];
+
+        saveData();
+        renderProjectManagerList();
+        updateProjectDropdowns();
+        renderTasks();
+        renderReports();
+      }
+    }
+
+    function renderProjectManagerList() {
+      const wrapper = document.getElementById('project-list-wrapper');
+      wrapper.innerHTML = '';
+
+      const allProjects = new Set([
+        ...Object.keys(appData.projectColors || {}),
+        ...appData.tasks.map(t => t.project).filter(Boolean)
+      ]);
+
+      if (allProjects.size === 0) {
+        wrapper.innerHTML = `<div style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-mono);">No projects added yet.</div>`;
+        return;
+      }
+
+      allProjects.forEach(proj => {
+        const color = appData.projectColors[proj] || '#e2e8f0';
+        const taskCount = appData.tasks.filter(t => t.project === proj).length;
+
+        const item = document.createElement('div');
+        item.className = 'project-mgr-item';
+        item.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="width:12px; height:12px; border-radius:50%; background:${color}; display:inline-block;"></span>
+            <span style="font-weight:600; font-size:0.88rem;">${proj}</span>
+            <span style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">(${taskCount} tasks)</span>
+          </div>
+          <div class="flex-gap">
+            <button class="btn btn-secondary btn-sm" onclick="syncGithubProjectByName('${proj}')">↻ Sync</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteProject('${proj}')">Delete</button>
+          </div>
+        `;
+        wrapper.appendChild(item);
+      });
     }
 
     /* --- TASK & SUBTASK MANAGEMENT --- */
@@ -683,14 +804,16 @@
         alert("Please select a specific project from the dropdown to sync.");
         return;
       }
+      await syncGithubProjectByName(targetProj);
+    }
 
+    async function syncGithubProjectByName(projName) {
       if (!appData.ghToken || !appData.ghOrg) {
         openProfileModal();
-        alert("Please configure your GitHub Access Token and Org Name in Profile settings first.");
+        alert("Please configure your GitHub Access Token and Org Name in Profile Settings (👤) first.");
         return;
       }
 
-      // Targeted single-project GraphQL Query (low node cost)
       const graphqlQuery = {
         query: `
           query($org: String!, $searchTitle: String!) {
@@ -732,7 +855,7 @@
             }
           }
         `,
-        variables: { org: appData.ghOrg, searchTitle: targetProj }
+        variables: { org: appData.ghOrg, searchTitle: projName }
       };
 
       try {
@@ -749,12 +872,12 @@
         if (json.errors) throw new Error(json.errors[0].message);
 
         const projects = json.data?.organization?.projectsV2?.nodes || [];
-        const foundBoard = projects.find(p => p.title.toLowerCase().includes(targetProj.toLowerCase()));
+        const foundBoard = projects.find(p => p.title.toLowerCase().includes(projName.toLowerCase()));
 
-        if (!foundBoard) throw new Error(`Project board matching '${targetProj}' not found on GitHub.`);
+        if (!foundBoard) throw new Error(`Project board matching '${projName}' not found on GitHub.`);
 
-        if (!appData.projectColors[targetProj]) {
-          appData.projectColors[targetProj] = getRandomColor();
+        if (!appData.projectColors[projName]) {
+          appData.projectColors[projName] = getRandomColor();
         }
 
         let count = 0;
@@ -803,13 +926,13 @@
             const rawLabels = (item.content.labels?.nodes || []).map(l => l.name.toLowerCase());
             rawLabels.forEach(t => { if (!appData.tagColors[t]) appData.tagColors[t] = getRandomColor(); });
 
-            let existingTask = appData.tasks.find(t => t.title === title && t.project === targetProj);
+            let existingTask = appData.tasks.find(t => t.title === title && t.project === projName);
             if (!existingTask) {
               appData.tasks.push({
                 id: 'task_' + Date.now() + Math.random(),
                 title,
                 description: bodyText ? bodyText.slice(0, 150) + '...' : '',
-                project: targetProj,
+                project: projName,
                 tags: rawLabels,
                 dependsOn: null,
                 completed: false,
@@ -827,7 +950,7 @@
         updateProjectDropdowns();
         renderTagFilters();
         renderTasks();
-        alert(`Synced '${targetProj}'! Loaded ${count} new in-progress items.`);
+        alert(`Synced '${projName}'! ${count} new in-progress items loaded.`);
       } catch(err) {
         alert("Sync Error: " + err.message);
       }
@@ -883,7 +1006,6 @@
 
       const dayEvents = (appData.calendarEvents || []).filter(e => e.date === dateStr);
 
-      // Generate 24 Hourly Slots
       for (let hour = 0; hour < 24; hour++) {
         const hourStr = `${String(hour).padStart(2, '0')}:00`;
         const slotRow = document.createElement('div');
@@ -1083,9 +1205,11 @@
       const manualSelect = document.getElementById('m-project-select');
       const calSelect = document.getElementById('cal-project-select');
 
-      const allProjects = new Set();
-      appData.tasks.forEach(t => { if (t.project) allProjects.add(t.project); });
-      Object.keys(appData.manualProjectTimes || {}).forEach(p => allProjects.add(p));
+      const allProjects = new Set([
+        ...Object.keys(appData.projectColors || {}),
+        ...appData.tasks.map(t => t.project).filter(Boolean),
+        ...Object.keys(appData.manualProjectTimes || {})
+      ]);
 
       const currTaskVal = taskProjSelect.value;
 
@@ -1271,7 +1395,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v16';
+        const CACHE_NAME = 'todo-pwa-v17';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
