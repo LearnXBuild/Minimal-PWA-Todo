@@ -111,23 +111,24 @@
     .task-card.collapsed .collapse-btn { transform: rotate(-90deg); }
     .task-card.collapsed .task-body { display: none; }
 
-    /* Circular SVG Progress Ring */
+    /* Circular SVG Progress Ring with Padding Fix */
     .circular-progress-wrap {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       flex-shrink: 0;
+      padding: 1px;
     }
-    .circular-progress-wrap svg { transform: rotate(-90deg); width: 26px; height: 26px; }
-    .circular-progress-wrap circle { fill: none; stroke-width: 3; stroke-linecap: round; }
+    .circular-progress-wrap svg { transform: rotate(-90deg); width: 28px; height: 28px; }
+    .circular-progress-wrap circle { fill: none; stroke-width: 2.5; stroke-linecap: round; }
     .circular-progress-bg { stroke: var(--surface-hover); }
     .circular-progress-fill { stroke: var(--text); transition: stroke-dashoffset 0.3s ease; }
     .circular-progress-text {
       position: absolute;
-      font-size: 0.55rem;
+      font-size: 0.52rem;
       font-family: var(--font-mono);
       font-weight: 700;
       color: var(--text);
@@ -573,7 +574,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v29', 'todo-pwa-v28', 'todo-pwa-v27'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v30', 'todo-pwa-v29', 'todo-pwa-v28'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -1529,7 +1530,7 @@
       let filtered = appData.tasks.filter(task => {
         if (appData.hideCompleted && task.completed) return false;
         
-        // CASE-INSENSITIVE PROJECT MATCHING FIX
+        // CASE-INSENSITIVE EXACT PROJECT MATCHING
         if (selectedProjectFilter !== 'ALL') {
           if (!task.project || task.project.toLowerCase() !== selectedProjectFilter.toLowerCase()) {
             return false;
@@ -1594,8 +1595,8 @@
             <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; position:relative;">
               <div class="circular-progress-wrap" title="${doneSub}/${totalSub} subtasks completed (${progressPct}%)">
                 <svg>
-                  <circle class="circular-progress-bg" cx="13" cy="13" r="${radius}"></circle>
-                  <circle class="circular-progress-fill" cx="13" cy="13" r="${radius}" 
+                  <circle class="circular-progress-bg" cx="14" cy="14" r="${radius}"></circle>
+                  <circle class="circular-progress-fill" cx="14" cy="14" r="${radius}" 
                     stroke-dasharray="${circumference}" 
                     stroke-dashoffset="${strokeDashoffset}"></circle>
                 </svg>
@@ -1671,6 +1672,7 @@
       if (calSelect) calSelect.innerHTML = '<option value="">None</option>';
 
       allProjects.forEach(proj => {
+        // PRESERVE ORIGINAL CASING IN VALUE ATTRIBUTE
         taskProjSelect.innerHTML += `<option value="${proj}">${proj.toUpperCase()}</option>`;
         graphSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
         manualSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
@@ -1848,7 +1850,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v30';
+        const CACHE_NAME = 'todo-pwa-v31';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
@@ -1860,9 +1862,11 @@
       navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
     }
 
+    // INITIALIZATION RENDER SEQUENCE
     updateProjectDropdowns();
     updateProjectTimerUI();
     renderTagFilters();
+    renderTasks();
     renderScheduleCalendar();
   </script>
 </body>
