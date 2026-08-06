@@ -62,7 +62,7 @@
       outline: none;
       padding: 0;
       width: auto;
-      max-width: 320px;
+      max-width: 300px;
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
@@ -88,7 +88,7 @@
     .toggle-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; user-select: none; white-space: nowrap; }
     .toggle-label input { width: 13px; height: 13px; cursor: pointer; }
 
-    /* Task Cards - FULL TEXT WRAP & AUTO FONT ADJUSTMENT */
+    /* Task Cards */
     .task-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; background: var(--surface); box-shadow: var(--shadow-float); position: relative; width: 100%; box-sizing: border-box; transition: opacity 0.15s ease, transform 0.15s ease; }
     .task-card.completed { opacity: 0.65; }
@@ -118,7 +118,7 @@
     .progress-bar { width: 100%; height: 4px; background: var(--surface-hover); border-radius: 2px; overflow: hidden; margin: 6px 0; }
     .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
-    /* Subtasks Grid - NATURAL WORD WRAPPING */
+    /* Subtasks Grid */
     .subtask-tree { margin-left: 4px; padding-left: 8px; border-left: 2px solid var(--border); margin-top: 8px; display: flex; flex-direction: column; gap: 6px; width: calc(100% - 4px); box-sizing: border-box; }
     .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 6px 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
     .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
@@ -140,13 +140,22 @@
     /* Timer Controls */
     .timer-badge { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface-hover); padding: 3px 8px; border-radius: 6px; font-weight: 700; }
 
-    /* Time-Slotted Calendar View */
+    /* Time-Slotted Calendar View & Split Grid */
+    .split-calendar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .time-slot-container { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-    .time-slot-row { display: grid; grid-template-columns: 60px 1fr; gap: 10px; border-bottom: 1px solid var(--border); padding: 6px 0; min-height: 42px; align-items: flex-start; }
-    .slot-time { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
+    .time-slot-row { display: grid; grid-template-columns: 55px 1fr; gap: 8px; border-bottom: 1px solid var(--border); padding: 6px 0; min-height: 42px; align-items: flex-start; }
+    .slot-time { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
     .slot-events { display: flex; flex-direction: column; gap: 6px; }
+    
     .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s ease; border-left: 3px solid var(--text); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; }
+    .time-block-card.is-meeting { border-left-color: #3b82f6; border-left-style: dashed; }
     .time-block-card:hover { background: var(--surface-hover); }
+
+    /* Days Checkbox Grid */
+    .days-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .day-chip-label { font-size: 0.7rem; font-family: var(--font-mono); padding: 4px 8px; border: 1px solid var(--border-dark); border-radius: 6px; cursor: pointer; user-select: none; }
+    .day-chip-label input { display: none; }
+    .day-chip-label.selected { background: var(--text); color: var(--surface); border-color: var(--text); }
 
     /* Project Manager List */
     .project-mgr-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
@@ -169,6 +178,7 @@
       aside { display: none; }
       main { padding-bottom: 75px; }
       .content-section { padding: 12px; }
+      .split-calendar-grid { grid-template-columns: 1fr; }
 
       .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border); }
 
@@ -211,7 +221,13 @@
     <section id="sec-calendar" class="content-section active">
       <header>
         <h1>SCHEDULE CALENDAR</h1>
-        <button class="btn" onclick="openCalendarEventModal()">+ Time Block</button>
+        <div class="flex-gap" style="align-items: center;">
+          <label class="toggle-label" style="margin-right: 4px;">
+            <input type="checkbox" id="cal-split-toggle" onchange="toggleCalendarSplitView()"> 2-Day Split
+          </label>
+          <button class="btn btn-secondary btn-sm" onclick="openCalendarEventModal(null, 'meeting')">+ Meeting</button>
+          <button class="btn btn-sm" onclick="openCalendarEventModal(null, 'task')">+ Task Block</button>
+        </div>
       </header>
       
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -219,13 +235,12 @@
         <div style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);" id="cal-day-label"></div>
       </div>
 
-      <div class="time-slot-container" id="time-slots-wrapper"></div>
+      <div id="calendar-render-area"></div>
     </section>
 
     <!-- TASKS SECTION -->
     <section id="sec-tasks" class="content-section">
       <header>
-        <!-- Dynamic Project Name Selector -->
         <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
           <option value="ALL">ALL PROJECTS</option>
         </select>
@@ -397,30 +412,47 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD/EDIT CALENDAR TIME BLOCK -->
+  <!-- MODAL: ADD/EDIT CALENDAR TIME BLOCK (SUPPORTING MEETINGS & TASKS) -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal">
-      <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);" id="cal-modal-title">Schedule Time Block</h2>
+      <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);" id="cal-modal-title">Schedule Block</h2>
       <input type="hidden" id="cal-edit-id">
+      <input type="hidden" id="cal-type" value="task">
       
       <div class="space-y">
-        <input type="text" id="cal-title" placeholder="Block Title">
+        <input type="text" id="cal-title" placeholder="Block / Event Title">
         <input type="date" id="cal-date">
+        
         <div class="flex-gap">
-          <div>
+          <div style="flex:1;">
             <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">START TIME:</label>
             <input type="time" id="cal-start-time" value="09:00">
           </div>
-          <div>
+          <div style="flex:1;">
             <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">END TIME:</label>
             <input type="time" id="cal-end-time" value="10:00">
           </div>
         </div>
+
+        <div id="meeting-recurring-days-box" style="display:none;">
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">RECURRING DAYS (FOR MEETINGS):</label>
+          <div class="days-grid">
+            <label class="day-chip-label" id="day-chip-0"><input type="checkbox" value="0" onchange="toggleDayChip(this)">SUN</label>
+            <label class="day-chip-label" id="day-chip-1"><input type="checkbox" value="1" onchange="toggleDayChip(this)">MON</label>
+            <label class="day-chip-label" id="day-chip-2"><input type="checkbox" value="2" onchange="toggleDayChip(this)">TUE</label>
+            <label class="day-chip-label" id="day-chip-3"><input type="checkbox" value="3" onchange="toggleDayChip(this)">WED</label>
+            <label class="day-chip-label" id="day-chip-4"><input type="checkbox" value="4" onchange="toggleDayChip(this)">THU</label>
+            <label class="day-chip-label" id="day-chip-5"><input type="checkbox" value="5" onchange="toggleDayChip(this)">FRI</label>
+            <label class="day-chip-label" id="day-chip-6"><input type="checkbox" value="6" onchange="toggleDayChip(this)">SAT</label>
+          </div>
+        </div>
+
         <div>
           <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">ASSIGN PROJECT:</label>
           <select id="cal-project-select"></select>
         </div>
       </div>
+
       <div class="modal-actions">
         <button class="btn btn-danger btn-sm" id="cal-delete-btn" style="display:none; margin-right:auto;" onclick="deleteCalendarEvent()">Delete</button>
         <button class="btn btn-secondary" onclick="closeModal('calendar-modal')">Cancel</button>
@@ -468,7 +500,7 @@
   <script>
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v20', 'todo-pwa-v19'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v21', 'todo-pwa-v20'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -478,6 +510,7 @@
       let mergedCollapsed = {};
       let mergedCalendarEvents = [];
       let hideCompleted = false;
+      let isSplitView = false;
       let ghToken = '';
       let ghOrg = '';
 
@@ -498,6 +531,7 @@
             if (parsed.collapsedTasks) Object.assign(mergedCollapsed, parsed.collapsedTasks);
             if (parsed.calendarEvents) mergedCalendarEvents = parsed.calendarEvents;
             if (parsed.hideCompleted !== undefined) hideCompleted = parsed.hideCompleted;
+            if (parsed.isSplitView !== undefined) isSplitView = parsed.isSplitView;
             if (parsed.ghToken) ghToken = parsed.ghToken;
             if (parsed.ghOrg) ghOrg = parsed.ghOrg;
           } catch(e) {}
@@ -513,6 +547,7 @@
         collapsedTasks: mergedCollapsed,
         calendarEvents: mergedCalendarEvents,
         hideCompleted,
+        isSplitView,
         ghToken,
         ghOrg
       };
@@ -565,6 +600,12 @@
       appData.hideCompleted = document.getElementById('hide-completed-toggle').checked;
       saveData();
       renderTasks();
+    }
+
+    function toggleCalendarSplitView() {
+      appData.isSplitView = document.getElementById('cal-split-toggle').checked;
+      saveData();
+      renderScheduleCalendar();
     }
 
     const PRESET_COLORS = ['#fee2e2', '#fef3c7', '#dcfce7', '#e0e7ff', '#f3e8ff', '#fce7f3'];
@@ -1001,25 +1042,63 @@
       }
     }
 
-    /* --- SCHEDULE CALENDAR SYSTEM WITH EDITING & DELETION --- */
-    function openCalendarEventModal(eventId = null) {
+    /* --- SCHEDULE CALENDAR SYSTEM WITH MEETINGS & TASK LINKING --- */
+    function scheduleTaskToCalendar(taskTitle, taskProject) {
+      openCalendarEventModal(null, 'task');
+      document.getElementById('cal-title').value = taskTitle;
+      document.getElementById('cal-project-select').value = taskProject || '';
+    }
+
+    function toggleDayChip(checkboxElem) {
+      const chip = checkboxElem.closest('.day-chip-label');
+      if (checkboxElem.checked) chip.classList.add('selected');
+      else chip.classList.remove('selected');
+    }
+
+    function openCalendarEventModal(eventId = null, blockType = 'task') {
       updateProjectDropdowns();
       const delBtn = document.getElementById('cal-delete-btn');
+      const meetingDaysBox = document.getElementById('meeting-recurring-days-box');
       
+      document.getElementById('cal-type').value = blockType;
+
+      // Uncheck all day chips
+      document.querySelectorAll('.day-chip-label').forEach(lbl => {
+        lbl.classList.remove('selected');
+        lbl.querySelector('input').checked = false;
+      });
+
+      if (blockType === 'meeting') {
+        document.getElementById('cal-modal-title').innerText = eventId ? 'Edit Meeting' : 'Add Recurring Meeting';
+        meetingDaysBox.style.display = 'block';
+      } else {
+        document.getElementById('cal-modal-title').innerText = eventId ? 'Edit Task Block' : 'Schedule Task Block';
+        meetingDaysBox.style.display = 'none';
+      }
+
       if (eventId) {
         const evt = (appData.calendarEvents || []).find(e => e.id === eventId);
         if (evt) {
-          document.getElementById('cal-modal-title').innerText = 'Edit Time Block';
           document.getElementById('cal-edit-id').value = evt.id;
           document.getElementById('cal-title').value = evt.title;
           document.getElementById('cal-date').value = evt.date;
           document.getElementById('cal-start-time').value = evt.startTime || '09:00';
           document.getElementById('cal-end-time').value = evt.endTime || '10:00';
           document.getElementById('cal-project-select').value = evt.project || '';
+          document.getElementById('cal-type').value = evt.type || 'task';
+
+          if (evt.recurringDays) {
+            evt.recurringDays.forEach(dNum => {
+              const chip = document.getElementById(`day-chip-${dNum}`);
+              if (chip) {
+                chip.classList.add('selected');
+                chip.querySelector('input').checked = true;
+              }
+            });
+          }
           delBtn.style.display = 'inline-flex';
         }
       } else {
-        document.getElementById('cal-modal-title').innerText = 'Schedule Time Block';
         document.getElementById('cal-edit-id').value = '';
         document.getElementById('cal-title').value = '';
         const dateVal = document.getElementById('cal-view-date').value || new Date().toISOString().split('T')[0];
@@ -1034,13 +1113,21 @@
 
     function saveCalendarEvent() {
       const editId = document.getElementById('cal-edit-id').value;
+      const blockType = document.getElementById('cal-type').value;
       const title = document.getElementById('cal-title').value.trim();
       const date = document.getElementById('cal-date').value;
       const startTime = document.getElementById('cal-start-time').value;
       const endTime = document.getElementById('cal-end-time').value;
       const project = document.getElementById('cal-project-select').value;
 
-      if (title && date && startTime) {
+      const selectedDays = [];
+      if (blockType === 'meeting') {
+        document.querySelectorAll('#meeting-recurring-days-box input:checked').forEach(chk => {
+          selectedDays.push(parseInt(chk.value, 10));
+        });
+      }
+
+      if (title && startTime) {
         if (!appData.calendarEvents) appData.calendarEvents = [];
 
         if (editId) {
@@ -1051,9 +1138,20 @@
             evt.startTime = startTime;
             evt.endTime = endTime;
             evt.project = project;
+            evt.type = blockType;
+            evt.recurringDays = selectedDays;
           }
         } else {
-          appData.calendarEvents.push({ id: 'cal_' + Date.now(), title, date, startTime, endTime, project });
+          appData.calendarEvents.push({ 
+            id: 'cal_' + Date.now(), 
+            title, 
+            date, 
+            startTime, 
+            endTime, 
+            project, 
+            type: blockType, 
+            recurringDays: selectedDays 
+          });
         }
 
         saveData();
@@ -1064,7 +1162,7 @@
 
     function deleteCalendarEvent() {
       const editId = document.getElementById('cal-edit-id').value;
-      if (editId && confirm("Delete this scheduled time block?")) {
+      if (editId && confirm("Delete this scheduled block?")) {
         appData.calendarEvents = (appData.calendarEvents || []).filter(e => e.id !== editId);
         saveData();
         closeModal('calendar-modal');
@@ -1072,14 +1170,59 @@
       }
     }
 
-    function jumpToTasksWithProject(projName) {
+    function jumpToSpecificTask(taskTitle, projName) {
       const tasksBtn = document.querySelectorAll('.nav-btn')[1];
       switchTab('tasks', tasksBtn);
       
       if (projName) {
         document.getElementById('task-project-filter').value = projName;
-        renderTasks();
       }
+      
+      if (taskTitle) {
+        document.getElementById('search-input').value = taskTitle;
+      }
+
+      renderTasks();
+    }
+
+    function renderSingleDaySlots(dateStr) {
+      const dateObj = new Date(dateStr + 'T00:00:00');
+      const dayOfWeek = dateObj.getDay();
+
+      const dayEvents = (appData.calendarEvents || []).filter(e => {
+        if (e.type === 'meeting' && e.recurringDays && e.recurringDays.length > 0) {
+          return e.recurringDays.includes(dayOfWeek);
+        }
+        return e.date === dateStr;
+      });
+
+      let html = '';
+      for (let hour = 0; hour < 24; hour++) {
+        const hourStr = `${String(hour).padStart(2, '0')}:00`;
+        const matchingEvents = dayEvents.filter(e => parseInt(e.startTime.split(':')[0], 10) === hour);
+
+        html += `
+          <div class="time-slot-row">
+            <div class="slot-time">${hourStr}</div>
+            <div class="slot-events">
+              ${matchingEvents.map(evt => `
+                <div class="time-block-card ${evt.type === 'meeting' ? 'is-meeting' : ''}">
+                  <div onclick="${evt.type === 'task' ? `jumpToSpecificTask('${evt.title.replace(/'/g, "\\'")}', '${evt.project}')` : ''}" style="flex:1;">
+                    <div style="font-weight:700; font-size:0.82rem; display:flex; align-items:center; gap:6px;">
+                      ${evt.type === 'meeting' ? '🔁' : '📋'} ${evt.title}
+                    </div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
+                      ${evt.startTime} - ${evt.endTime} ${evt.project ? `| ${evt.project}` : ''}
+                    </div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" style="padding:1px 6px; font-size:0.68rem;" onclick="event.stopPropagation(); openCalendarEventModal('${evt.id}', '${evt.type || 'task'}')">Edit</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      return html;
     }
 
     function renderScheduleCalendar() {
@@ -1088,42 +1231,38 @@
         viewInput.value = new Date().toISOString().split('T')[0];
       }
 
+      document.getElementById('cal-split-toggle').checked = !!appData.isSplitView;
+
       const dateStr = viewInput.value;
       const dateObj = new Date(dateStr + 'T00:00:00');
       document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
-      const container = document.getElementById('time-slots-wrapper');
-      container.innerHTML = '';
+      const area = document.getElementById('calendar-render-area');
+      area.innerHTML = '';
 
-      const dayEvents = (appData.calendarEvents || []).filter(e => e.date === dateStr);
+      if (appData.isSplitView) {
+        const nextDayObj = new Date(dateObj);
+        nextDayObj.setDate(nextDayObj.getDate() + 1);
+        const nextDateStr = nextDayObj.toISOString().split('T')[0];
 
-      for (let hour = 0; hour < 24; hour++) {
-        const hourStr = `${String(hour).padStart(2, '0')}:00`;
-        const slotRow = document.createElement('div');
-        slotRow.className = 'time-slot-row';
-
-        const matchingEvents = dayEvents.filter(e => {
-          const eventHour = parseInt(e.startTime.split(':')[0], 10);
-          return eventHour === hour;
-        });
-
-        slotRow.innerHTML = `
-          <div class="slot-time">${hourStr}</div>
-          <div class="slot-events">
-            ${matchingEvents.map(evt => `
-              <div class="time-block-card">
-                <div onclick="jumpToTasksWithProject('${evt.project}')" style="flex:1;">
-                  <div style="font-weight:700; font-size:0.82rem;">${evt.title}</div>
-                  <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
-                    ${evt.startTime} - ${evt.endTime} ${evt.project ? `| ${evt.project}` : ''}
-                  </div>
-                </div>
-                <button class="btn btn-secondary btn-sm" style="padding:1px 6px; font-size:0.68rem;" onclick="event.stopPropagation(); openCalendarEventModal('${evt.id}')">Edit</button>
+        area.innerHTML = `
+          <div class="split-calendar-grid">
+            <div>
+              <div style="font-family:var(--font-mono); font-size:0.8rem; font-weight:700; margin-bottom:6px;">
+                ${dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
               </div>
-            `).join('')}
+              <div class="time-slot-container">${renderSingleDaySlots(dateStr)}</div>
+            </div>
+            <div>
+              <div style="font-family:var(--font-mono); font-size:0.8rem; font-weight:700; margin-bottom:6px;">
+                ${nextDayObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+              </div>
+              <div class="time-slot-container">${renderSingleDaySlots(nextDateStr)}</div>
+            </div>
           </div>
         `;
-        container.appendChild(slotRow);
+      } else {
+        area.innerHTML = `<div class="time-slot-container">${renderSingleDaySlots(dateStr)}</div>`;
       }
     }
 
@@ -1258,9 +1397,12 @@
               <div class="timer-badge">
                 <span id="timer-val-${task.id}">${formatTime(task.timeSpent)}</span>
               </div>
-              <button class="btn btn-sm ${isRunning ? 'btn-secondary' : ''}" onclick="toggleTimer('${task.id}')">
-                ${isRunning ? 'Pause' : 'Start Timer'}
-              </button>
+              <div class="flex-gap">
+                <button class="btn btn-secondary btn-sm" onclick="scheduleTaskToCalendar('${task.title.replace(/'/g, "\\'")}', '${task.project}')">📅 Schedule</button>
+                <button class="btn btn-sm ${isRunning ? 'btn-secondary' : ''}" onclick="toggleTimer('${task.id}')">
+                  ${isRunning ? 'Pause' : 'Start Timer'}
+                </button>
+              </div>
             </div>
 
             <div class="subtask-tree">
@@ -1490,7 +1632,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v21';
+        const CACHE_NAME = 'todo-pwa-v22';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
