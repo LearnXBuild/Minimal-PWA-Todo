@@ -67,7 +67,15 @@
     .toggle-label { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; user-select: none; }
 
     /* Touch-friendly Drag Handle & Collapsible Card */
-    .drag-handle { cursor: grab; color: var(--text-muted); font-size: 1.1rem; user-select: none; padding: 4px 8px; touch-action: none; display: inline-block; }
+    .drag-handle { 
+      cursor: grab; 
+      color: var(--text-muted); 
+      font-size: 1.1rem; 
+      user-select: none; 
+      padding: 4px 8px; 
+      touch-action: none; 
+      display: inline-block;
+    }
     .drag-handle:active { cursor: grabbing; }
 
     .task-list { display: flex; flex-direction: column; gap: 12px; width: 100%; }
@@ -254,7 +262,7 @@
     <div class="modal">
       <h2 style="font-size: 1rem; margin-bottom: 16px; font-family: var(--font-mono);">Profile & Workspace Options</h2>
       <div class="space-y">
-        <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="closeModal('profile-modal'); openGithubModal();">🐙 Import GitHub Projects (In Progress)</button>
+        <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="closeModal('profile-modal'); openGithubModal();">🐙 Import GitHub Repository / Project</button>
         <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="exportData()">💾 Backup Workspace JSON</button>
         <button class="btn btn-danger" style="width: 100%; justify-content: flex-start;" onclick="clearCompletedTasks()">🗑️ Clear All Completed Tasks</button>
       </div>
@@ -323,18 +331,18 @@
     </div>
   </div>
 
-  <!-- MODAL: GITHUB IN-PROGRESS IMPORTER -->
+  <!-- MODAL: GITHUB IMPORTER -->
   <div class="modal-overlay" id="github-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);">Sync GitHub Project (In Progress)</h2>
+      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);">Import GitHub Repository / Project</h2>
       <div class="space-y">
-        <input type="text" id="gh-owner" placeholder="Organization / User (e.g. LearnXBuild)">
-        <input type="text" id="gh-project-num" placeholder="Project Board Number or Name (e.g. Pass Generator)">
-        <input type="password" id="gh-token" placeholder="GitHub Personal Access Token (Required)">
+        <input type="text" id="gh-owner" placeholder="Owner / Org (e.g. LearnXBuild)">
+        <input type="text" id="gh-repo" placeholder="Repo Slug (e.g. addtowallet-pass-generator)">
+        <input type="password" id="gh-token" placeholder="Classic Token with 'repo' & 'project' scope">
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('github-modal')">Cancel</button>
-        <button class="btn" onclick="importGithubProject()">Sync In-Progress</button>
+        <button class="btn" onclick="importGithubProject()">Sync Issues</button>
       </div>
     </div>
   </div>
@@ -395,9 +403,16 @@
   </div>
 
   <script>
+    // --- PERSIST TIME DATA & MASTER SCHEMA MIGRATION ---
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v12', 'todo-pwa-v11', 'claude_pwa_todo_v3'];
+      const keysToSearch = [
+        MASTER_KEY,
+        'todo-pwa-v13',
+        'todo-pwa-v12',
+        'todo-pwa-v11',
+        'claude_pwa_todo_v3'
+      ];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -666,43 +681,36 @@
       }
     }
 
-    /* --- GITHUB PROJECT GRAPHQL FORWARD SYNC --- */
+    /* --- FIXED GITHUB REST DIRECT REPO IMPORTER --- */
     function openGithubModal() { document.getElementById('github-modal').style.display = 'flex'; }
 
     async function importGithubProject() {
       const owner = document.getElementById('gh-owner').value.trim();
-      const projName = document.getElementById('gh-project-num').value.trim();
+      const repo = document.getElementById('gh-repo').value.trim();
       const token = document.getElementById('gh-token').value.trim();
 
-      if (!owner || !projName || !token) {
-        alert("Owner, Project Name, and Token are required.");
+      if (!owner || !repo) {
+        alert("Please enter both Owner/Org and Repo Slug.");
         return;
       }
 
-      // Automatically create local project if not existing
+      const projName = repo;
       if (!appData.projectColors[projName]) {
         appData.projectColors[projName] = getRandomColor();
       }
 
-      // Fetch Issues via GitHub REST (In Progress issues)
-      try {
-        const res = await fetch(`https://api.github.com/search/issues?q=repo:${owner}/${projName}+state:open`, {
-          headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-        });
-        
-        let issues = [];
-        if (res.ok) {
-          const data = await res.json();
-          issues = data.items || [];
-        } else {
-          // Fallback direct issue search
-          const directRes = await fetch(`https://api.github.com/orgs/${owner}/issues`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (directRes.ok) issues = await directRes.json();
-        }
+      const headers = { 'Accept': 'application/vnd.github.v3+json' };
+      if (token) headers['Authorization'] = `token ${token}`;
 
-        issues.forEach(issue => {
+      try {
+        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues?state=open&per_page=100`, { headers });
+        if (!res.ok) throw new Error(`HTTP ${res.status}: Check repo permissions & token`);
+
+        const issues = await res.json();
+        const openIssues = issues.filter(issue => !issue.pull_request);
+
+        let count = 0;
+        openIssues.forEach(issue => {
           const subtasks = [];
           const bodyText = issue.body || '';
 
@@ -714,7 +722,7 @@
               title: match[2].trim(),
               completed: match[1] === 'x',
               description: '',
-              tags: ['in-progress']
+              tags: ['checklist']
             });
           }
 
@@ -733,6 +741,7 @@
               subtasks,
               timeSpent: 0
             });
+            count++;
           }
         });
 
@@ -741,8 +750,9 @@
         updateProjectDropdowns();
         renderTagFilters();
         renderTasks();
-      } catch(err) {
-        alert("Failed to sync GitHub project: " + err.message);
+        alert(`Successfully imported ${count} issues into project '${projName}'!`);
+      } catch (err) {
+        alert("GitHub Import Failed: " + err.message);
       }
     }
 
@@ -796,10 +806,8 @@
 
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-
       const todayStr = new Date().toISOString().split('T')[0];
 
-      // Empty padding cells
       for (let i = 0; i < firstDay; i++) {
         container.appendChild(document.createElement('div'));
       }
@@ -810,7 +818,6 @@
         cell.className = `calendar-cell ${dateStr === todayStr ? 'today' : ''}`;
         cell.innerHTML = `<div class="calendar-date-num">${day}</div>`;
 
-        // Render matching events
         const events = (appData.calendarEvents || []).filter(e => e.date === dateStr);
         events.forEach(evt => {
           const block = document.createElement('div');
@@ -1176,7 +1183,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v13';
+        const CACHE_NAME = 'todo-pwa-v14';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
