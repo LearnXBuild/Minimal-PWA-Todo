@@ -29,28 +29,30 @@
     body { background: var(--bg); color: var(--text); display: flex; height: 100vh; height: 100dvh; overflow: hidden; flex-direction: row; }
 
     /* Sidebar */
-    aside { width: 240px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 20px 14px; flex-shrink: 0; }
+    aside { width: 220px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 16px 12px; flex-shrink: 0; }
     main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 80px; width: 100%; min-width: 0; }
     
-    .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
-    .logo { font-family: var(--font-mono); font-size: 0.95rem; font-weight: 700; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
-    .logo-dot { width: 8px; height: 8px; background: var(--text); border-radius: 50%; }
+    .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .logo { font-family: var(--font-mono); font-size: 0.88rem; font-weight: 700; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
+    .logo-dot { width: 7px; height: 7px; background: var(--text); border-radius: 50%; }
 
-    .profile-icon-btn { background: var(--surface-hover); border: 1px solid var(--border); border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; }
+    .profile-icon-btn { background: var(--surface-hover); border: 1px solid var(--border); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.85rem; }
 
     nav { display: flex; flex-direction: column; gap: 4px; }
-    nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 8px 12px; background: none; border: none; border-radius: var(--radius); font-size: 0.85rem; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s ease; }
+    nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 7px 10px; background: none; border: none; border-radius: var(--radius); font-size: 0.82rem; font-weight: 500; color: var(--text-muted); cursor: pointer; transition: all 0.15s ease; }
     nav button.active, nav button:hover { background: var(--surface-hover); color: var(--text); }
 
-    .content-section { display: none; padding: 24px 16px; max-width: 900px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+    .content-section { display: none; padding: 18px 16px; max-width: 880px; margin: 0 auto; width: 100%; box-sizing: border-box; }
     .content-section.active { display: block; }
 
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
+    /* Compact Page Headers */
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
+    h1 { font-family: var(--font-mono); font-size: 0.92rem; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); }
     
-    /* Project Header - Plain Text feel with native click action */
+    /* Project Header Title */
     .project-title-select {
       font-family: var(--font-mono);
-      font-size: 1.15rem;
+      font-size: 0.95rem;
       font-weight: 700;
       letter-spacing: -0.02em;
       background: transparent !important;
@@ -60,102 +62,98 @@
       outline: none;
       padding: 0;
       width: auto;
-      max-width: 320px;
+      max-width: 300px;
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
     }
-    .project-title-select::-ms-expand { display: none; }
 
     /* Buttons & Inputs */
-    .btn { background: var(--text); color: #fff; border: none; padding: 6px 14px; border-radius: var(--radius); font-size: 0.82rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .btn { background: var(--text); color: #fff; border: none; padding: 5px 12px; border-radius: var(--radius); font-size: 0.78rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
     .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border-dark); }
     .btn-secondary:hover { background: var(--surface-hover); }
     .btn-danger { background: #ef4444; color: #fff; border: none; }
     .btn-sm { padding: 3px 8px; font-size: 0.72rem; border-radius: 6px; }
 
-    input, select, textarea { border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 8px 12px; font-size: 0.85rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; }
+    input, select, textarea { border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 7px 10px; font-size: 0.82rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; }
     input:focus, select:focus, textarea:focus { border-color: var(--text); }
 
     /* Filter Bar */
-    .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; background: var(--surface); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
+    .filter-bar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; background: var(--surface); padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
     .filter-top-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
-    .filter-chip { font-size: 0.72rem; padding: 3px 8px; border-radius: 99px; border: 1px solid var(--border-dark); background: var(--surface); cursor: pointer; font-family: var(--font-mono); }
+    .filter-chip { font-size: 0.7rem; padding: 2px 7px; border-radius: 99px; border: 1px solid var(--border-dark); background: var(--surface); cursor: pointer; font-family: var(--font-mono); }
     .filter-chip.active { background: var(--text); color: var(--surface); border-color: var(--text); }
 
-    .toggle-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; user-select: none; white-space: nowrap; }
-    .toggle-label input { width: 14px; height: 14px; cursor: pointer; }
+    .toggle-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; user-select: none; white-space: nowrap; }
+    .toggle-label input { width: 13px; height: 13px; cursor: pointer; }
 
     /* Task Cards */
-    .task-list { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: var(--surface); box-shadow: var(--shadow-float); position: relative; width: 100%; box-sizing: border-box; transition: opacity 0.15s ease, transform 0.15s ease; }
+    .task-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+    .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; background: var(--surface); box-shadow: var(--shadow-float); position: relative; width: 100%; box-sizing: border-box; transition: opacity 0.15s ease, transform 0.15s ease; }
     .task-card.completed { opacity: 0.65; }
     .task-card.completed .task-title { text-decoration: line-through; }
     
     .task-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; }
-    .task-title { font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+    .task-title { font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
     .task-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0; }
+    .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }
 
-    .collapse-btn { background: none; border: none; cursor: pointer; font-size: 0.8rem; color: var(--text-muted); padding: 2px 4px; display: inline-flex; align-items: center; transition: transform 0.2s ease; }
+    .collapse-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-muted); padding: 2px; display: inline-flex; align-items: center; transition: transform 0.2s ease; }
     .task-card.collapsed .collapse-btn { transform: rotate(-90deg); }
     .task-card.collapsed .task-body { display: none; }
 
-    .pill { display: inline-flex; align-items: center; font-size: 0.68rem; padding: 2px 8px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); }
+    .pill { display: inline-flex; align-items: center; font-size: 0.65rem; padding: 2px 7px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); }
     .pill-tag { font-family: var(--font-sans); font-weight: 500; border: 1px solid rgba(0,0,0,0.08); }
 
     /* Progress bar */
-    .progress-bar { width: 100%; height: 5px; background: var(--surface-hover); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+    .progress-bar { width: 100%; height: 4px; background: var(--surface-hover); border-radius: 2px; overflow: hidden; margin: 6px 0; }
     .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
     /* Subtasks Grid */
-    .subtask-tree { margin-left: 4px; padding-left: 8px; border-left: 2px solid var(--border); margin-top: 10px; display: flex; flex-direction: column; gap: 8px; width: calc(100% - 4px); box-sizing: border-box; }
-    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 8px 10px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
+    .subtask-tree { margin-left: 4px; padding-left: 8px; border-left: 2px solid var(--border); margin-top: 8px; display: flex; flex-direction: column; gap: 6px; width: calc(100% - 4px); box-sizing: border-box; }
+    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 6px 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
     .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
 
-    .subtask-grid { display: grid; grid-template-columns: 20px 1fr auto; align-items: center; gap: 6px; width: 100%; }
-    .sub-title { font-size: 0.85rem; font-weight: 600; color: var(--text); min-width: 0; width: 100%; display: block; word-break: break-all; }
+    .subtask-grid { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 6px; width: 100%; }
+    .sub-title { font-size: 0.8rem; font-weight: 600; color: var(--text); min-width: 0; width: 100%; display: block; word-break: break-all; }
 
     /* Timer Controls */
-    .timer-badge { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.8rem; background: var(--surface-hover); padding: 4px 10px; border-radius: 6px; font-weight: 700; }
+    .timer-badge { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface-hover); padding: 3px 8px; border-radius: 6px; font-weight: 700; }
 
     /* Time-Slotted Calendar View */
-    .time-slot-container { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-    .time-slot-row { display: grid; grid-template-columns: 70px 1fr; gap: 12px; border-bottom: 1px solid var(--border); padding: 8px 0; min-height: 48px; align-items: flex-start; }
-    .slot-time { font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted); font-weight: 700; }
+    .time-slot-container { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .time-slot-row { display: grid; grid-template-columns: 60px 1fr; gap: 10px; border-bottom: 1px solid var(--border); padding: 6px 0; min-height: 42px; align-items: flex-start; }
+    .slot-time { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
     .slot-events { display: flex; flex-direction: column; gap: 6px; }
-    .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: background 0.15s ease; border-left: 4px solid var(--text); box-shadow: var(--shadow-sm); }
+    .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s ease; border-left: 3px solid var(--text); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; }
     .time-block-card:hover { background: var(--surface-hover); }
-
-    /* Project Manager List */
-    .project-mgr-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
 
     /* Modals & Profile Drawer */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
-    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 480px; padding: 20px; border: 1px solid var(--border); box-shadow: 0 15px 30px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+    .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 440px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 15px 30px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 
     /* Canvas & Reports */
-    #graph-canvas { width: 100%; height: 380px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
-    .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-top: 12px; }
-    .report-card { border: 1px solid var(--border); padding: 16px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
+    #graph-canvas { width: 100%; height: 360px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
+    .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
+    .report-card { border: 1px solid var(--border); padding: 14px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
 
     .flex-gap { display: flex; gap: 6px; }
-    .space-y { display: flex; flex-direction: column; gap: 10px; }
+    .space-y { display: flex; flex-direction: column; gap: 8px; }
 
     @media (max-width: 640px) {
       body { flex-direction: column; }
       aside { display: none; }
-      main { padding-bottom: 80px; }
+      main { padding-bottom: 75px; }
       .content-section { padding: 12px; }
 
-      .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
+      .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border); }
 
       .mobile-nav {
-        position: fixed; bottom: 0; left: 0; right: 0; height: 56px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px);
+        position: fixed; bottom: 0; left: 0; right: 0; height: 54px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px);
       }
-      .mobile-nav button { background: none; border: none; font-size: 0.72rem; font-weight: 500; font-family: var(--font-mono); color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px; }
+      .mobile-nav button { background: none; border: none; font-size: 0.7rem; font-weight: 500; font-family: var(--font-mono); color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; }
       .mobile-nav button.active { color: var(--text); font-weight: 700; }
     }
 
@@ -187,16 +185,16 @@
   </div>
 
   <main id="main-scroll-container">
-    <!-- SCHEDULE CALENDAR SECTION (DEFAULT START) -->
+    <!-- SCHEDULE CALENDAR SECTION -->
     <section id="sec-calendar" class="content-section active">
       <header>
         <h1>SCHEDULE CALENDAR</h1>
         <button class="btn" onclick="openCalendarEventModal()">+ Time Block</button>
       </header>
       
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <input type="date" id="cal-view-date" onchange="renderScheduleCalendar()" style="width: 160px;">
-        <div style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);" id="cal-day-label"></div>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <input type="date" id="cal-view-date" onchange="renderScheduleCalendar()" style="width: 140px; padding:4px 8px;">
+        <div style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);" id="cal-day-label"></div>
       </div>
 
       <div class="time-slot-container" id="time-slots-wrapper"></div>
@@ -205,7 +203,7 @@
     <!-- TASKS SECTION -->
     <section id="sec-tasks" class="content-section">
       <header>
-        <!-- Clean Project Title Header (No dropdown arrow/border) -->
+        <!-- Clean Compact Project Header Title Dropdown -->
         <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
           <option value="ALL">ALL PROJECTS</option>
         </select>
@@ -218,12 +216,12 @@
 
       <div class="filter-bar">
         <div class="filter-top-row">
-          <input type="text" id="search-input" placeholder="Search tasks..." oninput="renderTasks()" style="flex: 1; min-width: 140px;">
+          <input type="text" id="search-input" placeholder="Search tasks..." oninput="renderTasks()" style="flex: 1; min-width: 130px;">
           <label class="toggle-label">
             <input type="checkbox" id="hide-completed-toggle" onchange="toggleHideCompleted()"> Hide Completed
           </label>
         </div>
-        <div style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 4px;">FILTER BY TAGS:</div>
+        <div style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">FILTER BY TAGS:</div>
         <div class="filter-pills" id="tag-filters"></div>
       </div>
 
@@ -234,7 +232,7 @@
     <section id="sec-graph" class="content-section">
       <header>
         <h1>GRAPH</h1>
-        <div style="width: 180px;">
+        <div style="width: 160px;">
           <select id="graph-project-filter" onchange="renderGraph()">
             <option value="ALL">All Projects</option>
           </select>
@@ -266,17 +264,17 @@
   <!-- PROFILE / SETTINGS DRAWER MODAL -->
   <div class="modal-overlay" id="profile-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; margin-bottom: 16px; font-family: var(--font-mono);">Profile & Settings</h2>
+      <h2 style="font-size: 0.95rem; margin-bottom: 14px; font-family: var(--font-mono);">Profile & Settings</h2>
       <div class="space-y">
         <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">GLOBAL GITHUB ACCESS TOKEN:</label>
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">GLOBAL GITHUB ACCESS TOKEN:</label>
           <input type="password" id="global-gh-token" placeholder="ghp_xxxxxxxxxxxx" onchange="saveGlobalToken()">
         </div>
         <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">ORGANIZATION / USER:</label>
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">ORGANIZATION / USER:</label>
           <input type="text" id="global-gh-org" placeholder="e.g. LearnXBuild" onchange="saveGlobalOrg()">
         </div>
-        <hr style="border: 0; border-top: 1px solid var(--border); margin: 8px 0;">
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 6px 0;">
         <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="closeModal('profile-modal'); openProjectManagerModal();">📂 Manage & Add Projects</button>
         <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="exportData()">💾 Backup Workspace JSON</button>
         <button class="btn btn-danger" style="width: 100%; justify-content: flex-start;" onclick="clearCompletedTasks()">🗑️ Clear All Completed Tasks</button>
@@ -290,26 +288,26 @@
   <!-- MODAL: MANAGE & ADD PROJECTS -->
   <div class="modal-overlay" id="project-mgr-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; margin-bottom: 14px; font-family: var(--font-mono);">Manage & Add Projects</h2>
+      <h2 style="font-size: 0.95rem; margin-bottom: 12px; font-family: var(--font-mono);">Manage & Add Projects</h2>
       
-      <div class="space-y" style="margin-bottom: 20px;">
-        <div style="font-size: 0.75rem; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted);">+ CREATE LOCAL PROJECT</div>
+      <div class="space-y" style="margin-bottom: 16px;">
+        <div style="font-size: 0.72rem; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted);">+ CREATE LOCAL PROJECT</div>
         <div class="flex-gap">
           <input type="text" id="new-local-proj-name" placeholder="Project Name">
-          <input type="color" id="new-local-proj-color" value="#e2e8f0" style="width: 44px; padding: 2px; height: 34px; cursor: pointer;">
+          <input type="color" id="new-local-proj-color" value="#e2e8f0" style="width: 40px; padding: 2px; height: 32px; cursor: pointer;">
           <button class="btn btn-sm" onclick="createLocalProject()">Add</button>
         </div>
       </div>
 
-      <div class="space-y" style="margin-bottom: 20px;">
-        <div style="font-size: 0.75rem; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted);">+ ADD & SYNC GITHUB PROJECT BOARD</div>
+      <div class="space-y" style="margin-bottom: 16px;">
+        <div style="font-size: 0.72rem; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted);">+ ADD & SYNC GITHUB PROJECT BOARD</div>
         <div class="space-y">
-          <input type="text" id="new-gh-proj-title" placeholder="GitHub Project Board Title (e.g. Pass Generator)">
+          <input type="text" id="new-gh-proj-title" placeholder="GitHub Project Board Title">
           <button class="btn btn-sm btn-secondary" onclick="addAndSyncNewGithubProject()">Sync & Add Project</button>
         </div>
       </div>
 
-      <div style="font-size: 0.75rem; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 8px;">EXISTING PROJECTS</div>
+      <div style="font-size: 0.72rem; font-weight: 700; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 6px;">EXISTING PROJECTS</div>
       <div class="space-y" id="project-list-wrapper"></div>
 
       <div class="modal-actions">
@@ -321,7 +319,7 @@
   <!-- MODAL: ADD/EDIT TASK -->
   <div class="modal-overlay" id="task-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);" id="modal-title">Create Task</h2>
+      <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);" id="modal-title">Create Task</h2>
       <input type="hidden" id="edit-task-id">
       
       <div class="space-y">
@@ -329,20 +327,20 @@
         <textarea id="t-desc" placeholder="Description (optional)" rows="2"></textarea>
         
         <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">PROJECT:</label>
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">PROJECT:</label>
           <div class="flex-gap">
             <input type="text" id="t-project" placeholder="Project Name">
-            <input type="color" id="t-project-color" value="#e2e8f0" style="width: 44px; padding: 2px; height: 34px; cursor: pointer;">
+            <input type="color" id="t-project-color" value="#e2e8f0" style="width: 40px; padding: 2px; height: 32px; cursor: pointer;">
           </div>
         </div>
 
         <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
           <input type="text" id="t-tags" placeholder="urgent, bug">
         </div>
 
         <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">DEPENDS ON:</label>
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">DEPENDS ON:</label>
           <select id="t-dep"><option value="">None</option></select>
         </div>
       </div>
@@ -357,7 +355,7 @@
   <!-- MODAL: ADD/EDIT SUBTASK -->
   <div class="modal-overlay" id="subtask-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);" id="submodal-title">Subtask</h2>
+      <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);" id="submodal-title">Subtask</h2>
       <input type="hidden" id="sub-parent-task-id">
       <input type="hidden" id="sub-edit-id">
       
@@ -365,7 +363,7 @@
         <input type="text" id="sub-title" placeholder="Subtask Title">
         <textarea id="sub-desc" placeholder="Description (optional)" rows="2"></textarea>
         <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS:</label>
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">TAGS:</label>
           <input type="text" id="sub-tags" placeholder="review, fix">
         </div>
       </div>
@@ -377,29 +375,32 @@
     </div>
   </div>
 
-  <!-- MODAL: CALENDAR TIME BLOCK -->
+  <!-- MODAL: ADD/EDIT CALENDAR TIME BLOCK -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);">Schedule Time Block</h2>
+      <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);" id="cal-modal-title">Schedule Time Block</h2>
+      <input type="hidden" id="cal-edit-id">
+      
       <div class="space-y">
         <input type="text" id="cal-title" placeholder="Block Title">
         <input type="date" id="cal-date">
         <div class="flex-gap">
           <div>
-            <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">START TIME:</label>
+            <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">START TIME:</label>
             <input type="time" id="cal-start-time" value="09:00">
           </div>
           <div>
-            <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">END TIME:</label>
+            <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">END TIME:</label>
             <input type="time" id="cal-end-time" value="10:00">
           </div>
         </div>
         <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">ASSIGN PROJECT:</label>
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">ASSIGN PROJECT:</label>
           <select id="cal-project-select"></select>
         </div>
       </div>
       <div class="modal-actions">
+        <button class="btn btn-danger btn-sm" id="cal-delete-btn" style="display:none; margin-right:auto;" onclick="deleteCalendarEvent()">Delete</button>
         <button class="btn btn-secondary" onclick="closeModal('calendar-modal')">Cancel</button>
         <button class="btn" onclick="saveCalendarEvent()">Save Block</button>
       </div>
@@ -409,10 +410,10 @@
   <!-- MODAL: MANUAL TIME ENTRY -->
   <div class="modal-overlay" id="manual-time-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);" id="time-modal-title">Log / Edit Project Time</h2>
+      <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);" id="time-modal-title">Log / Edit Project Time</h2>
       <div class="space-y">
         <div>
-          <label style="font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">PROJECT:</label>
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">PROJECT:</label>
           <select id="m-project-select"></select>
         </div>
         <div class="flex-gap">
@@ -430,7 +431,7 @@
   <!-- MODAL: PROJECT LIMITS -->
   <div class="modal-overlay" id="limit-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; margin-bottom: 12px; font-family: var(--font-mono);">Set Project Time Limit</h2>
+      <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);">Set Project Time Limit</h2>
       <div class="space-y">
         <input type="text" id="p-name" placeholder="Project Name">
         <input type="number" id="p-limit" placeholder="Limit in Hours">
@@ -445,7 +446,7 @@
   <script>
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v18', 'todo-pwa-v17'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v19', 'todo-pwa-v18'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -547,7 +548,6 @@
     const PRESET_COLORS = ['#fee2e2', '#fef3c7', '#dcfce7', '#e0e7ff', '#f3e8ff', '#fce7f3'];
     function getRandomColor() { return PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)]; }
 
-    /* Fix: Reset Scroll Position when Switching Tabs */
     function switchTab(tab, element) {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -557,7 +557,6 @@
 
       document.getElementById(`sec-${tab}`).classList.add('active');
 
-      // RESET SCROLL CONTAINER POSITION TO TOP
       const mainContainer = document.getElementById('main-scroll-container');
       if (mainContainer) mainContainer.scrollTop = 0;
 
@@ -626,7 +625,7 @@
       ]);
 
       if (allProjects.size === 0) {
-        wrapper.innerHTML = `<div style="font-size:0.78rem; color:var(--text-muted); font-family:var(--font-mono);">No projects added yet.</div>`;
+        wrapper.innerHTML = `<div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">No projects added yet.</div>`;
         return;
       }
 
@@ -638,9 +637,9 @@
         item.className = 'project-mgr-item';
         item.innerHTML = `
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="width:12px; height:12px; border-radius:50%; background:${color}; display:inline-block;"></span>
-            <span style="font-weight:600; font-size:0.88rem;">${proj}</span>
-            <span style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">(${taskCount} tasks)</span>
+            <span style="width:10px; height:10px; border-radius:50%; background:${color}; display:inline-block;"></span>
+            <span style="font-weight:600; font-size:0.82rem;">${proj}</span>
+            <span style="font-size:0.68rem; color:var(--text-muted); font-family:var(--font-mono);">(${taskCount} tasks)</span>
           </div>
           <div class="flex-gap">
             <button class="btn btn-secondary btn-sm" onclick="syncGithubProjectByName('${proj}')">↻ Sync</button>
@@ -980,16 +979,40 @@
       }
     }
 
-    /* --- SCHEDULE CALENDAR SYSTEM WITH TIME SLOTS --- */
-    function openCalendarEventModal() {
+    /* --- SCHEDULE CALENDAR SYSTEM WITH EDITING & DELETION --- */
+    function openCalendarEventModal(eventId = null) {
       updateProjectDropdowns();
-      document.getElementById('cal-title').value = '';
-      const dateVal = document.getElementById('cal-view-date').value || new Date().toISOString().split('T')[0];
-      document.getElementById('cal-date').value = dateVal;
+      
+      const delBtn = document.getElementById('cal-delete-btn');
+      
+      if (eventId) {
+        const evt = (appData.calendarEvents || []).find(e => e.id === eventId);
+        if (evt) {
+          document.getElementById('cal-modal-title').innerText = 'Edit Time Block';
+          document.getElementById('cal-edit-id').value = evt.id;
+          document.getElementById('cal-title').value = evt.title;
+          document.getElementById('cal-date').value = evt.date;
+          document.getElementById('cal-start-time').value = evt.startTime || '09:00';
+          document.getElementById('cal-end-time').value = evt.endTime || '10:00';
+          document.getElementById('cal-project-select').value = evt.project || '';
+          delBtn.style.display = 'inline-flex';
+        }
+      } else {
+        document.getElementById('cal-modal-title').innerText = 'Schedule Time Block';
+        document.getElementById('cal-edit-id').value = '';
+        document.getElementById('cal-title').value = '';
+        const dateVal = document.getElementById('cal-view-date').value || new Date().toISOString().split('T')[0];
+        document.getElementById('cal-date').value = dateVal;
+        document.getElementById('cal-start-time').value = '09:00';
+        document.getElementById('cal-end-time').value = '10:00';
+        delBtn.style.display = 'none';
+      }
+
       document.getElementById('calendar-modal').style.display = 'flex';
     }
 
     function saveCalendarEvent() {
+      const editId = document.getElementById('cal-edit-id').value;
       const title = document.getElementById('cal-title').value.trim();
       const date = document.getElementById('cal-date').value;
       const startTime = document.getElementById('cal-start-time').value;
@@ -998,7 +1021,30 @@
 
       if (title && date && startTime) {
         if (!appData.calendarEvents) appData.calendarEvents = [];
-        appData.calendarEvents.push({ id: 'cal_' + Date.now(), title, date, startTime, endTime, project });
+
+        if (editId) {
+          const evt = appData.calendarEvents.find(e => e.id === editId);
+          if (evt) {
+            evt.title = title;
+            evt.date = date;
+            evt.startTime = startTime;
+            evt.endTime = endTime;
+            evt.project = project;
+          }
+        } else {
+          appData.calendarEvents.push({ id: 'cal_' + Date.now(), title, date, startTime, endTime, project });
+        }
+
+        saveData();
+        closeModal('calendar-modal');
+        renderScheduleCalendar();
+      }
+    }
+
+    function deleteCalendarEvent() {
+      const editId = document.getElementById('cal-edit-id').value;
+      if (editId && confirm("Delete this scheduled time block?")) {
+        appData.calendarEvents = (appData.calendarEvents || []).filter(e => e.id !== editId);
         saveData();
         closeModal('calendar-modal');
         renderScheduleCalendar();
@@ -1044,11 +1090,14 @@
           <div class="slot-time">${hourStr}</div>
           <div class="slot-events">
             ${matchingEvents.map(evt => `
-              <div class="time-block-card" onclick="jumpToTasksWithProject('${evt.project}')">
-                <div style="font-weight:700; font-size:0.85rem;">${evt.title}</div>
-                <div style="font-size:0.72rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
-                  ${evt.startTime} - ${evt.endTime} ${evt.project ? `| ${evt.project}` : ''}
+              <div class="time-block-card">
+                <div onclick="jumpToTasksWithProject('${evt.project}')" style="flex:1;">
+                  <div style="font-weight:700; font-size:0.82rem;">${evt.title}</div>
+                  <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
+                    ${evt.startTime} - ${evt.endTime} ${evt.project ? `| ${evt.project}` : ''}
+                  </div>
                 </div>
+                <button class="btn btn-secondary btn-sm" style="padding:1px 6px; font-size:0.68rem;" onclick="event.stopPropagation(); openCalendarEventModal('${evt.id}')">Edit</button>
               </div>
             `).join('')}
           </div>
@@ -1160,7 +1209,7 @@
           <div class="task-header">
             <button class="collapse-btn" onclick="toggleCollapseTask('${task.id}')">▼</button>
             <div class="task-title">
-              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 16px; height: 16px; cursor: pointer;">
+              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 15px; height: 15px; cursor: pointer;">
               <span>${task.title}</span>
             </div>
             <div class="flex-gap">
@@ -1258,7 +1307,7 @@
       const selectedProj = document.getElementById('graph-project-filter').value;
 
       canvas.width = canvas.parentElement.clientWidth - 32;
-      canvas.height = 380;
+      canvas.height = 360;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -1391,7 +1440,7 @@
         card.className = 'report-card';
         card.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-weight: 700; font-family: var(--font-mono); font-size: 0.95rem;">${proj}</div>
+            <div style="font-weight: 700; font-family: var(--font-mono); font-size: 0.92rem;">${proj}</div>
             <button class="btn btn-secondary btn-sm" onclick="openManualTimeModal('${proj}')">Edit Logged Time</button>
           </div>
           <div style="font-size: 0.78rem; color: var(--text-muted); margin: 8px 0;">${statusText}</div>
@@ -1419,7 +1468,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v19';
+        const CACHE_NAME = 'todo-pwa-v20';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
