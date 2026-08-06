@@ -105,11 +105,35 @@
     }
     .task-title.long-title span { font-size: 0.82rem; }
 
-    .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }
+    .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0 2px 0; }
 
     .collapse-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-muted); padding: 2px; display: inline-flex; align-items: center; transition: transform 0.2s ease; margin-top: 2px; }
     .task-card.collapsed .collapse-btn { transform: rotate(-90deg); }
     .task-card.collapsed .task-body { display: none; }
+
+    /* Circular SVG Progress Ring */
+    .circular-progress-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .circular-progress-wrap svg { transform: rotate(-90deg); width: 28px; height: 28px; }
+    .circular-progress-wrap circle { fill: none; stroke-width: 3; stroke-linecap: round; }
+    .circular-progress-bg { stroke: var(--surface-hover); }
+    .circular-progress-fill { stroke: var(--text); transition: stroke-dashoffset 0.3s ease; }
+    .circular-progress-text {
+      position: absolute;
+      font-size: 0.58rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+    }
 
     /* 3-Dot Task Action Menu */
     .task-menu-dropdown {
@@ -145,10 +169,6 @@
 
     .pill { display: inline-flex; align-items: center; font-size: 0.65rem; padding: 2px 7px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); }
     .pill-tag { font-family: var(--font-sans); font-weight: 500; border: 1px solid rgba(0,0,0,0.08); }
-
-    /* Progress bar */
-    .progress-bar { width: 100%; height: 4px; background: var(--surface-hover); border-radius: 2px; overflow: hidden; margin: 6px 0; }
-    .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
     /* Subtasks Grid */
     .subtask-tree { margin-left: 4px; padding-left: 8px; border-left: 2px solid var(--border); margin-top: 8px; display: flex; flex-direction: column; gap: 6px; width: calc(100% - 4px); box-sizing: border-box; }
@@ -554,7 +574,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v26', 'todo-pwa-v25', 'todo-pwa-v24'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v27', 'todo-pwa-v26', 'todo-pwa-v25'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -864,7 +884,7 @@
       }
     }
 
-    /* --- TASK & SUBTASK MANAGEMENT WITH 3-DOT MENU --- */
+    /* --- TASK & SUBTASK MANAGEMENT WITH 3-DOT MENU & OUTSIDE PROGRESS/TAGS --- */
     function filterTasksByProjectSelect() { 
       selectedFilterTags.clear();
       renderTagFilters();
@@ -1353,7 +1373,6 @@
       const tasksBtn = document.querySelectorAll('.nav-btn')[1];
       switchTab('tasks', tasksBtn);
       
-      // Reset filter to ALL PROJECTS so search happens across everything
       document.getElementById('task-project-filter').value = 'ALL';
       
       if (taskTitle) {
@@ -1539,6 +1558,11 @@
         const isCollapsed = appData.collapsedTasks && appData.collapsedTasks[task.id];
         const isLongTitle = task.title.length > 45;
 
+        // SVG Circular Ring Calculation
+        const radius = 9;
+        const circumference = 2 * Math.PI * radius;
+        const strokeDashoffset = circumference - (progressPct / 100) * circumference;
+
         const subtasksToDisplay = task.subtasks.filter(sub => {
           if (selectedFilterTags.size === 0) return true;
           const taskHasFilter = Array.from(selectedFilterTags).every(t => (task.tags || []).includes(t));
@@ -1555,6 +1579,18 @@
         card.innerHTML = `
           <div class="task-header">
             <button class="collapse-btn" onclick="toggleCollapseTask('${task.id}')">▼</button>
+
+            <!-- Inline Circular SVG Progress Indicator -->
+            <div class="circular-progress-wrap" title="${doneSub}/${totalSub} subtasks completed (${progressPct}%)">
+              <svg>
+                <circle class="circular-progress-bg" cx="14" cy="14" r="${radius}"></circle>
+                <circle class="circular-progress-fill" cx="14" cy="14" r="${radius}" 
+                  stroke-dasharray="${circumference}" 
+                  stroke-dashoffset="${strokeDashoffset}"></circle>
+              </svg>
+              <span class="circular-progress-text">${progressPct}%</span>
+            </div>
+
             <div class="task-title ${isLongTitle ? 'long-title' : ''}">
               <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; margin-top: 2px;">
               <span>${task.title}</span>
@@ -1571,19 +1607,14 @@
             </div>
           </div>
 
-          <div class="task-body">
+          <!-- Tags Displayed OUTSIDE the Expand Section -->
+          <div class="task-meta" style="margin-left: 56px;">
+            ${(selectedProjectFilter === 'ALL' && task.project) ? `<span class="pill" style="background:${projColor}; color:#1e293b;">${task.project}</span>` : ''}
+            ${(task.tags || []).map(t => `<span class="pill pill-tag" style="background:${appData.tagColors[t] || '#f1f5f9'};">#${t}</span>`).join('')}
+          </div>
+
+          <div class="task-body" style="margin-top: 6px;">
             ${task.description ? `<div style="font-size: 0.78rem; color: var(--text-muted); margin: 6px 0;">${task.description}</div>` : ''}
-
-            <div class="task-meta">
-              ${task.project ? `<span class="pill" style="background:${projColor}; color:#1e293b;">${task.project}</span>` : ''}
-              ${(task.tags || []).map(t => `<span class="pill pill-tag" style="background:${appData.tagColors[t] || '#f1f5f9'};">#${t}</span>`).join('')}
-            </div>
-
-            <div style="font-size: 0.7rem; color: var(--text-muted); display: flex; justify-content: space-between; font-family: var(--font-mono);">
-              <span>Progress</span>
-              <span>${doneSub}/${totalSub} (${progressPct}%)</span>
-            </div>
-            <div class="progress-bar"><div class="progress-fill" style="width: ${progressPct}%"></div></div>
 
             <div class="subtask-tree">
               ${subtasksToDisplay.map(sub => `
@@ -1813,7 +1844,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v27';
+        const CACHE_NAME = 'todo-pwa-v28';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
