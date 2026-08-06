@@ -422,12 +422,13 @@
       <div class="space-y">
         <input type="text" id="cal-title" placeholder="Block / Event Title">
         <input type="date" id="cal-date">
+        
         <div class="flex-gap">
-          <div>
+          <div style="flex:1;">
             <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">START TIME:</label>
             <input type="time" id="cal-start-time" value="09:00">
           </div>
-          <div>
+          <div style="flex:1;">
             <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">END TIME:</label>
             <input type="time" id="cal-end-time" value="10:00">
           </div>
@@ -451,6 +452,7 @@
           <select id="cal-project-select"></select>
         </div>
       </div>
+
       <div class="modal-actions">
         <button class="btn btn-danger btn-sm" id="cal-delete-btn" style="display:none; margin-right:auto;" onclick="deleteCalendarEvent()">Delete</button>
         <button class="btn btn-secondary" onclick="closeModal('calendar-modal')">Cancel</button>
@@ -505,7 +507,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v23', 'todo-pwa-v22', 'todo-pwa-v21'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v24', 'todo-pwa-v23', 'todo-pwa-v22'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -534,7 +536,21 @@
             if (parsed.tagColors) Object.assign(mergedTagColors, parsed.tagColors);
             if (parsed.manualProjectTimes) Object.assign(mergedManualTimes, parsed.manualProjectTimes);
             if (parsed.collapsedTasks) Object.assign(mergedCollapsed, parsed.collapsedTasks);
-            if (parsed.calendarEvents) mergedCalendarEvents = parsed.calendarEvents;
+            
+            // SANITIZE & DEDUPLICATE CALENDAR EVENTS
+            if (parsed.calendarEvents) {
+              parsed.calendarEvents.forEach(evt => {
+                const sanitizedEvt = {
+                  ...evt,
+                  type: evt.type || 'task', // Ensure default type is 'task'
+                  date: evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date())
+                };
+                if (!mergedCalendarEvents.some(e => e.id === sanitizedEvt.id)) {
+                  mergedCalendarEvents.push(sanitizedEvt);
+                }
+              });
+            }
+
             if (parsed.hideCompleted !== undefined) hideCompleted = parsed.hideCompleted;
             if (parsed.isSplitView !== undefined) isSplitView = parsed.isSplitView;
             if (parsed.ghToken) ghToken = parsed.ghToken;
@@ -1047,7 +1063,7 @@
       }
     }
 
-    /* --- SCHEDULE CALENDAR SYSTEM WITH TIME SLOTS & TIMEZONE FIX --- */
+    /* --- SCHEDULE CALENDAR SYSTEM WITH MEETINGS & STRICT ISOLATED TASK DATES --- */
     function scheduleTaskToCalendar(taskTitle, taskProject) {
       openCalendarEventModal(null, 'task');
       document.getElementById('cal-title').value = taskTitle;
@@ -1119,7 +1135,7 @@
 
     function saveCalendarEvent() {
       const editId = document.getElementById('cal-edit-id').value;
-      const blockType = document.getElementById('cal-type').value;
+      const blockType = document.getElementById('cal-type').value || 'task';
       const title = document.getElementById('cal-title').value.trim();
       const rawDate = document.getElementById('cal-date').value;
       const date = rawDate ? rawDate.split('T')[0] : formatDateLocal(new Date());
@@ -1192,17 +1208,18 @@
       renderTasks();
     }
 
-    /* STRICT ISOLATED DATE RENDERER (PREVENTS DUPLICATION) */
-    function renderSingleDaySlots(dateStr) {
-      const cleanTargetDate = dateStr.split('T')[0];
+    /* FIXED RENDERER: GUARANTEES TASKS NEVER DUPLICATE ACROSS SPLIT COLUMNS */
+    function renderSingleDaySlots(targetDateStr) {
+      const cleanTargetDate = targetDateStr.split('T')[0];
       const dateObj = new Date(cleanTargetDate + 'T00:00:00');
       const dayOfWeek = dateObj.getDay();
 
       const dayEvents = (appData.calendarEvents || []).filter(e => {
-        if (e.type === 'meeting' && e.recurringDays && e.recurringDays.length > 0) {
-          return e.recurringDays.includes(dayOfWeek);
+        const evtType = e.type || 'task';
+        if (evtType === 'meeting') {
+          return e.recurringDays && e.recurringDays.includes(dayOfWeek);
         }
-        // Strict timezone-stripped string comparison
+        // STRICT STRING EQUALITY FOR TASKS
         const eventCleanDate = e.date ? e.date.split('T')[0] : '';
         return eventCleanDate === cleanTargetDate;
       });
@@ -1216,19 +1233,22 @@
           <div class="time-slot-row">
             <div class="slot-time">${hourStr}</div>
             <div class="slot-events">
-              ${matchingEvents.map(evt => `
-                <div class="time-block-card ${evt.type === 'meeting' ? 'is-meeting' : ''}">
-                  <div onclick="${evt.type === 'task' ? `jumpToSpecificTask('${evt.title.replace(/'/g, "\\'")}', '${evt.project}')` : ''}" style="flex:1;">
-                    <div style="font-weight:700; font-size:0.82rem; display:flex; align-items:center; gap:6px;">
-                      ${evt.type === 'meeting' ? '🔁' : '📋'} ${evt.title}
+              ${matchingEvents.map(evt => {
+                const isMeeting = evt.type === 'meeting';
+                return `
+                  <div class="time-block-card ${isMeeting ? 'is-meeting' : ''}">
+                    <div onclick="${!isMeeting ? `jumpToSpecificTask('${evt.title.replace(/'/g, "\\'")}', '${evt.project}')` : ''}" style="flex:1;">
+                      <div style="font-weight:700; font-size:0.82rem; display:flex; align-items:center; gap:6px;">
+                        ${isMeeting ? '🔁' : '📋'} ${evt.title}
+                      </div>
+                      <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
+                        ${evt.startTime} - ${evt.endTime} ${evt.project ? `| ${evt.project}` : ''}
+                      </div>
                     </div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
-                      ${evt.startTime} - ${evt.endTime} ${evt.project ? `| ${evt.project}` : ''}
-                    </div>
+                    <button class="btn btn-secondary btn-sm" style="padding:1px 6px; font-size:0.68rem;" onclick="event.stopPropagation(); openCalendarEventModal('${evt.id}', '${evt.type || 'task'}')">Edit</button>
                   </div>
-                  <button class="btn btn-secondary btn-sm" style="padding:1px 6px; font-size:0.68rem;" onclick="event.stopPropagation(); openCalendarEventModal('${evt.id}', '${evt.type || 'task'}')">Edit</button>
-                </div>
-              `).join('')}
+                `;
+              }).join('')}
             </div>
           </div>
         `;
@@ -1643,7 +1663,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v24';
+        const CACHE_NAME = 'todo-pwa-v25';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
