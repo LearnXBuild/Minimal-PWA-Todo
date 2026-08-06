@@ -46,7 +46,23 @@
     .content-section.active { display: block; }
 
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
-    h1 { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 700; letter-spacing: -0.02em; }
+    
+    /* Project Dropdown Styled like Header Title */
+    .project-title-select {
+      font-family: var(--font-mono);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: transparent;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      outline: none;
+      padding: 0;
+      width: auto;
+      max-width: 320px;
+    }
+    .project-title-select:focus { border-bottom: 2px solid var(--text); }
 
     /* Buttons & Inputs */
     .btn { background: var(--text); color: #fff; border: none; padding: 6px 14px; border-radius: var(--radius); font-size: 0.82rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
@@ -154,8 +170,8 @@
       <button class="profile-icon-btn" onclick="openProfileModal()">👤</button>
     </div>
     <nav>
-      <button class="nav-btn active" onclick="switchTab('tasks', this)">Tasks & Subtasks</button>
-      <button class="nav-btn" onclick="switchTab('calendar', this)">Schedule Calendar</button>
+      <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule Calendar</button>
+      <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks & Subtasks</button>
       <button class="nav-btn" onclick="switchTab('graph', this)">Dependency Graph</button>
       <button class="nav-btn" onclick="switchTab('reports', this)">Reports & Limits</button>
     </nav>
@@ -168,16 +184,31 @@
   </div>
 
   <main>
-    <!-- TASKS SECTION -->
-    <section id="sec-tasks" class="content-section active">
+    <!-- SCHEDULE CALENDAR SECTION (DEFAULT JOURNEY START) -->
+    <section id="sec-calendar" class="content-section active">
       <header>
-        <h1>TASKS</h1>
+        <h1>SCHEDULE CALENDAR</h1>
+        <button class="btn" onclick="openCalendarEventModal()">+ Time Block</button>
+      </header>
+      
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <input type="date" id="cal-view-date" onchange="renderScheduleCalendar()" style="width: 160px;">
+        <div style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);" id="cal-day-label"></div>
+      </div>
+
+      <div class="time-slot-container" id="time-slots-wrapper"></div>
+    </section>
+
+    <!-- TASKS SECTION -->
+    <section id="sec-tasks" class="content-section">
+      <header>
+        <!-- Dynamic Project Name Header Dropdown -->
+        <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
+          <option value="ALL">ALL PROJECTS ▼</option>
+        </select>
+        
         <div class="flex-gap" style="align-items: center;">
-          <select id="task-project-filter" onchange="filterTasksByProjectSelect()" style="width: 140px; padding: 6px 10px;">
-            <option value="ALL">All Projects</option>
-          </select>
           <button class="btn btn-secondary btn-sm" id="resync-btn" onclick="resyncSelectedProject()">↻ Sync</button>
-          <button class="btn btn-secondary btn-sm" onclick="openProjectManagerModal()">+ Manage Projects</button>
           <button class="btn" onclick="openTaskModal()">+ Add Task</button>
         </div>
       </header>
@@ -194,21 +225,6 @@
       </div>
 
       <div class="task-list" id="task-container"></div>
-    </section>
-
-    <!-- SCHEDULE CALENDAR SECTION -->
-    <section id="sec-calendar" class="content-section">
-      <header>
-        <h1>SCHEDULE CALENDAR</h1>
-        <button class="btn" onclick="openCalendarEventModal()">+ Time Block</button>
-      </header>
-      
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-        <input type="date" id="cal-view-date" onchange="renderScheduleCalendar()" style="width: 160px;">
-        <div style="font-family:var(--font-mono); font-size:0.8rem; color:var(--text-muted);" id="cal-day-label"></div>
-      </div>
-
-      <div class="time-slot-container" id="time-slots-wrapper"></div>
     </section>
 
     <!-- DEPENDENCY GRAPH SECTION -->
@@ -238,8 +254,8 @@
   </main>
 
   <div class="mobile-nav">
-    <button class="nav-btn active" onclick="switchTab('tasks', this)">Tasks</button>
-    <button class="nav-btn" onclick="switchTab('calendar', this)">Schedule</button>
+    <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule</button>
+    <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks</button>
     <button class="nav-btn" onclick="switchTab('graph', this)">Graph</button>
     <button class="nav-btn" onclick="switchTab('reports', this)">Reports</button>
   </div>
@@ -426,7 +442,7 @@
   <script>
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v16', 'todo-pwa-v15', 'todo-pwa-v14'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v17', 'todo-pwa-v16', 'todo-pwa-v15'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -801,7 +817,7 @@
     async function resyncSelectedProject() {
       const targetProj = document.getElementById('task-project-filter').value;
       if (targetProj === 'ALL') {
-        alert("Please select a specific project from the dropdown to sync.");
+        alert("Please select a specific project from the dropdown title to sync.");
         return;
       }
       await syncGithubProjectByName(targetProj);
@@ -950,7 +966,7 @@
         updateProjectDropdowns();
         renderTagFilters();
         renderTasks();
-        alert(`Synced '${projName}'! ${count} new in-progress items loaded.`);
+        alert(`Synced '${projName}'! Loaded ${count} new in-progress items.`);
       } catch(err) {
         alert("Sync Error: " + err.message);
       }
@@ -982,7 +998,7 @@
     }
 
     function jumpToTasksWithProject(projName) {
-      const tasksBtn = document.querySelectorAll('.nav-btn')[0];
+      const tasksBtn = document.querySelectorAll('.nav-btn')[1];
       switchTab('tasks', tasksBtn);
       
       if (projName) {
@@ -1213,13 +1229,13 @@
 
       const currTaskVal = taskProjSelect.value;
 
-      taskProjSelect.innerHTML = '<option value="ALL">All Projects</option>';
+      taskProjSelect.innerHTML = '<option value="ALL">ALL PROJECTS ▼</option>';
       graphSelect.innerHTML = '<option value="ALL">All Projects</option>';
       manualSelect.innerHTML = '';
       if (calSelect) calSelect.innerHTML = '<option value="">None</option>';
 
       allProjects.forEach(proj => {
-        taskProjSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
+        taskProjSelect.innerHTML += `<option value="${proj}">${proj.toUpperCase()} ▼</option>`;
         graphSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
         manualSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
         if (calSelect) calSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
@@ -1395,7 +1411,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v17';
+        const CACHE_NAME = 'todo-pwa-v18';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
@@ -1409,7 +1425,7 @@
 
     updateProjectDropdowns();
     renderTagFilters();
-    renderTasks();
+    renderScheduleCalendar();
   </script>
 </body>
 </html>
