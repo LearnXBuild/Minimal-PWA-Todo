@@ -573,7 +573,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v28', 'todo-pwa-v27', 'todo-pwa-v26'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v29', 'todo-pwa-v28', 'todo-pwa-v27'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -835,7 +835,7 @@
       container.style.opacity = '1';
       btn.disabled = false;
 
-      const isRunning = activeProjectTimer && activeProjectTimer.projName === selectedProj;
+      const isRunning = activeProjectTimer && activeProjectTimer.projName.toLowerCase() === selectedProj.toLowerCase();
       btn.innerText = isRunning ? 'Pause Timer' : 'Start Project Timer';
       btn.className = isRunning ? 'btn btn-sm btn-secondary' : 'btn btn-sm';
 
@@ -847,7 +847,7 @@
       const selectedProj = document.getElementById('task-project-filter').value;
       if (selectedProj === 'ALL') return;
 
-      if (activeProjectTimer && activeProjectTimer.projName === selectedProj) {
+      if (activeProjectTimer && activeProjectTimer.projName.toLowerCase() === selectedProj.toLowerCase()) {
         clearInterval(activeProjectTimer.timerId);
         const elapsed = Math.floor((Date.now() - activeProjectTimer.startTime) / 1000);
         if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
@@ -876,7 +876,7 @@
       if (!activeProjectTimer) return;
       const badge = document.getElementById('proj-timer-badge');
       const selectedProj = document.getElementById('task-project-filter').value;
-      if (badge && activeProjectTimer.projName === selectedProj) {
+      if (badge && activeProjectTimer.projName.toLowerCase() === selectedProj.toLowerCase()) {
         const currentElapsed = Math.floor((Date.now() - activeProjectTimer.startTime) / 1000);
         const baseSec = (appData.manualProjectTimes || {})[selectedProj] || 0;
         badge.innerText = formatTime(baseSec + currentElapsed);
@@ -1201,7 +1201,7 @@
             const rawLabels = (item.content.labels?.nodes || []).map(l => l.name.toLowerCase());
             rawLabels.forEach(t => { if (!appData.tagColors[t]) appData.tagColors[t] = getRandomColor(); });
 
-            let existingTask = appData.tasks.find(t => t.title === title && t.project === projName);
+            let existingTask = appData.tasks.find(t => t.title === title && t.project.toLowerCase() === projName.toLowerCase());
             if (!existingTask) {
               appData.tasks.push({
                 id: 'task_' + Date.now() + Math.random(),
@@ -1485,7 +1485,7 @@
       scrollToCurrentTimeSlot();
     }
 
-    /* --- RENDER SCOPED TAGS & SUBTASK-AWARE FILTERING --- */
+    /* --- RENDER SCOPED TAGS & CASE-INSENSITIVE SUBTASK-AWARE FILTERING --- */
     function renderTagFilters() {
       const container = document.getElementById('tag-filters');
       container.innerHTML = '';
@@ -1494,7 +1494,7 @@
       const projectScopedTags = new Set();
 
       appData.tasks.forEach(t => {
-        if (selectedProject === 'ALL' || t.project === selectedProject) {
+        if (selectedProject === 'ALL' || (t.project && t.project.toLowerCase() === selectedProject.toLowerCase())) {
           (t.tags || []).forEach(tag => projectScopedTags.add(tag));
           (t.subtasks || []).forEach(sub => (sub.tags || []).forEach(tag => projectScopedTags.add(tag)));
         }
@@ -1528,7 +1528,13 @@
 
       let filtered = appData.tasks.filter(task => {
         if (appData.hideCompleted && task.completed) return false;
-        if (selectedProjectFilter !== 'ALL' && task.project !== selectedProjectFilter) return false;
+        
+        // CASE-INSENSITIVE PROJECT MATCHING FIX
+        if (selectedProjectFilter !== 'ALL') {
+          if (!task.project || task.project.toLowerCase() !== selectedProjectFilter.toLowerCase()) {
+            return false;
+          }
+        }
 
         const matchesSearch = task.title.toLowerCase().includes(searchQuery) || 
           (task.project && task.project.toLowerCase().includes(searchQuery)) ||
@@ -1686,7 +1692,7 @@
 
       let tasksToRender = appData.tasks;
       if (selectedProj !== 'ALL') {
-        tasksToRender = appData.tasks.filter(t => t.project === selectedProj);
+        tasksToRender = appData.tasks.filter(t => t.project && t.project.toLowerCase() === selectedProj.toLowerCase());
       }
 
       if (tasksToRender.length === 0) return;
@@ -1842,7 +1848,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v29';
+        const CACHE_NAME = 'todo-pwa-v30';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
