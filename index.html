@@ -30,7 +30,7 @@
 
     /* Sidebar */
     aside { width: 220px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 16px 12px; flex-shrink: 0; }
-    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 80px; width: 100%; min-width: 0; }
+    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 80px; width: 100%; min-width: 0; scroll-behavior: smooth; }
     
     .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .logo { font-family: var(--font-mono); font-size: 0.88rem; font-weight: 700; letter-spacing: -0.03em; display: flex; align-items: center; gap: 8px; }
@@ -111,6 +111,38 @@
     .task-card.collapsed .collapse-btn { transform: rotate(-90deg); }
     .task-card.collapsed .task-body { display: none; }
 
+    /* 3-Dot Task Action Menu */
+    .task-menu-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 28px;
+      background: var(--surface);
+      border: 1px solid var(--border-dark);
+      border-radius: 8px;
+      box-shadow: var(--shadow-float);
+      z-index: 30;
+      flex-direction: column;
+      min-width: 130px;
+      padding: 4px;
+    }
+    .menu-item-btn {
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text);
+      cursor: pointer;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .menu-item-btn:hover { background: var(--surface-hover); }
+    .menu-item-btn.danger { color: #ef4444; }
+
     .pill { display: inline-flex; align-items: center; font-size: 0.65rem; padding: 2px 7px; border-radius: 99px; font-weight: 600; font-family: var(--font-mono); }
     .pill-tag { font-family: var(--font-sans); font-weight: 500; border: 1px solid rgba(0,0,0,0.08); }
 
@@ -138,7 +170,7 @@
     }
 
     /* Timer Controls */
-    .timer-badge { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface-hover); padding: 3px 8px; border-radius: 6px; font-weight: 700; }
+    .timer-badge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface-hover); padding: 3px 8px; border-radius: 6px; font-weight: 700; }
 
     /* Time-Slotted Calendar View & Split Grid */
     .split-calendar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -241,10 +273,18 @@
     <!-- TASKS SECTION -->
     <section id="sec-tasks" class="content-section">
       <header>
-        <!-- Dynamic Project Name Selector -->
-        <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
-          <option value="ALL">ALL PROJECTS</option>
-        </select>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <!-- Dynamic Project Name Selector -->
+          <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
+            <option value="ALL">ALL PROJECTS</option>
+          </select>
+
+          <!-- Project-Based Timer -->
+          <div id="project-timer-container" style="display:flex; align-items:center; gap:8px;">
+            <span id="proj-timer-badge" class="timer-badge">0m 0s</span>
+            <button id="proj-timer-btn" class="btn btn-sm" onclick="toggleProjectTimer()">Start Project Timer</button>
+          </div>
+        </div>
         
         <div class="flex-gap" style="align-items: center;">
           <button class="btn btn-secondary btn-sm" id="resync-btn" onclick="resyncSelectedProject()">↻ Sync</button>
@@ -254,10 +294,10 @@
 
       <div class="filter-bar">
         <div class="filter-top-row">
-          <input type="text" id="search-input" placeholder="Search tasks..." oninput="renderTasks()" style="flex: 1; min-width: 130px;">
-          <label class="toggle-label">
-            <input type="checkbox" id="hide-completed-toggle" onchange="toggleHideCompleted()"> Hide Completed
-          </label>
+          <div style="position: relative; flex: 1; min-width: 130px;">
+            <input type="text" id="search-input" placeholder="Search tasks..." oninput="handleSearchInput()" style="padding-right: 26px;">
+            <button id="clear-search-btn" onclick="clearSearch()" style="display:none; position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 0.8rem; color: var(--text-muted); cursor: pointer; padding: 2px 4px;">✕</button>
+          </div>
         </div>
         <div style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 2px;">FILTER BY TAGS:</div>
         <div class="filter-pills" id="tag-filters"></div>
@@ -312,6 +352,11 @@
           <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">ORGANIZATION / USER:</label>
           <input type="text" id="global-gh-org" placeholder="e.g. LearnXBuild" onchange="saveGlobalOrg()">
         </div>
+        <hr style="border: 0; border-top: 1px solid var(--border); margin: 6px 0;">
+        <label class="toggle-label" style="justify-content: space-between; padding: 4px 0;">
+          <span>HIDE COMPLETED TASKS</span>
+          <input type="checkbox" id="hide-completed-toggle" onchange="toggleHideCompleted()">
+        </label>
         <hr style="border: 0; border-top: 1px solid var(--border); margin: 6px 0;">
         <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="closeModal('profile-modal'); openProjectManagerModal();">📂 Manage & Add Projects</button>
         <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="exportData()">💾 Backup Workspace JSON</button>
@@ -509,7 +554,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v25', 'todo-pwa-v24', 'todo-pwa-v23'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v26', 'todo-pwa-v25', 'todo-pwa-v24'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -578,7 +623,7 @@
 
     let appData = loadAndMigrateData();
     let selectedFilterTags = new Set();
-    let activeTimer = null;
+    let activeProjectTimer = null;
 
     function saveData() {
       localStorage.setItem('claude_pwa_todo_master', JSON.stringify(appData));
@@ -587,6 +632,7 @@
     function openProfileModal() { 
       document.getElementById('global-gh-token').value = appData.ghToken || '';
       document.getElementById('global-gh-org').value = appData.ghOrg || '';
+      document.getElementById('hide-completed-toggle').checked = !!appData.hideCompleted;
       document.getElementById('profile-modal').style.display = 'flex'; 
     }
 
@@ -651,7 +697,20 @@
       if (tab === 'reports') renderReports();
     }
 
-    /* --- PROJECT MANAGER --- */
+    /* --- SEARCH BAR CLEAR OPTION --- */
+    function handleSearchInput() {
+      const val = document.getElementById('search-input').value;
+      document.getElementById('clear-search-btn').style.display = val ? 'block' : 'none';
+      renderTasks();
+    }
+
+    function clearSearch() {
+      document.getElementById('search-input').value = '';
+      document.getElementById('clear-search-btn').style.display = 'none';
+      renderTasks();
+    }
+
+    /* --- PROJECT MANAGER & PROJECT TIMER --- */
     function openProjectManagerModal() {
       renderProjectManagerList();
       document.getElementById('project-mgr-modal').style.display = 'flex';
@@ -738,12 +797,93 @@
       });
     }
 
-    /* --- TASK & SUBTASK MANAGEMENT --- */
+    function updateProjectTimerUI() {
+      const selectedProj = document.getElementById('task-project-filter').value;
+      const badge = document.getElementById('proj-timer-badge');
+      const btn = document.getElementById('proj-timer-btn');
+      const container = document.getElementById('project-timer-container');
+
+      if (!badge || !btn || !container) return;
+
+      if (selectedProj === 'ALL') {
+        container.style.opacity = '0.5';
+        btn.disabled = true;
+        btn.innerText = 'Select Project to Time';
+        badge.innerText = '0m 0s';
+        return;
+      }
+
+      container.style.opacity = '1';
+      btn.disabled = false;
+
+      const isRunning = activeProjectTimer && activeProjectTimer.projName === selectedProj;
+      btn.innerText = isRunning ? 'Pause Timer' : 'Start Project Timer';
+      btn.className = isRunning ? 'btn btn-sm btn-secondary' : 'btn btn-sm';
+
+      const spentSec = (appData.manualProjectTimes || {})[selectedProj] || 0;
+      badge.innerText = formatTime(spentSec);
+    }
+
+    function toggleProjectTimer() {
+      const selectedProj = document.getElementById('task-project-filter').value;
+      if (selectedProj === 'ALL') return;
+
+      if (activeProjectTimer && activeProjectTimer.projName === selectedProj) {
+        clearInterval(activeProjectTimer.timerId);
+        const elapsed = Math.floor((Date.now() - activeProjectTimer.startTime) / 1000);
+        if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
+        appData.manualProjectTimes[selectedProj] = ((appData.manualProjectTimes[selectedProj] || 0) + elapsed);
+        activeProjectTimer = null;
+        saveData();
+        updateProjectTimerUI();
+      } else {
+        if (activeProjectTimer) {
+          clearInterval(activeProjectTimer.timerId);
+          const elapsed = Math.floor((Date.now() - activeProjectTimer.startTime) / 1000);
+          if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
+          appData.manualProjectTimes[activeProjectTimer.projName] = ((appData.manualProjectTimes[activeProjectTimer.projName] || 0) + elapsed);
+        }
+
+        activeProjectTimer = {
+          projName: selectedProj,
+          startTime: Date.now(),
+          timerId: setInterval(() => updateProjectTimerTick(), 1000)
+        };
+        updateProjectTimerUI();
+      }
+    }
+
+    function updateProjectTimerTick() {
+      if (!activeProjectTimer) return;
+      const badge = document.getElementById('proj-timer-badge');
+      const selectedProj = document.getElementById('task-project-filter').value;
+      if (badge && activeProjectTimer.projName === selectedProj) {
+        const currentElapsed = Math.floor((Date.now() - activeProjectTimer.startTime) / 1000);
+        const baseSec = (appData.manualProjectTimes || {})[selectedProj] || 0;
+        badge.innerText = formatTime(baseSec + currentElapsed);
+      }
+    }
+
+    /* --- TASK & SUBTASK MANAGEMENT WITH 3-DOT MENU --- */
     function filterTasksByProjectSelect() { 
       selectedFilterTags.clear();
       renderTagFilters();
+      updateProjectTimerUI();
       renderTasks(); 
     }
+
+    function toggleTaskMenu(menuId, e) {
+      e.stopPropagation();
+      document.querySelectorAll('.task-menu-dropdown').forEach(m => {
+        if (m.id !== menuId) m.style.display = 'none';
+      });
+      const m = document.getElementById(menuId);
+      if (m) m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.task-menu-dropdown').forEach(m => m.style.display = 'none');
+    });
 
     function toggleCollapseTask(taskId) {
       if (!appData.collapsedTasks) appData.collapsedTasks = {};
@@ -1072,10 +1212,11 @@
       }
     }
 
-    /* --- SCHEDULE CALENDAR SYSTEM WITH MEETINGS, DESCRIPTIONS & RECURRING DAYS --- */
-    function scheduleTaskToCalendar(taskTitle, taskProject) {
+    /* --- SCHEDULE CALENDAR WITH TASK DESCRIPTION MATCHING & AUTO-SCROLL --- */
+    function scheduleTaskToCalendar(taskTitle, taskProject, taskDesc = '') {
       openCalendarEventModal(null, 'task');
       document.getElementById('cal-title').value = taskTitle;
+      document.getElementById('cal-desc').value = taskDesc || '';
       document.getElementById('cal-project-select').value = taskProject || '';
       const activeCalDate = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
       document.getElementById('cal-date').value = activeCalDate;
@@ -1207,19 +1348,22 @@
       }
     }
 
+    /* SEARCH IN ALL PROJECTS WHEN JUMPING FROM CALENDAR */
     function jumpToSpecificTask(taskTitle, projName) {
       const tasksBtn = document.querySelectorAll('.nav-btn')[1];
       switchTab('tasks', tasksBtn);
       
-      if (projName) {
-        document.getElementById('task-project-filter').value = projName;
-      }
+      // Reset filter to ALL PROJECTS so search happens across everything
+      document.getElementById('task-project-filter').value = 'ALL';
       
       if (taskTitle) {
-        document.getElementById('search-input').value = taskTitle;
+        const searchInput = document.getElementById('search-input');
+        searchInput.value = taskTitle;
+        document.getElementById('clear-search-btn').style.display = 'block';
       }
 
       renderTagFilters();
+      updateProjectTimerUI();
       renderTasks();
     }
 
@@ -1243,7 +1387,7 @@
         const matchingEvents = dayEvents.filter(e => parseInt(e.startTime.split(':')[0], 10) === hour);
 
         html += `
-          <div class="time-slot-row">
+          <div class="time-slot-row" id="slot-hour-${hour}">
             <div class="slot-time">${hourStr}</div>
             <div class="slot-events">
               ${matchingEvents.map(evt => {
@@ -1268,6 +1412,16 @@
         `;
       }
       return html;
+    }
+
+    function scrollToCurrentTimeSlot() {
+      const currentHour = new Date().getHours();
+      setTimeout(() => {
+        const slot = document.getElementById(`slot-hour-${currentHour}`);
+        if (slot) {
+          slot.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 100);
     }
 
     function renderScheduleCalendar() {
@@ -1309,46 +1463,8 @@
       } else {
         area.innerHTML = `<div class="time-slot-container">${renderSingleDaySlots(dateStr)}</div>`;
       }
-    }
 
-    /* --- TIMER FUNCTIONS --- */
-    function toggleTimer(taskId) {
-      const task = appData.tasks.find(t => t.id === taskId);
-
-      if (activeTimer && activeTimer.taskId === taskId) {
-        clearInterval(activeTimer.timerId);
-        const elapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
-        if (task) task.timeSpent += elapsed;
-        activeTimer = null;
-        saveData();
-        renderTasks();
-      } else {
-        if (activeTimer) toggleTimer(activeTimer.taskId);
-
-        activeTimer = {
-          taskId,
-          startTime: Date.now(),
-          timerId: setInterval(() => updateTimerDisplay(taskId), 1000)
-        };
-        renderTasks();
-      }
-    }
-
-    function updateTimerDisplay(taskId) {
-      const el = document.getElementById(`timer-val-${taskId}`);
-      if (el && activeTimer) {
-        const currentElapsed = Math.floor((Date.now() - activeTimer.startTime) / 1000);
-        const task = appData.tasks.find(t => t.id === taskId);
-        const total = (task ? task.timeSpent : 0) + currentElapsed;
-        el.innerText = formatTime(total);
-      }
-    }
-
-    function formatTime(sec) {
-      const h = Math.floor(sec / 3600);
-      const m = Math.floor((sec % 3600) / 60);
-      const s = sec % 60;
-      return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
+      scrollToCurrentTimeSlot();
     }
 
     /* --- RENDER SCOPED TAGS & SUBTASK-AWARE FILTERING --- */
@@ -1359,7 +1475,6 @@
       const selectedProject = document.getElementById('task-project-filter').value;
       const projectScopedTags = new Set();
 
-      // Collect tags strictly belonging to the currently selected project (or ALL)
       appData.tasks.forEach(t => {
         if (selectedProject === 'ALL' || t.project === selectedProject) {
           (t.tags || []).forEach(tag => projectScopedTags.add(tag));
@@ -1391,7 +1506,6 @@
       const searchQuery = document.getElementById('search-input').value.toLowerCase();
       const selectedProjectFilter = document.getElementById('task-project-filter').value;
       
-      document.getElementById('hide-completed-toggle').checked = !!appData.hideCompleted;
       container.innerHTML = '';
 
       let filtered = appData.tasks.filter(task => {
@@ -1402,7 +1516,6 @@
           (task.project && task.project.toLowerCase().includes(searchQuery)) ||
           task.subtasks.some(s => s.title.toLowerCase().includes(searchQuery));
 
-        // Subtask-Aware Tag Matching
         const taskTags = task.tags || [];
         const subtaskTags = (task.subtasks || []).flatMap(s => s.tags || []);
         const combinedTags = [...taskTags, ...subtaskTags];
@@ -1422,18 +1535,19 @@
         const totalSub = task.subtasks.length;
         const doneSub = task.subtasks.filter(s => s.completed).length;
         const progressPct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
-        const isRunning = activeTimer && activeTimer.taskId === task.id;
         const projColor = appData.projectColors[task.project] || '#e2e8f0';
         const isCollapsed = appData.collapsedTasks && appData.collapsedTasks[task.id];
         const isLongTitle = task.title.length > 45;
 
-        // Subtasks filtering display: if active tag filter is on, show subtasks matching or show all if parent matches
         const subtasksToDisplay = task.subtasks.filter(sub => {
           if (selectedFilterTags.size === 0) return true;
           const taskHasFilter = Array.from(selectedFilterTags).every(t => (task.tags || []).includes(t));
           if (taskHasFilter) return true;
           return Array.from(selectedFilterTags).every(t => (sub.tags || []).includes(t));
         });
+
+        const escapedTitle = task.title.replace(/'/g, "\\'");
+        const escapedDesc = (task.description || '').replace(/'/g, "\\'").replace(/\n/g, ' ');
 
         const card = document.createElement('div');
         card.className = `task-card ${task.completed ? 'completed' : ''} ${isCollapsed ? 'collapsed' : ''}`;
@@ -1445,9 +1559,15 @@
               <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; margin-top: 2px;">
               <span>${task.title}</span>
             </div>
-            <div class="flex-gap" style="flex-shrink: 0;">
-              <button class="btn btn-secondary btn-sm" onclick="openTaskModal('${task.id}')">Edit</button>
-              <button class="btn btn-secondary btn-sm" onclick="deleteTask('${task.id}')">Delete</button>
+            
+            <!-- 3-Dot Action Menu -->
+            <div style="position:relative; flex-shrink:0;">
+              <button class="btn btn-secondary btn-sm" onclick="toggleTaskMenu('menu-${task.id}', event)">⋮</button>
+              <div id="menu-${task.id}" class="task-menu-dropdown">
+                <button class="menu-item-btn" onclick="openTaskModal('${task.id}')">✏️ Edit</button>
+                <button class="menu-item-btn" onclick="scheduleTaskToCalendar('${escapedTitle}', '${task.project}', '${escapedDesc}')">📅 Schedule</button>
+                <button class="menu-item-btn danger" onclick="deleteTask('${task.id}')">🗑️ Delete</button>
+              </div>
             </div>
           </div>
 
@@ -1464,18 +1584,6 @@
               <span>${doneSub}/${totalSub} (${progressPct}%)</span>
             </div>
             <div class="progress-bar"><div class="progress-fill" style="width: ${progressPct}%"></div></div>
-
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-              <div class="timer-badge">
-                <span id="timer-val-${task.id}">${formatTime(task.timeSpent)}</span>
-              </div>
-              <div class="flex-gap">
-                <button class="btn btn-secondary btn-sm" onclick="scheduleTaskToCalendar('${task.title.replace(/'/g, "\\'")}', '${task.project}')">📅 Schedule</button>
-                <button class="btn btn-sm ${isRunning ? 'btn-secondary' : ''}" onclick="toggleTimer('${task.id}')">
-                  ${isRunning ? 'Pause' : 'Start Timer'}
-                </button>
-              </div>
-            </div>
 
             <div class="subtask-tree">
               ${subtasksToDisplay.map(sub => `
@@ -1615,6 +1723,7 @@
         appData.manualProjectTimes[project] = totalSec;
         saveData();
         closeModal('manual-time-modal');
+        updateProjectTimerUI();
         renderReports();
       }
     }
@@ -1704,7 +1813,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v26';
+        const CACHE_NAME = 'todo-pwa-v27';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
@@ -1717,6 +1826,7 @@
     }
 
     updateProjectDropdowns();
+    updateProjectTimerUI();
     renderTagFilters();
     renderScheduleCalendar();
   </script>
