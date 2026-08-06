@@ -147,7 +147,7 @@
     .slot-time { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
     .slot-events { display: flex; flex-direction: column; gap: 6px; }
     
-    .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s ease; border-left: 3px solid var(--text); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; }
+    .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s ease; border-left: 3px solid var(--text); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: flex-start; }
     .time-block-card.is-meeting { border-left-color: #3b82f6; border-left-style: dashed; }
     .time-block-card:hover { background: var(--surface-hover); }
 
@@ -241,6 +241,7 @@
     <!-- TASKS SECTION -->
     <section id="sec-tasks" class="content-section">
       <header>
+        <!-- Dynamic Project Name Selector -->
         <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
           <option value="ALL">ALL PROJECTS</option>
         </select>
@@ -412,7 +413,7 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD/EDIT CALENDAR TIME BLOCK -->
+  <!-- MODAL: ADD/EDIT CALENDAR TIME BLOCK WITH DESCRIPTION / NOTES -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal">
       <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);" id="cal-modal-title">Schedule Block</h2>
@@ -421,6 +422,7 @@
       
       <div class="space-y">
         <input type="text" id="cal-title" placeholder="Block / Event Title">
+        <textarea id="cal-desc" placeholder="Description / Standup Notes (optional)" rows="2"></textarea>
         <input type="date" id="cal-date">
         
         <div class="flex-gap">
@@ -507,7 +509,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v24', 'todo-pwa-v23', 'todo-pwa-v22'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v25', 'todo-pwa-v24', 'todo-pwa-v23'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -537,13 +539,13 @@
             if (parsed.manualProjectTimes) Object.assign(mergedManualTimes, parsed.manualProjectTimes);
             if (parsed.collapsedTasks) Object.assign(mergedCollapsed, parsed.collapsedTasks);
             
-            // SANITIZE & DEDUPLICATE CALENDAR EVENTS
             if (parsed.calendarEvents) {
               parsed.calendarEvents.forEach(evt => {
                 const sanitizedEvt = {
                   ...evt,
-                  type: evt.type || 'task', // Ensure default type is 'task'
-                  date: evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date())
+                  type: evt.type || 'task',
+                  date: evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date()),
+                  description: evt.description || ''
                 };
                 if (!mergedCalendarEvents.some(e => e.id === sanitizedEvt.id)) {
                   mergedCalendarEvents.push(sanitizedEvt);
@@ -665,6 +667,7 @@
         document.getElementById('new-local-proj-name').value = '';
         renderProjectManagerList();
         updateProjectDropdowns();
+        renderTagFilters();
         renderTasks();
       }
     }
@@ -694,6 +697,7 @@
         saveData();
         renderProjectManagerList();
         updateProjectDropdowns();
+        renderTagFilters();
         renderTasks();
         renderReports();
       }
@@ -735,7 +739,11 @@
     }
 
     /* --- TASK & SUBTASK MANAGEMENT --- */
-    function filterTasksByProjectSelect() { renderTasks(); }
+    function filterTasksByProjectSelect() { 
+      selectedFilterTags.clear();
+      renderTagFilters();
+      renderTasks(); 
+    }
 
     function toggleCollapseTask(taskId) {
       if (!appData.collapsedTasks) appData.collapsedTasks = {};
@@ -900,6 +908,7 @@
       if (task) {
         task.subtasks = task.subtasks.filter(s => s.id !== subId);
         saveData();
+        renderTagFilters();
         renderTasks();
       }
     }
@@ -1063,7 +1072,7 @@
       }
     }
 
-    /* --- SCHEDULE CALENDAR SYSTEM WITH MEETINGS & STRICT ISOLATED TASK DATES --- */
+    /* --- SCHEDULE CALENDAR SYSTEM WITH MEETINGS, DESCRIPTIONS & RECURRING DAYS --- */
     function scheduleTaskToCalendar(taskTitle, taskProject) {
       openCalendarEventModal(null, 'task');
       document.getElementById('cal-title').value = taskTitle;
@@ -1103,6 +1112,7 @@
         if (evt) {
           document.getElementById('cal-edit-id').value = evt.id;
           document.getElementById('cal-title').value = evt.title;
+          document.getElementById('cal-desc').value = evt.description || '';
           document.getElementById('cal-date').value = evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date());
           document.getElementById('cal-start-time').value = evt.startTime || '09:00';
           document.getElementById('cal-end-time').value = evt.endTime || '10:00';
@@ -1123,6 +1133,7 @@
       } else {
         document.getElementById('cal-edit-id').value = '';
         document.getElementById('cal-title').value = '';
+        document.getElementById('cal-desc').value = '';
         const dateVal = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
         document.getElementById('cal-date').value = dateVal;
         document.getElementById('cal-start-time').value = '09:00';
@@ -1137,6 +1148,7 @@
       const editId = document.getElementById('cal-edit-id').value;
       const blockType = document.getElementById('cal-type').value || 'task';
       const title = document.getElementById('cal-title').value.trim();
+      const desc = document.getElementById('cal-desc').value.trim();
       const rawDate = document.getElementById('cal-date').value;
       const date = rawDate ? rawDate.split('T')[0] : formatDateLocal(new Date());
       const startTime = document.getElementById('cal-start-time').value;
@@ -1157,6 +1169,7 @@
           const evt = appData.calendarEvents.find(e => e.id === editId);
           if (evt) {
             evt.title = title;
+            evt.description = desc;
             evt.date = date;
             evt.startTime = startTime;
             evt.endTime = endTime;
@@ -1168,6 +1181,7 @@
           appData.calendarEvents.push({ 
             id: 'cal_' + Date.now(), 
             title, 
+            description: desc,
             date, 
             startTime, 
             endTime, 
@@ -1205,10 +1219,10 @@
         document.getElementById('search-input').value = taskTitle;
       }
 
+      renderTagFilters();
       renderTasks();
     }
 
-    /* FIXED RENDERER: GUARANTEES TASKS NEVER DUPLICATE ACROSS SPLIT COLUMNS */
     function renderSingleDaySlots(targetDateStr) {
       const cleanTargetDate = targetDateStr.split('T')[0];
       const dateObj = new Date(cleanTargetDate + 'T00:00:00');
@@ -1219,7 +1233,6 @@
         if (evtType === 'meeting') {
           return e.recurringDays && e.recurringDays.includes(dayOfWeek);
         }
-        // STRICT STRING EQUALITY FOR TASKS
         const eventCleanDate = e.date ? e.date.split('T')[0] : '';
         return eventCleanDate === cleanTargetDate;
       });
@@ -1241,11 +1254,12 @@
                       <div style="font-weight:700; font-size:0.82rem; display:flex; align-items:center; gap:6px;">
                         ${isMeeting ? '🔁' : '📋'} ${evt.title}
                       </div>
-                      <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
+                      ${evt.description ? `<div style="font-size:0.72rem; color:var(--text); margin-top:2px; font-style:italic;">${evt.description}</div>` : ''}
+                      <div style="font-size:0.68rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
                         ${evt.startTime} - ${evt.endTime} ${evt.project ? `| ${evt.project}` : ''}
                       </div>
                     </div>
-                    <button class="btn btn-secondary btn-sm" style="padding:1px 6px; font-size:0.68rem;" onclick="event.stopPropagation(); openCalendarEventModal('${evt.id}', '${evt.type || 'task'}')">Edit</button>
+                    <button class="btn btn-secondary btn-sm" style="padding:1px 6px; font-size:0.68rem; align-self:flex-start;" onclick="event.stopPropagation(); openCalendarEventModal('${evt.id}', '${evt.type || 'task'}')">Edit</button>
                   </div>
                 `;
               }).join('')}
@@ -1337,18 +1351,28 @@
       return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
     }
 
-    /* --- RENDER TASKS & SUBTASKS --- */
+    /* --- RENDER SCOPED TAGS & SUBTASK-AWARE FILTERING --- */
     function renderTagFilters() {
       const container = document.getElementById('tag-filters');
       container.innerHTML = '';
       
-      const allTags = new Set();
+      const selectedProject = document.getElementById('task-project-filter').value;
+      const projectScopedTags = new Set();
+
+      // Collect tags strictly belonging to the currently selected project (or ALL)
       appData.tasks.forEach(t => {
-        (t.tags || []).forEach(tag => allTags.add(tag));
-        (t.subtasks || []).forEach(sub => (sub.tags || []).forEach(tag => allTags.add(tag)));
+        if (selectedProject === 'ALL' || t.project === selectedProject) {
+          (t.tags || []).forEach(tag => projectScopedTags.add(tag));
+          (t.subtasks || []).forEach(sub => (sub.tags || []).forEach(tag => projectScopedTags.add(tag)));
+        }
       });
 
-      allTags.forEach(tag => {
+      if (projectScopedTags.size === 0) {
+        container.innerHTML = `<span style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">No tags for this project</span>`;
+        return;
+      }
+
+      projectScopedTags.forEach(tag => {
         const chip = document.createElement('span');
         chip.className = `filter-chip ${selectedFilterTags.has(tag) ? 'active' : ''}`;
         chip.innerText = `#${tag}`;
@@ -1374,9 +1398,18 @@
         if (appData.hideCompleted && task.completed) return false;
         if (selectedProjectFilter !== 'ALL' && task.project !== selectedProjectFilter) return false;
 
-        const matchesSearch = task.title.toLowerCase().includes(searchQuery) || (task.project && task.project.toLowerCase().includes(searchQuery));
+        const matchesSearch = task.title.toLowerCase().includes(searchQuery) || 
+          (task.project && task.project.toLowerCase().includes(searchQuery)) ||
+          task.subtasks.some(s => s.title.toLowerCase().includes(searchQuery));
+
+        // Subtask-Aware Tag Matching
+        const taskTags = task.tags || [];
+        const subtaskTags = (task.subtasks || []).flatMap(s => s.tags || []);
+        const combinedTags = [...taskTags, ...subtaskTags];
+
         const matchesTags = selectedFilterTags.size === 0 || 
-          Array.from(selectedFilterTags).every(t => (task.tags || []).includes(t));
+          Array.from(selectedFilterTags).every(t => combinedTags.includes(t));
+
         return matchesSearch && matchesTags;
       });
 
@@ -1393,6 +1426,14 @@
         const projColor = appData.projectColors[task.project] || '#e2e8f0';
         const isCollapsed = appData.collapsedTasks && appData.collapsedTasks[task.id];
         const isLongTitle = task.title.length > 45;
+
+        // Subtasks filtering display: if active tag filter is on, show subtasks matching or show all if parent matches
+        const subtasksToDisplay = task.subtasks.filter(sub => {
+          if (selectedFilterTags.size === 0) return true;
+          const taskHasFilter = Array.from(selectedFilterTags).every(t => (task.tags || []).includes(t));
+          if (taskHasFilter) return true;
+          return Array.from(selectedFilterTags).every(t => (sub.tags || []).includes(t));
+        });
 
         const card = document.createElement('div');
         card.className = `task-card ${task.completed ? 'completed' : ''} ${isCollapsed ? 'collapsed' : ''}`;
@@ -1437,7 +1478,7 @@
             </div>
 
             <div class="subtask-tree">
-              ${task.subtasks.map(sub => `
+              ${subtasksToDisplay.map(sub => `
                 <div class="subtask-card ${sub.completed ? 'completed' : ''}">
                   <div class="subtask-grid">
                     <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer; margin-top: 2px;">
@@ -1663,7 +1704,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v25';
+        const CACHE_NAME = 'todo-pwa-v26';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
