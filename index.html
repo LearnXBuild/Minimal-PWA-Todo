@@ -49,7 +49,7 @@
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
     h1 { font-family: var(--font-mono); font-size: 0.92rem; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); }
     
-    /* Project Header Title */
+    /* Project Header Title Dropdown */
     .project-title-select {
       font-family: var(--font-mono);
       font-size: 0.95rem;
@@ -62,7 +62,7 @@
       outline: none;
       padding: 0;
       width: auto;
-      max-width: 300px;
+      max-width: 320px;
       -webkit-appearance: none;
       -moz-appearance: none;
       appearance: none;
@@ -88,18 +88,26 @@
     .toggle-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; user-select: none; white-space: nowrap; }
     .toggle-label input { width: 13px; height: 13px; cursor: pointer; }
 
-    /* Task Cards */
+    /* Task Cards - FULL TEXT WRAP & AUTO FONT ADJUSTMENT */
     .task-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; background: var(--surface); box-shadow: var(--shadow-float); position: relative; width: 100%; box-sizing: border-box; transition: opacity 0.15s ease, transform 0.15s ease; }
     .task-card.completed { opacity: 0.65; }
     .task-card.completed .task-title { text-decoration: line-through; }
     
-    .task-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; }
-    .task-title { font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
-    .task-title span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; width: 100%; }
+    .task-title { font-weight: 600; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1; line-height: 1.35; }
+    .task-title span { 
+      overflow-wrap: break-word; 
+      word-break: normal; 
+      white-space: normal; 
+      display: inline-block;
+      width: 100%;
+    }
+    .task-title.long-title span { font-size: 0.82rem; }
+
     .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0; }
 
-    .collapse-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-muted); padding: 2px; display: inline-flex; align-items: center; transition: transform 0.2s ease; }
+    .collapse-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-muted); padding: 2px; display: inline-flex; align-items: center; transition: transform 0.2s ease; margin-top: 2px; }
     .task-card.collapsed .collapse-btn { transform: rotate(-90deg); }
     .task-card.collapsed .task-body { display: none; }
 
@@ -110,13 +118,24 @@
     .progress-bar { width: 100%; height: 4px; background: var(--surface-hover); border-radius: 2px; overflow: hidden; margin: 6px 0; }
     .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
-    /* Subtasks Grid */
+    /* Subtasks Grid - NATURAL WORD WRAPPING */
     .subtask-tree { margin-left: 4px; padding-left: 8px; border-left: 2px solid var(--border); margin-top: 8px; display: flex; flex-direction: column; gap: 6px; width: calc(100% - 4px); box-sizing: border-box; }
     .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 6px 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
     .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
 
-    .subtask-grid { display: grid; grid-template-columns: 18px 1fr auto; align-items: center; gap: 6px; width: 100%; }
-    .sub-title { font-size: 0.8rem; font-weight: 600; color: var(--text); min-width: 0; width: 100%; display: block; word-break: break-all; }
+    .subtask-grid { display: grid; grid-template-columns: 18px 1fr auto; align-items: flex-start; gap: 6px; width: 100%; }
+    .sub-title { 
+      font-size: 0.8rem; 
+      font-weight: 600; 
+      color: var(--text); 
+      min-width: 0; 
+      width: 100%; 
+      display: block; 
+      overflow-wrap: break-word; 
+      word-break: normal; 
+      white-space: normal;
+      line-height: 1.35;
+    }
 
     /* Timer Controls */
     .timer-badge { display: flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface-hover); padding: 3px 8px; border-radius: 6px; font-weight: 700; }
@@ -128,6 +147,9 @@
     .slot-events { display: flex; flex-direction: column; gap: 6px; }
     .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 6px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s ease; border-left: 3px solid var(--text); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; }
     .time-block-card:hover { background: var(--surface-hover); }
+
+    /* Project Manager List */
+    .project-mgr-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
 
     /* Modals & Profile Drawer */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
@@ -203,7 +225,7 @@
     <!-- TASKS SECTION -->
     <section id="sec-tasks" class="content-section">
       <header>
-        <!-- Clean Compact Project Header Title Dropdown -->
+        <!-- Dynamic Project Name Selector -->
         <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
           <option value="ALL">ALL PROJECTS</option>
         </select>
@@ -446,7 +468,7 @@
   <script>
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v19', 'todo-pwa-v18'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v20', 'todo-pwa-v19'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -982,7 +1004,6 @@
     /* --- SCHEDULE CALENDAR SYSTEM WITH EDITING & DELETION --- */
     function openCalendarEventModal(eventId = null) {
       updateProjectDropdowns();
-      
       const delBtn = document.getElementById('cal-delete-btn');
       
       if (eventId) {
@@ -1201,6 +1222,7 @@
         const isRunning = activeTimer && activeTimer.taskId === task.id;
         const projColor = appData.projectColors[task.project] || '#e2e8f0';
         const isCollapsed = appData.collapsedTasks && appData.collapsedTasks[task.id];
+        const isLongTitle = task.title.length > 45;
 
         const card = document.createElement('div');
         card.className = `task-card ${task.completed ? 'completed' : ''} ${isCollapsed ? 'collapsed' : ''}`;
@@ -1208,11 +1230,11 @@
         card.innerHTML = `
           <div class="task-header">
             <button class="collapse-btn" onclick="toggleCollapseTask('${task.id}')">▼</button>
-            <div class="task-title">
-              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 15px; height: 15px; cursor: pointer;">
+            <div class="task-title ${isLongTitle ? 'long-title' : ''}">
+              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 15px; height: 15px; cursor: pointer; flex-shrink: 0; margin-top: 2px;">
               <span>${task.title}</span>
             </div>
-            <div class="flex-gap">
+            <div class="flex-gap" style="flex-shrink: 0;">
               <button class="btn btn-secondary btn-sm" onclick="openTaskModal('${task.id}')">Edit</button>
               <button class="btn btn-secondary btn-sm" onclick="deleteTask('${task.id}')">Delete</button>
             </div>
@@ -1245,7 +1267,7 @@
               ${task.subtasks.map(sub => `
                 <div class="subtask-card ${sub.completed ? 'completed' : ''}">
                   <div class="subtask-grid">
-                    <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer;">
+                    <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer; margin-top: 2px;">
                     <span class="sub-title">${sub.title}</span>
                     <div class="flex-gap">
                       <button class="btn btn-secondary btn-sm" style="padding: 1px 5px; font-size: 0.68rem;" onclick="openSubtaskModal('${task.id}', '${sub.id}')">Edit</button>
@@ -1254,7 +1276,7 @@
                   </div>
 
                   ${(sub.tags && sub.tags.length > 0) ? `
-                    <div style="display:flex; gap:3px; margin-left:26px; margin-top:4px; flex-wrap:wrap;">
+                    <div style="display:flex; gap:3px; margin-left:24px; margin-top:4px; flex-wrap:wrap;">
                       ${sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.62rem; padding: 0px 5px;">#${st}</span>`).join('')}
                     </div>
                   ` : ''}
@@ -1468,7 +1490,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v20';
+        const CACHE_NAME = 'todo-pwa-v21';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
