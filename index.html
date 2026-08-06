@@ -684,78 +684,152 @@
     /* --- FIXED GITHUB REST DIRECT REPO IMPORTER --- */
     function openGithubModal() { document.getElementById('github-modal').style.display = 'flex'; }
 
-    async function importGithubProject() {
-      const owner = document.getElementById('gh-owner').value.trim();
-      const repo = document.getElementById('gh-repo').value.trim();
-      const token = document.getElementById('gh-token').value.trim();
+async function importGithubProject() {
+  const orgName = document.getElementById('gh-owner').value.trim(); // e.g. LearnXBuild
+  const projTitleInput = document.getElementById('gh-repo').value.trim().toLowerCase(); // e.g. Pass Generator | AddToWallet.co
+  const token = document.getElementById('gh-token').value.trim();
 
-      if (!owner || !repo) {
-        alert("Please enter both Owner/Org and Repo Slug.");
-        return;
-      }
+  if (!orgName || !projTitleInput || !token) {
+    alert("Please provide Org Name, Project Title/Number, and your Personal Access Token.");
+    return;
+  }
 
-      const projName = repo;
-      if (!appData.projectColors[projName]) {
-        appData.projectColors[projName] = getRandomColor();
-      }
-
-      const headers = { 'Accept': 'application/vnd.github.v3+json' };
-      if (token) headers['Authorization'] = `token ${token}`;
-
-      try {
-        const res = await fetch(`https://api.github.com/repos/${owner}/${repo}/issues?state=open&per_page=100`, { headers });
-        if (!res.ok) throw new Error(`HTTP ${res.status}: Check repo permissions & token`);
-
-        const issues = await res.json();
-        const openIssues = issues.filter(issue => !issue.pull_request);
-
-        let count = 0;
-        openIssues.forEach(issue => {
-          const subtasks = [];
-          const bodyText = issue.body || '';
-
-          const checklistRegex = /- \[(x| )\] (.*)/g;
-          let match;
-          while ((match = checklistRegex.exec(bodyText)) !== null) {
-            subtasks.push({
-              id: 'sub_' + Date.now() + Math.random(),
-              title: match[2].trim(),
-              completed: match[1] === 'x',
-              description: '',
-              tags: ['checklist']
-            });
+  // GraphQL Query to fetch GitHub Projects v2 items & status columns
+  const graphqlQuery = {
+    query: `
+      query($org: String!) {
+        organization(login: $org) {
+          projectsV2(first: 20) {
+            nodes {
+              id
+              title
+              items(first: 100) {
+                nodes {
+                  id
+                  fieldValues(first: 10) {
+                    nodes {
+                      ... on ProjectV2ItemFieldSingleSelectValue {
+                        name
+                        field {
+                          ... on ProjectV2SingleSelectField { name }
+                        }
+                      }
+                    }
+                  }
+                  content {
+                    ... on Issue {
+                      title
+                      body
+                      labels(first: 10) { nodes { name } }
+                    }
+                    ... on DraftIssue {
+                      title
+                      body
+                    }
+                  }
+                }
+              }
+            }
           }
-
-          const rawLabels = (issue.labels || []).map(l => l.name.toLowerCase());
-          rawLabels.forEach(t => { if (!appData.tagColors[t]) appData.tagColors[t] = getRandomColor(); });
-
-          if (!appData.tasks.some(t => t.title === issue.title)) {
-            appData.tasks.push({
-              id: 'task_' + Date.now() + Math.random(),
-              title: issue.title,
-              description: bodyText ? bodyText.slice(0, 150) + '...' : '',
-              project: projName,
-              tags: rawLabels,
-              dependsOn: null,
-              completed: false,
-              subtasks,
-              timeSpent: 0
-            });
-            count++;
-          }
-        });
-
-        saveData();
-        closeModal('github-modal');
-        updateProjectDropdowns();
-        renderTagFilters();
-        renderTasks();
-        alert(`Successfully imported ${count} issues into project '${projName}'!`);
-      } catch (err) {
-        alert("GitHub Import Failed: " + err.message);
+        }
       }
+    `,
+    variables: { org: orgName }
+  };
+
+  try {
+    const res = await fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(graphqlQuery)
+    });
+
+    const json = await res.json();
+    if (json.errors) throw new Error(json.errors[0].message);
+
+    const projects = json.data?.organization?.projectsV2?.nodes || [];
+    
+    // Find matching project board by title substring
+    const targetProject = projects.find(p => p.title.toLowerCase().includes(projTitleInput));
+
+    if (!targetProject) {
+      throw new Error(`Project board matching '${projTitleInput}' not found in organization '${orgName}'.`);
     }
 
+    const projectDisplayTitle = targetProject.title;
+    if (!appData.projectColors[projectDisplayTitle]) {
+      appData.projectColors[projectDisplayTitle] = getRandomColor();
+    }
+
+    let count = 0;
+    const items = targetProject.items.nodes || [];
+
+    items.forEach(item => {
+      if (!item.content) return;
+
+      // Extract Column/Status Value
+      let statusName = '';
+      (item.fieldValues.nodes || []).forEach(fv => {
+        if (fv.field && fv.field.name === 'Status' && fv.name) {
+          statusName = fv.name.toLowerCase();
+        }
+      });
+
+      // Filter STRICTLY for "In Progress" column items
+      if (statusName === 'in progress' || statusName === 'in_progress' || statusName === 'wip') {
+        const title = item.content.title;
+        const bodyText = item.content.body || '';
+
+        // Extract Subtasks from Markdown Checklists (- [ ])
+        const subtasks = [];
+        const checklistRegex = /- \[(x| )\] (.*)/g;
+        let match;
+        while ((match = checklistRegex.exec(bodyText)) !== null) {
+          subtasks.push({
+            id: 'sub_' + Date.now() + Math.random(),
+            title: match[2].trim(),
+            completed: match[1] === 'x',
+            description: '',
+            tags: ['in-progress']
+          });
+        }
+
+        // Extract Labels
+        const rawLabels = (item.content.labels?.nodes || []).map(l => l.name.toLowerCase());
+        rawLabels.forEach(t => { if (!appData.tagColors[t]) appData.tagColors[t] = getRandomColor(); });
+
+        // Create or update local task
+        if (!appData.tasks.some(t => t.title === title)) {
+          appData.tasks.push({
+            id: 'task_' + Date.now() + Math.random(),
+            title,
+            description: bodyText ? bodyText.slice(0, 150) + '...' : '',
+            project: projectDisplayTitle,
+            tags: rawLabels,
+            dependsOn: null,
+            completed: false,
+            subtasks,
+            timeSpent: 0
+          });
+          count++;
+        }
+      }
+    });
+
+    saveData();
+    closeModal('github-modal');
+    updateProjectDropdowns();
+    renderTagFilters();
+    renderTasks();
+    alert(`Synced ${count} 'In Progress' items from '${projectDisplayTitle}'!`);
+  } catch (err) {
+    alert("GitHub Project Dashboard Sync Error: " + err.message);
+  }
+}
+    
     /* --- CALENDAR SYSTEM --- */
     function openCalendarEventModal() {
       updateProjectDropdowns();
