@@ -47,22 +47,25 @@
 
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
     
-    /* Project Dropdown Styled like Header Title */
+    /* Project Header - Plain Text feel with native click action */
     .project-title-select {
       font-family: var(--font-mono);
       font-size: 1.15rem;
       font-weight: 700;
       letter-spacing: -0.02em;
-      background: transparent;
-      border: none;
+      background: transparent !important;
+      border: none !important;
       color: var(--text);
       cursor: pointer;
       outline: none;
       padding: 0;
       width: auto;
       max-width: 320px;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
     }
-    .project-title-select:focus { border-bottom: 2px solid var(--text); }
+    .project-title-select::-ms-expand { display: none; }
 
     /* Buttons & Inputs */
     .btn { background: var(--text); color: #fff; border: none; padding: 6px 14px; border-radius: var(--radius); font-size: 0.82rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
@@ -74,7 +77,7 @@
     input, select, textarea { border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 8px 12px; font-size: 0.85rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; }
     input:focus, select:focus, textarea:focus { border-color: var(--text); }
 
-    /* Responsive Filter Bar */
+    /* Filter Bar */
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; background: var(--surface); padding: 12px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
     .filter-top-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -183,8 +186,8 @@
     <button class="profile-icon-btn" onclick="openProfileModal()">👤</button>
   </div>
 
-  <main>
-    <!-- SCHEDULE CALENDAR SECTION (DEFAULT JOURNEY START) -->
+  <main id="main-scroll-container">
+    <!-- SCHEDULE CALENDAR SECTION (DEFAULT START) -->
     <section id="sec-calendar" class="content-section active">
       <header>
         <h1>SCHEDULE CALENDAR</h1>
@@ -202,9 +205,9 @@
     <!-- TASKS SECTION -->
     <section id="sec-tasks" class="content-section">
       <header>
-        <!-- Dynamic Project Name Header Dropdown -->
+        <!-- Clean Project Title Header (No dropdown arrow/border) -->
         <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
-          <option value="ALL">ALL PROJECTS ▼</option>
+          <option value="ALL">ALL PROJECTS</option>
         </select>
         
         <div class="flex-gap" style="align-items: center;">
@@ -442,7 +445,7 @@
   <script>
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v17', 'todo-pwa-v16', 'todo-pwa-v15'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v18', 'todo-pwa-v17'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -544,6 +547,7 @@
     const PRESET_COLORS = ['#fee2e2', '#fef3c7', '#dcfce7', '#e0e7ff', '#f3e8ff', '#fce7f3'];
     function getRandomColor() { return PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)]; }
 
+    /* Fix: Reset Scroll Position when Switching Tabs */
     function switchTab(tab, element) {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
@@ -552,6 +556,10 @@
       targets.forEach(t => t.classList.add('active'));
 
       document.getElementById(`sec-${tab}`).classList.add('active');
+
+      // RESET SCROLL CONTAINER POSITION TO TOP
+      const mainContainer = document.getElementById('main-scroll-container');
+      if (mainContainer) mainContainer.scrollTop = 0;
 
       if (tab === 'calendar') renderScheduleCalendar();
       if (tab === 'graph') renderGraph();
@@ -817,7 +825,7 @@
     async function resyncSelectedProject() {
       const targetProj = document.getElementById('task-project-filter').value;
       if (targetProj === 'ALL') {
-        alert("Please select a specific project from the dropdown title to sync.");
+        alert("Please tap the project title to select a project to sync.");
         return;
       }
       await syncGithubProjectByName(targetProj);
@@ -966,7 +974,7 @@
         updateProjectDropdowns();
         renderTagFilters();
         renderTasks();
-        alert(`Synced '${projName}'! Loaded ${count} new in-progress items.`);
+        alert(`Synced '${projName}'! ${count} new in-progress items loaded.`);
       } catch(err) {
         alert("Sync Error: " + err.message);
       }
@@ -1229,13 +1237,13 @@
 
       const currTaskVal = taskProjSelect.value;
 
-      taskProjSelect.innerHTML = '<option value="ALL">ALL PROJECTS ▼</option>';
+      taskProjSelect.innerHTML = '<option value="ALL">ALL PROJECTS</option>';
       graphSelect.innerHTML = '<option value="ALL">All Projects</option>';
       manualSelect.innerHTML = '';
       if (calSelect) calSelect.innerHTML = '<option value="">None</option>';
 
       allProjects.forEach(proj => {
-        taskProjSelect.innerHTML += `<option value="${proj}">${proj.toUpperCase()} ▼</option>`;
+        taskProjSelect.innerHTML += `<option value="${proj}">${proj.toUpperCase()}</option>`;
         graphSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
         manualSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
         if (calSelect) calSelect.innerHTML += `<option value="${proj}">${proj}</option>`;
@@ -1411,7 +1419,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v18';
+        const CACHE_NAME = 'todo-pwa-v19';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
