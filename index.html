@@ -88,7 +88,7 @@
     .toggle-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; user-select: none; white-space: nowrap; }
     .toggle-label input { width: 13px; height: 13px; cursor: pointer; }
 
-    /* Task Cards - FULL TEXT WRAP & AUTO FONT ADJUSTMENT */
+    /* Task Cards */
     .task-list { display: flex; flex-direction: column; gap: 10px; width: 100%; }
     .task-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; background: var(--surface); box-shadow: var(--shadow-float); position: relative; width: 100%; box-sizing: border-box; transition: opacity 0.15s ease, transform 0.15s ease; }
     .task-card.completed { opacity: 0.65; }
@@ -118,7 +118,7 @@
     .progress-bar { width: 100%; height: 4px; background: var(--surface-hover); border-radius: 2px; overflow: hidden; margin: 6px 0; }
     .progress-fill { height: 100%; background: var(--text); width: 0%; transition: width 0.3s ease; }
 
-    /* Subtasks Grid - NATURAL WORD WRAPPING */
+    /* Subtasks Grid */
     .subtask-tree { margin-left: 4px; padding-left: 8px; border-left: 2px solid var(--border); margin-top: 8px; display: flex; flex-direction: column; gap: 6px; width: calc(100% - 4px); box-sizing: border-box; }
     .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 6px 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
     .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
@@ -241,7 +241,6 @@
     <!-- TASKS SECTION -->
     <section id="sec-tasks" class="content-section">
       <header>
-        <!-- Dynamic Project Name Selector -->
         <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
           <option value="ALL">ALL PROJECTS</option>
         </select>
@@ -423,13 +422,12 @@
       <div class="space-y">
         <input type="text" id="cal-title" placeholder="Block / Event Title">
         <input type="date" id="cal-date">
-        
         <div class="flex-gap">
-          <div style="flex:1;">
+          <div>
             <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">START TIME:</label>
             <input type="time" id="cal-start-time" value="09:00">
           </div>
-          <div style="flex:1;">
+          <div>
             <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">END TIME:</label>
             <input type="time" id="cal-end-time" value="10:00">
           </div>
@@ -453,7 +451,6 @@
           <select id="cal-project-select"></select>
         </div>
       </div>
-
       <div class="modal-actions">
         <button class="btn btn-danger btn-sm" id="cal-delete-btn" style="display:none; margin-right:auto;" onclick="deleteCalendarEvent()">Delete</button>
         <button class="btn btn-secondary" onclick="closeModal('calendar-modal')">Cancel</button>
@@ -499,9 +496,16 @@
   </div>
 
   <script>
+    function formatDateLocal(dateObj) {
+      const year = dateObj.getFullYear();
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v22', 'todo-pwa-v21', 'todo-pwa-v20'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v23', 'todo-pwa-v22', 'todo-pwa-v21'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -1043,12 +1047,12 @@
       }
     }
 
-    /* --- SCHEDULE CALENDAR SYSTEM WITH MEETINGS & TASK LINKING --- */
+    /* --- SCHEDULE CALENDAR SYSTEM WITH TIME SLOTS & TIMEZONE FIX --- */
     function scheduleTaskToCalendar(taskTitle, taskProject) {
       openCalendarEventModal(null, 'task');
       document.getElementById('cal-title').value = taskTitle;
       document.getElementById('cal-project-select').value = taskProject || '';
-      const activeCalDate = document.getElementById('cal-view-date').value || new Date().toISOString().split('T')[0];
+      const activeCalDate = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
       document.getElementById('cal-date').value = activeCalDate;
     }
 
@@ -1083,7 +1087,7 @@
         if (evt) {
           document.getElementById('cal-edit-id').value = evt.id;
           document.getElementById('cal-title').value = evt.title;
-          document.getElementById('cal-date').value = evt.date || new Date().toISOString().split('T')[0];
+          document.getElementById('cal-date').value = evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date());
           document.getElementById('cal-start-time').value = evt.startTime || '09:00';
           document.getElementById('cal-end-time').value = evt.endTime || '10:00';
           document.getElementById('cal-project-select').value = evt.project || '';
@@ -1103,7 +1107,7 @@
       } else {
         document.getElementById('cal-edit-id').value = '';
         document.getElementById('cal-title').value = '';
-        const dateVal = document.getElementById('cal-view-date').value || new Date().toISOString().split('T')[0];
+        const dateVal = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
         document.getElementById('cal-date').value = dateVal;
         document.getElementById('cal-start-time').value = '09:00';
         document.getElementById('cal-end-time').value = '10:00';
@@ -1117,7 +1121,8 @@
       const editId = document.getElementById('cal-edit-id').value;
       const blockType = document.getElementById('cal-type').value;
       const title = document.getElementById('cal-title').value.trim();
-      const date = document.getElementById('cal-date').value;
+      const rawDate = document.getElementById('cal-date').value;
+      const date = rawDate ? rawDate.split('T')[0] : formatDateLocal(new Date());
       const startTime = document.getElementById('cal-start-time').value;
       const endTime = document.getElementById('cal-end-time').value;
       const project = document.getElementById('cal-project-select').value;
@@ -1187,17 +1192,19 @@
       renderTasks();
     }
 
-    /* FIX: STRICT DATE MATCHING FOR TASKS */
+    /* STRICT ISOLATED DATE RENDERER (PREVENTS DUPLICATION) */
     function renderSingleDaySlots(dateStr) {
-      const dateObj = new Date(dateStr + 'T00:00:00');
+      const cleanTargetDate = dateStr.split('T')[0];
+      const dateObj = new Date(cleanTargetDate + 'T00:00:00');
       const dayOfWeek = dateObj.getDay();
 
       const dayEvents = (appData.calendarEvents || []).filter(e => {
         if (e.type === 'meeting' && e.recurringDays && e.recurringDays.length > 0) {
           return e.recurringDays.includes(dayOfWeek);
         }
-        // Strict date equality check for task blocks
-        return e.date === dateStr;
+        // Strict timezone-stripped string comparison
+        const eventCleanDate = e.date ? e.date.split('T')[0] : '';
+        return eventCleanDate === cleanTargetDate;
       });
 
       let html = '';
@@ -1232,12 +1239,12 @@
     function renderScheduleCalendar() {
       const viewInput = document.getElementById('cal-view-date');
       if (!viewInput.value) {
-        viewInput.value = new Date().toISOString().split('T')[0];
+        viewInput.value = formatDateLocal(new Date());
       }
 
       document.getElementById('cal-split-toggle').checked = !!appData.isSplitView;
 
-      const dateStr = viewInput.value;
+      const dateStr = viewInput.value.split('T')[0];
       const dateObj = new Date(dateStr + 'T00:00:00');
       document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
@@ -1247,7 +1254,7 @@
       if (appData.isSplitView) {
         const nextDayObj = new Date(dateObj);
         nextDayObj.setDate(nextDayObj.getDate() + 1);
-        const nextDateStr = nextDayObj.toISOString().split('T')[0];
+        const nextDateStr = formatDateLocal(nextDayObj);
 
         area.innerHTML = `
           <div class="split-calendar-grid">
@@ -1636,7 +1643,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v23';
+        const CACHE_NAME = 'todo-pwa-v24';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
