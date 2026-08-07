@@ -516,7 +516,6 @@
     <div class="modal">
       <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);" id="cal-modal-title">Event Block</h2>
       <input type="hidden" id="cal-edit-id">
-      <input type="hidden" id="cal-type" value="meeting">
       
       <div class="space-y">
         <input type="text" id="cal-title" placeholder="Event Title">
@@ -532,6 +531,11 @@
             <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">END TIME:</label>
             <input type="time" id="cal-end-time" value="10:00">
           </div>
+        </div>
+
+        <div>
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">LINK TO EXISTING TASK (OPTIONAL):</label>
+          <select id="cal-linked-task-select" onchange="onCalendarTaskSelectChange()"><option value="">None (Custom Event)</option></select>
         </div>
 
         <div id="meeting-recurring-days-box">
@@ -629,7 +633,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v42', 'todo-pwa-v41'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v43', 'todo-pwa-v42'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -667,7 +671,8 @@
                   ...evt,
                   type: evt.type || 'meeting',
                   date: evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date()),
-                  description: evt.description || ''
+                  description: evt.description || '',
+                  taskId: evt.taskId || null
                 };
                 if (!mergedCalendarEvents.some(e => e.id === sanitizedEvt.id)) {
                   mergedCalendarEvents.push(sanitizedEvt);
@@ -793,7 +798,6 @@
       return null;
     }
 
-    /* STEP 1, 2, 3: AUTO-DEDUCE OR UNSCHEDULED */
     function manualChangeTrackingTargetInHud() {
       const select = document.getElementById('hud-target-select');
       if (!select) return;
@@ -934,9 +938,8 @@
       alert(`Saved ${formatTime(savedSec)} to '${projToSave}'!`);
     }
 
-    /* STEP 1 & 2: AUTO-DEDUCED SCHEDULE OR UNSCHEDULED CLEAN HUD */
+    /* OPEN HUD (AUTO-DEDUCED SCHEDULE OR MANUAL PROJECT VIEW) */
     function openDeskHud() {
-      // Auto-deduce current schedule slot on open
       const detected = autoDetectCurrentScheduleSlot();
       if (detected) {
         trackingState.targetProj = detected.proj;
@@ -994,37 +997,33 @@
       container.appendChild(selectorBox);
 
       const isUnscheduled = trackingState.targetProj === 'Unscheduled';
+      const isManualProject = selectorBox.querySelector('select').value.startsWith("PROJ::");
 
-      if (!isUnscheduled) {
-        const targetTitle = trackingState.blockTitle;
-        const targetProj = trackingState.targetProj;
+      const todayStr = formatDateLocal(new Date());
+      const dayOfWeek = new Date().getDay();
 
-        const todayStr = formatDateLocal(new Date());
-        const dayOfWeek = new Date().getDay();
+      const todayEvents = (appData.calendarEvents || []).filter(e => {
+        const isToday = (e.recurringDays && e.recurringDays.includes(dayOfWeek)) || (e.date && e.date.split('T')[0] === todayStr);
+        return isToday;
+      }).sort((a, b) => {
+        return parseInt(a.startTime.split(':')[0], 10) - parseInt(b.startTime.split(':')[0], 10);
+      });
 
-        const todayEvents = (appData.calendarEvents || []).filter(e => {
-          const isToday = (e.recurringDays && e.recurringDays.includes(dayOfWeek)) || (e.date && e.date.split('T')[0] === todayStr);
-          return isToday;
-        }).sort((a, b) => {
-          return parseInt(a.startTime.split(':')[0], 10) - parseInt(b.startTime.split(':')[0], 10);
-        });
-
-        const activeEvent = todayEvents.find(e => e.title.toLowerCase() === targetTitle.toLowerCase() || e.project === targetProj) || todayEvents[0];
-
-        const displayTitle = activeEvent ? activeEvent.title : targetTitle;
-        const displayDesc = activeEvent ? activeEvent.description : '';
-
+      if (!isUnscheduled && !isManualProject && detected) {
+        // STEP 1: SCHEDULED RIGHT NOW BLOCK + PROJECT TASKS TODAY
+        const activeEvent = todayEvents.find(e => e.title.toLowerCase() === detected.title.toLowerCase() || e.project === detected.proj) || todayEvents[0];
         const matchedTask = appData.tasks.find(t => 
-          (activeEvent && t.title.trim().toLowerCase() === activeEvent.title.trim().toLowerCase()) ||
-          t.title.trim().toLowerCase() === targetTitle.trim().toLowerCase() ||
-          (t.project && t.project.trim().toLowerCase() === targetProj.trim().toLowerCase() && !t.completed)
+          (activeEvent && activeEvent.taskId && t.id === activeEvent.taskId) ||
+          (activeEvent && t.title.trim().toLowerCase() === activeEvent.title.trim().toLowerCase())
         );
 
-        // CURRENT FOCUS CARD (STEP 1)
+        const displayTitle = activeEvent ? activeEvent.title : detected.title;
+        const displayDesc = activeEvent ? activeEvent.description : (matchedTask ? matchedTask.description : '');
+
         const heroCard = document.createElement('div');
         heroCard.className = 'hud-hero-card';
         heroCard.innerHTML = `
-          <div style="font-size:0.7rem; color:#22c55e; font-family:var(--font-mono); font-weight:700; margin-bottom:4px; text-transform:uppercase;">🎯 CURRENT FOCUS</div>
+          <div style="font-size:0.7rem; color:#22c55e; font-family:var(--font-mono); font-weight:700; margin-bottom:4px; text-transform:uppercase;">🎯 SCHEDULED RIGHT NOW</div>
           <div style="font-size:1.2rem; font-weight:700; color:#ffffff; line-height:1.3; margin-bottom:8px;">${escapeHtml(displayTitle)}</div>
           
           ${displayDesc ? `
@@ -1047,13 +1046,13 @@
         `;
         container.appendChild(heroCard);
 
-        // REST OF TASKS ON CALENDAR FOR THAT PROJECT TODAY
-        const projectEvents = todayEvents.filter(e => e.project && e.project.trim().toLowerCase() === targetProj.trim().toLowerCase());
+        // All other scheduled items for this project today
+        const projectEvents = todayEvents.filter(e => e.project && e.project.trim().toLowerCase() === detected.proj.trim().toLowerCase());
         if (projectEvents.length > 0) {
           const upNextBox = document.createElement('div');
           upNextBox.style.cssText = "background:#09090b; border:1px solid #27272a; border-radius:10px; padding:12px; margin-top:8px;";
           upNextBox.innerHTML = `
-            <div style="font-size:0.7rem; color:#a1a1aa; font-family:var(--font-mono); font-weight:700; margin-bottom:8px;">⏭️ OTHER SCHEDULED ITEMS FOR '${escapeHtml(targetProj)}' TODAY</div>
+            <div style="font-size:0.7rem; color:#a1a1aa; font-family:var(--font-mono); font-weight:700; margin-bottom:8px;">⏭️ OTHER SCHEDULED ITEMS FOR '${escapeHtml(detected.proj)}' TODAY</div>
             <div style="display:flex; flex-direction:column; gap:6px;">
               ${projectEvents.map(evt => `
                 <div style="font-size:0.8rem; color:#e4e4e7; display:flex; justify-content:space-between; align-items:center;">
@@ -1065,6 +1064,26 @@
           `;
           container.appendChild(upNextBox);
         }
+      } else if (isManualProject) {
+        // MANUAL PROJECT SELECTION: SHOW ALL SCHEDULED TASKS FOR THIS PROJECT TODAY
+        const targetProj = trackingState.targetProj;
+        const projectEvents = todayEvents.filter(e => e.project && e.project.trim().toLowerCase() === targetProj.trim().toLowerCase());
+
+        const projBox = document.createElement('div');
+        projBox.style.cssText = "background:#18181b; border:1px solid #27272a; border-radius:12px; padding:16px;";
+        projBox.innerHTML = `
+          <div style="font-size:0.7rem; color:#3b82f6; font-family:var(--font-mono); font-weight:700; margin-bottom:8px; text-transform:uppercase;">📂 PROJECT: ${escapeHtml(targetProj)}</div>
+          <div style="font-size:0.85rem; color:#a1a1aa; margin-bottom:12px;">Scheduled tasks on calendar for today:</div>
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            ${projectEvents.length > 0 ? projectEvents.map(evt => `
+              <div style="background:#09090b; padding:10px; border-radius:8px; border:1px solid #27272a;">
+                <div style="font-weight:700; font-size:0.9rem; color:#fff; margin-bottom:2px;">${escapeHtml(evt.title)}</div>
+                <div style="font-size:0.7rem; color:#a1a1aa; font-family:var(--font-mono);">${evt.startTime} - ${evt.endTime}</div>
+              </div>
+            `).join('') : '<div style="color:#71717a; font-family:var(--font-mono); font-size:0.8rem;">No scheduled calendar blocks for this project today.</div>'}
+          </div>
+        `;
+        container.appendChild(projBox);
       } else {
         // STEP 2: UNSCHEDULED / AD-HOC (NO CURRENT FOCUS BLOCK SHOWN)
         const adhocNotice = document.createElement('div');
@@ -1595,11 +1614,33 @@
       }
     }
 
-    function scheduleTaskToCalendar(taskTitle, taskProject, taskDesc = '') {
+    function updateCalendarTaskSelect() {
+      const select = document.getElementById('cal-linked-task-select');
+      if (!select) return;
+      let html = '<option value="">None (Custom Event)</option>';
+      appData.tasks.forEach(t => {
+        html += `<option value="${t.id}">${escapeHtml(t.title)} (${escapeHtml(t.project || 'No Project')})</option>`;
+      });
+      select.innerHTML = html;
+    }
+
+    function onCalendarTaskSelectChange() {
+      const taskId = document.getElementById('cal-linked-task-select').value;
+      if (!taskId) return;
+      const task = appData.tasks.find(t => t.id === taskId);
+      if (task) {
+        document.getElementById('cal-title').value = task.title;
+        document.getElementById('cal-desc').value = task.description || '';
+        document.getElementById('cal-project-select').value = task.project || '';
+      }
+    }
+
+    function scheduleTaskToCalendar(taskTitle, taskProject, taskDesc = '', taskId = null) {
       openCalendarEventModal(null, 'meeting');
       document.getElementById('cal-title').value = taskTitle;
       document.getElementById('cal-desc').value = taskDesc || '';
       document.getElementById('cal-project-select').value = taskProject || '';
+      if (taskId) document.getElementById('cal-linked-task-select').value = taskId;
       const activeCalDate = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
       document.getElementById('cal-date').value = activeCalDate;
     }
@@ -1612,18 +1653,15 @@
 
     function openCalendarEventModal(eventId = null, blockType = 'meeting') {
       updateProjectDropdowns();
+      updateCalendarTaskSelect();
       const delBtn = document.getElementById('cal-delete-btn');
-      const meetingDaysBox = document.getElementById('meeting-recurring-days-box');
       
-      document.getElementById('cal-type').value = blockType;
-
       document.querySelectorAll('.day-chip-label').forEach(lbl => {
         lbl.classList.remove('selected');
         lbl.querySelector('input').checked = false;
       });
 
       document.getElementById('cal-modal-title').innerText = eventId ? 'Edit Event' : 'Add Event';
-      meetingDaysBox.style.display = 'block';
 
       if (eventId) {
         const evt = (appData.calendarEvents || []).find(e => e.id === eventId);
@@ -1635,7 +1673,7 @@
           document.getElementById('cal-start-time').value = evt.startTime || '09:00';
           document.getElementById('cal-end-time').value = evt.endTime || '10:00';
           document.getElementById('cal-project-select').value = evt.project || '';
-          document.getElementById('cal-type').value = evt.type || 'meeting';
+          document.getElementById('cal-linked-task-select').value = evt.taskId || '';
 
           if (evt.recurringDays) {
             evt.recurringDays.forEach(dNum => {
@@ -1656,6 +1694,7 @@
         document.getElementById('cal-date').value = dateVal;
         document.getElementById('cal-start-time').value = '09:00';
         document.getElementById('cal-end-time').value = '10:00';
+        document.getElementById('cal-linked-task-select').value = '';
         delBtn.style.display = 'none';
       }
 
@@ -1664,7 +1703,6 @@
 
     function saveCalendarEvent() {
       const editId = document.getElementById('cal-edit-id').value;
-      const blockType = document.getElementById('cal-type').value || 'meeting';
       const title = document.getElementById('cal-title').value.trim();
       const desc = document.getElementById('cal-desc').value.trim();
       const rawDate = document.getElementById('cal-date').value;
@@ -1672,6 +1710,7 @@
       const startTime = document.getElementById('cal-start-time').value;
       const endTime = document.getElementById('cal-end-time').value;
       const project = document.getElementById('cal-project-select').value;
+      const taskId = document.getElementById('cal-linked-task-select').value || null;
 
       const selectedDays = [];
       document.querySelectorAll('#meeting-recurring-days-box input:checked').forEach(chk => {
@@ -1690,7 +1729,7 @@
             evt.startTime = startTime;
             evt.endTime = endTime;
             evt.project = project;
-            evt.type = blockType;
+            evt.taskId = taskId;
             evt.recurringDays = selectedDays;
           }
         } else {
@@ -1702,7 +1741,7 @@
             startTime, 
             endTime, 
             project, 
-            type: blockType, 
+            taskId,
             recurringDays: selectedDays 
           });
         }
@@ -1723,7 +1762,7 @@
       }
     }
 
-    function jumpToSpecificTask(taskTitle, projName) {
+    function jumpToSpecificTask(taskTitle, projName, taskId = null) {
       const tasksBtn = document.querySelectorAll('.nav-btn')[1];
       switchTab('tasks', tasksBtn);
       
@@ -1763,7 +1802,7 @@
             <div class="slot-events">
               ${matchingEvents.map(evt => `
                 <div class="time-block-card is-meeting">
-                  <div onclick="jumpToSpecificTask('${evt.title.replace(/'/g, "\\'")}', '${evt.project}')" style="flex:1;">
+                  <div onclick="jumpToSpecificTask('${evt.title.replace(/'/g, "\\'")}', '${evt.project}', '${evt.taskId || ''}')" style="flex:1;">
                     <div style="font-weight:700; font-size:0.82rem; display:flex; align-items:center; gap:6px;">
                       🔁 ${escapeHtml(evt.title)}
                     </div>
@@ -1952,7 +1991,7 @@
               <button class="btn btn-secondary btn-sm" onclick="toggleTaskMenu('menu-${task.id}', event)">⋮</button>
               <div id="menu-${task.id}" class="task-menu-dropdown">
                 <button class="menu-item-btn" onclick="openTaskModal('${task.id}')">✏️ Edit</button>
-                <button class="menu-item-btn" onclick="scheduleTaskToCalendar('${escapedTitle}', '${task.project}', '${escapedDesc}')">📅 Schedule</button>
+                <button class="menu-item-btn" onclick="scheduleTaskToCalendar('${escapedTitle}', '${task.project}', '${escapedDesc}', '${task.id}')">📅 Schedule</button>
                 <button class="menu-item-btn danger" onclick="deleteTask('${task.id}')">🗑️ Delete</button>
               </div>
             </div>
@@ -2206,7 +2245,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v43';
+        const CACHE_NAME = 'todo-pwa-v44';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
