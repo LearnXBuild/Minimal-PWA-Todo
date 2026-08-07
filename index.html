@@ -102,12 +102,13 @@
     .task-card.collapsed .collapse-btn { transform: rotate(-90deg); }
     .task-card.collapsed .task-body { display: none; }
 
-    .circular-progress-wrap { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 28px; height: 28px; flex-shrink: 0; padding: 1px; }
-    .circular-progress-wrap svg { transform: rotate(-90deg); width: 28px; height: 28px; }
+    /* Circular SVG Progress Ring with Spacing */
+    .circular-progress-wrap { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 32px; height: 32px; flex-shrink: 0; margin: 0 6px; }
+    .circular-progress-wrap svg { transform: rotate(-90deg); width: 32px; height: 32px; }
     .circular-progress-wrap circle { fill: none; stroke-width: 2.5; stroke-linecap: round; }
     .circular-progress-bg { stroke: var(--surface-hover); }
     .circular-progress-fill { stroke: var(--text); transition: stroke-dashoffset 0.3s ease; }
-    .circular-progress-text { position: absolute; font-size: 0.52rem; font-family: var(--font-mono); font-weight: 700; color: var(--text); text-align: center; }
+    .circular-progress-text { position: absolute; font-size: 0.55rem; font-family: var(--font-mono); font-weight: 700; color: var(--text); text-align: center; }
 
     .task-menu-dropdown { display: none; position: absolute; right: 0; top: 28px; background: var(--surface); border: 1px solid var(--border-dark); border-radius: 8px; box-shadow: var(--shadow-float); z-index: 30; flex-direction: column; min-width: 130px; padding: 4px; }
     .menu-item-btn { background: none; border: none; text-align: left; padding: 6px 10px; font-size: 0.75rem; font-weight: 500; color: var(--text); cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 6px; }
@@ -134,7 +135,7 @@
     .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 8px 10px; border-radius: 6px; cursor: pointer; border-left: 3px solid var(--text); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: flex-start; }
     .time-block-card.is-meeting { border-left-color: #3b82f6; border-left-style: dashed; }
 
-    /* HERO FOCUS DESK HUD (DARK MODE FIXED HEADER) */
+    /* HERO FOCUS DESK HUD */
     .desk-hud-overlay {
       position: fixed;
       inset: 0;
@@ -215,12 +216,11 @@
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
     .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 440px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 15px 30px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
-
-    #graph-canvas { width: 100%; height: 360px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
     
     .flex-gap { display: flex; gap: 6px; }
     .space-y { display: flex; flex-direction: column; gap: 8px; }
 
+    /* EVENLY SPACED 3-GRID MOBILE BOTTOM NAV */
     @media (max-width: 640px) {
       body { flex-direction: column; }
       aside { display: none; }
@@ -231,9 +231,35 @@
       .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border); }
 
       .mobile-nav {
-        position: fixed; bottom: 0; left: 0; right: 0; height: 54px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-around: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px);
+        position: fixed; 
+        bottom: 0; 
+        left: 0; 
+        right: 0; 
+        height: 56px; 
+        background: var(--surface); 
+        border-top: 1px solid var(--border); 
+        display: grid; 
+        grid-template-columns: repeat(3, 1fr); 
+        align-items: center; 
+        z-index: 50; 
+        padding-bottom: env(safe-area-inset-bottom, 0px);
       }
-      .mobile-nav button { background: none; border: none; font-size: 0.7rem; font-weight: 500; font-family: var(--font-mono); color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; }
+      .mobile-nav button { 
+        background: none; 
+        border: none; 
+        font-size: 0.78rem; 
+        font-weight: 500; 
+        font-family: var(--font-mono); 
+        color: var(--text-muted); 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center;
+        gap: 2px; 
+        height: 100%;
+        width: 100%;
+        cursor: pointer;
+      }
       .mobile-nav button.active { color: var(--text); font-weight: 700; }
     }
 
@@ -253,7 +279,6 @@
     <nav>
       <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule Calendar</button>
       <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks & Subtasks</button>
-      <button class="nav-btn" onclick="switchTab('graph', this)">Dependency Graph</button>
       <button class="nav-btn" onclick="switchTab('reports', this)">Reports & Limits</button>
     </nav>
   </aside>
@@ -315,19 +340,6 @@
       <div class="task-list" id="task-container"></div>
     </section>
 
-    <!-- DEPENDENCY GRAPH SECTION -->
-    <section id="sec-graph" class="content-section">
-      <header>
-        <h1>GRAPH</h1>
-        <div style="width: 160px;">
-          <select id="graph-project-filter" onchange="renderGraph()">
-            <option value="ALL">All Projects</option>
-          </select>
-        </div>
-      </header>
-      <canvas id="graph-canvas"></canvas>
-    </section>
-
     <!-- REPORTS SECTION -->
     <section id="sec-reports" class="content-section">
       <header>
@@ -341,10 +353,10 @@
     </section>
   </main>
 
+  <!-- EVENLY SPACED 3-TAB MOBILE NAVIGATION -->
   <div class="mobile-nav">
     <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule</button>
     <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks</button>
-    <button class="nav-btn" onclick="switchTab('graph', this)">Graph</button>
     <button class="nav-btn" onclick="switchTab('reports', this)">Reports</button>
   </div>
 
@@ -617,7 +629,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v38', 'todo-pwa-v37'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v39', 'todo-pwa-v38'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -779,12 +791,10 @@
       return { proj: 'Unscheduled', title: 'Ad-hoc Tracking' };
     }
 
-    /* ACCURATE MID-SESSION TARGET SWITCH & TIME BINDING */
     function manualChangeTrackingTargetInHud() {
       const select = document.getElementById('hud-target-select');
       if (!select) return;
 
-      // Auto-commit time accumulated so far on previous project before resetting
       if (trackingState.isRunning && trackingState.accumulatedSec > 0) {
         const prevProj = trackingState.targetProj || 'Unscheduled';
         if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
@@ -793,7 +803,6 @@
         renderReports();
       }
 
-      // Reset timer variables cleanly
       trackingState.accumulatedSec = 0;
       trackingState.startTime = Date.now();
 
@@ -873,7 +882,6 @@
 
       clearInterval(trackingState.timerId);
 
-      // Read directly from current active HUD select value to avoid target mismatch
       const select = document.getElementById('hud-target-select');
       let projToSave = trackingState.targetProj || 'Unscheduled';
 
@@ -944,7 +952,6 @@
         ...Object.keys(appData.manualProjectTimes || {})
       ]));
 
-      // HUD Context Selector
       const selectorBox = document.createElement('div');
       selectorBox.style.marginBottom = '12px';
       
@@ -970,7 +977,6 @@
         (t.project && t.project.trim().toLowerCase() === targetProj.trim().toLowerCase() && !t.completed)
       );
 
-      // HERO ACTIVE TASK CARD
       const heroCard = document.createElement('div');
       heroCard.className = 'hud-hero-card';
       heroCard.innerHTML = `
@@ -997,7 +1003,6 @@
       `;
       container.appendChild(heroCard);
 
-      // CHRONOLOGICALLY SORTED UP NEXT TODAY SECTION
       const todayStr = formatDateLocal(new Date());
 
       const upcomingEvents = (appData.calendarEvents || []).filter(e => {
@@ -1091,7 +1096,6 @@
       if (mainContainer) mainContainer.scrollTop = 0;
 
       if (tab === 'calendar') renderScheduleCalendar();
-      if (tab === 'graph') renderGraph();
       if (tab === 'reports') renderReports();
     }
 
@@ -1895,8 +1899,8 @@
             <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; position:relative;">
               <div class="circular-progress-wrap" title="${doneSub}/${totalSub} subtasks completed (${progressPct}%)">
                 <svg>
-                  <circle class="circular-progress-bg" cx="14" cy="14" r="${radius}"></circle>
-                  <circle class="circular-progress-fill" cx="14" cy="14" r="${radius}" 
+                  <circle class="circular-progress-bg" cx="16" cy="16" r="${radius}"></circle>
+                  <circle class="circular-progress-fill" cx="16" cy="16" r="${radius}" 
                     stroke-dasharray="${circumference}" 
                     stroke-dashoffset="${strokeDashoffset}"></circle>
                 </svg>
@@ -1952,7 +1956,6 @@
 
     function updateProjectDropdowns() {
       const taskProjSelect = document.getElementById('task-project-filter');
-      const graphSelect = document.getElementById('graph-project-filter');
       const manualSelect = document.getElementById('m-project-select');
       const calSelect = document.getElementById('cal-project-select');
       const limitProjSelect = document.getElementById('p-limit-project-select');
@@ -1966,7 +1969,6 @@
       const currTaskVal = taskProjSelect.value || 'ALL';
 
       let taskOptions = '<option value="ALL">ALL PROJECTS</option>';
-      let graphOptions = '<option value="ALL">All Projects</option>';
       let manualOptions = '';
       let calOptions = '<option value="">None</option>';
       let limitOptions = '';
@@ -1975,7 +1977,6 @@
         const safeProj = proj.trim();
         if (safeProj) {
           taskOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj.toUpperCase())}</option>`;
-          graphOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
           manualOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
           calOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
           limitOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
@@ -1983,7 +1984,6 @@
       });
 
       taskProjSelect.innerHTML = taskOptions;
-      graphSelect.innerHTML = graphOptions;
       manualSelect.innerHTML = manualOptions;
       if (calSelect) calSelect.innerHTML = calOptions;
       if (limitProjSelect) limitProjSelect.innerHTML = limitOptions;
@@ -1992,60 +1992,6 @@
       if (!taskProjSelect.value) {
         taskProjSelect.value = 'ALL';
       }
-    }
-
-    function renderGraph() {
-      const canvas = document.getElementById('graph-canvas');
-      const ctx = canvas.getContext('2d');
-      const selectedProj = document.getElementById('graph-project-filter').value;
-      const isAllProjects = !selectedProj || selectedProj === 'ALL' || selectedProj.toUpperCase() === 'ALL PROJECTS';
-
-      canvas.width = canvas.parentElement.clientWidth - 32;
-      canvas.height = 360;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      let tasksToRender = appData.tasks;
-      if (!isAllProjects) {
-        tasksToRender = appData.tasks.filter(t => t.project && t.project.trim().toLowerCase() === selectedProj.trim().toLowerCase());
-      }
-
-      if (tasksToRender.length === 0) return;
-
-      const nodes = tasksToRender.map((t, i) => ({
-        ...t,
-        x: 70 + (i % 2) * (canvas.width - 140),
-        y: 50 + Math.floor(i / 2) * 80
-      }));
-
-      nodes.forEach(node => {
-        if (node.dependsOn) {
-          const target = nodes.find(n => n.id === node.dependsOn);
-          if (target) {
-            ctx.beginPath();
-            ctx.moveTo(target.x, target.y);
-            ctx.lineTo(node.x, node.y);
-            ctx.strokeStyle = '#94a3b8';
-            ctx.lineWidth = 1.5;
-            ctx.stroke();
-          }
-        }
-      });
-
-      nodes.forEach(node => {
-        ctx.fillStyle = '#ffffff';
-        ctx.strokeStyle = '#1e293b';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.roundRect(node.x - 55, node.y - 18, 110, 36, 6);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#0f172a';
-        ctx.font = '10px Space Mono, monospace';
-        ctx.textAlign = 'center';
-        ctx.fillText(node.title.length > 12 ? node.title.slice(0, 10) + '...' : node.title, node.x, node.y + 4);
-      });
     }
 
     function openManualTimeModal(targetProject = null) {
@@ -2218,7 +2164,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v39';
+        const CACHE_NAME = 'todo-pwa-v40';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
