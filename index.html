@@ -46,7 +46,7 @@
     .content-section.active { display: block; }
 
     /* Page Headers */
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
     h1 { font-family: var(--font-mono); font-size: 0.92rem; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); }
     
     .project-title-select {
@@ -75,47 +75,6 @@
     .btn-sm { padding: 4px 10px; font-size: 0.72rem; border-radius: 6px; }
 
     input, select, textarea { border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 7px 10px; font-size: 0.82rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; }
-
-    /* Clean Spaced Focus Control Bar */
-    .focus-bar-card {
-      background: var(--surface);
-      border: 1px solid var(--border-dark);
-      border-radius: var(--radius);
-      padding: 12px;
-      margin-bottom: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: var(--shadow-sm);
-      width: 100%;
-      box-sizing: border-box;
-    }
-    .focus-bar-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      gap: 10px;
-    }
-    .focus-clock-display {
-      font-family: var(--font-mono);
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -0.02em;
-    }
-    .focus-select-box {
-      width: 100%;
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border-dark);
-      background: var(--bg);
-      color: var(--text);
-      outline: none;
-      box-sizing: border-box;
-    }
 
     /* Filter Bar */
     .filter-bar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; background: var(--surface); padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
@@ -309,26 +268,12 @@
             <input type="checkbox" id="cal-split-toggle" onchange="toggleCalendarSplitView()"> 2-Day Split
           </label>
           <button class="btn btn-secondary btn-sm" onclick="openCalendarEventModal(null, 'meeting')">+ Meeting</button>
-          <button class="btn btn-sm" onclick="openCalendarEventModal(null, 'task')">+ Task Block</button>
+          <button class="btn btn-secondary btn-sm" onclick="openCalendarEventModal(null, 'task')">+ Task Block</button>
+          <button class="btn btn-sm" onclick="openDeskHud()">🖥️ Focus Mode</button>
         </div>
       </header>
 
-      <!-- CLEAN SPACED FOCUS CONTROL BAR -->
-      <div class="focus-bar-card">
-        <div class="focus-bar-top">
-          <div class="focus-clock-display" id="tracking-clock">00:00:00</div>
-          <div class="flex-gap">
-            <button class="btn btn-sm" id="global-track-btn" onclick="toggleGlobalTracking()">▶ Start Focus</button>
-            <button class="btn btn-secondary btn-sm" onclick="openDeskHud()">🖥️ Desk HUD</button>
-          </div>
-        </div>
-
-        <div>
-          <select id="tracking-target-select" class="focus-select-box" onchange="manualChangeTrackingTarget()"></select>
-        </div>
-      </div>
-      
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <input type="date" id="cal-view-date" onchange="renderScheduleCalendar()" style="width: 140px; padding:4px 8px;">
         <div style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);" id="cal-day-label"></div>
       </div>
@@ -409,7 +354,7 @@
     <div class="hud-scroll-body" id="hud-scroll-body"></div>
 
     <div class="hud-footer-fixed">
-      <button class="btn btn-secondary" style="background:#18181b; color:#fff; border-color:#27272a; padding:8px 16px;" onclick="toggleGlobalTracking()"><span id="hud-pause-text">⏸ Pause</span></button>
+      <button class="btn btn-secondary" style="background:#18181b; color:#fff; border-color:#27272a; padding:8px 16px;" onclick="toggleGlobalTracking()"><span id="hud-pause-text">▶ Start Focus</span></button>
       <button class="btn btn-secondary" style="background:#18181b; color:#fff; border-color:#27272a; padding:8px 16px;" onclick="addFiveMinsToTracking()">+5 Mins</button>
       <button class="btn btn-danger" style="padding:8px 16px;" onclick="stopAndSaveTracking()">⏹ Stop & Save</button>
     </div>
@@ -665,7 +610,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v34', 'todo-pwa-v33'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v35', 'todo-pwa-v34'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -827,38 +772,11 @@
       return { proj: 'Unscheduled', title: 'Ad-hoc Tracking' };
     }
 
-    function updateTrackingTargetOptions() {
-      const select = document.getElementById('tracking-target-select');
+    function manualChangeTrackingTargetInHud() {
+      const select = document.getElementById('hud-target-select');
       if (!select) return;
 
-      const detected = autoDetectCurrentScheduleSlot();
-      const currVal = select.value;
-
-      const allProjects = Array.from(new Set([
-        ...Object.keys(appData.projectColors || {}),
-        ...appData.tasks.map(t => t.project).filter(Boolean),
-        ...Object.keys(appData.manualProjectTimes || {})
-      ]));
-
-      let html = `<option value="DETECTED">📋 Current Slot: ${escapeHtml(detected.title)} (${escapeHtml(detected.proj)})</option>`;
-      allProjects.forEach(p => {
-        html += `<option value="PROJ::${escapeHtml(p)}">📂 Project: ${escapeHtml(p)}</option>`;
-      });
-      html += `<option value="ADHOC::Unscheduled">⚡ Unscheduled / Ad-hoc Work</option>`;
-
-      select.innerHTML = html;
-
-      if (currVal) select.value = currVal;
-      else select.value = "DETECTED";
-
-      if (!trackingState.isRunning) {
-        trackingState.targetProj = detected.proj;
-        trackingState.blockTitle = detected.title;
-      }
-    }
-
-    function manualChangeTrackingTarget() {
-      const rawVal = document.getElementById('tracking-target-select').value;
+      const rawVal = select.value;
       if (rawVal === "DETECTED") {
         const detected = autoDetectCurrentScheduleSlot();
         trackingState.targetProj = detected.proj;
@@ -866,23 +784,24 @@
       } else if (rawVal.startsWith("PROJ::")) {
         const pName = rawVal.replace("PROJ::", "");
         trackingState.targetProj = pName;
-        trackingState.blockTitle = `Deviated: ${pName}`;
+        trackingState.blockTitle = `Focus: ${pName}`;
       } else {
         trackingState.targetProj = "Unscheduled";
         trackingState.blockTitle = "Ad-hoc Tracking";
       }
 
-      if (document.getElementById('desk-hud').style.display === 'flex') {
-        openDeskHud();
-      }
+      document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
+      renderHeroDeskHudContent();
     }
 
     async function toggleGlobalTracking() {
-      const btn = document.getElementById('global-track-btn');
       const hudPauseBtn = document.getElementById('hud-pause-text');
 
       if (!trackingState.isRunning) {
-        manualChangeTrackingTarget();
+        const detected = autoDetectCurrentScheduleSlot();
+        trackingState.targetProj = detected.proj;
+        trackingState.blockTitle = detected.title;
+
         trackingState.isRunning = true;
         trackingState.isPaused = false;
         trackingState.startTime = Date.now();
@@ -890,8 +809,6 @@
 
         trackingState.timerId = setInterval(trackingTick, 1000);
 
-        btn.innerText = '⏸ Pause';
-        btn.className = 'btn btn-secondary btn-sm';
         if (hudPauseBtn) hudPauseBtn.innerText = '⏸ Pause';
 
         try {
@@ -900,14 +817,10 @@
 
       } else if (trackingState.isRunning && !trackingState.isPaused) {
         trackingState.isPaused = true;
-        btn.innerText = '▶ Resume';
-        btn.className = 'btn btn-sm';
         if (hudPauseBtn) hudPauseBtn.innerText = '▶ Resume';
       } else {
         trackingState.isPaused = false;
         trackingState.startTime = Date.now();
-        btn.innerText = '⏸ Pause';
-        btn.className = 'btn btn-secondary btn-sm';
         if (hudPauseBtn) hudPauseBtn.innerText = '⏸ Pause';
       }
     }
@@ -921,8 +834,8 @@
       trackingState.accumulatedSec += elapsedSec;
 
       const formatted = formatTime(trackingState.accumulatedSec);
-      document.getElementById('tracking-clock').innerText = formatted;
-      document.getElementById('hud-clock-text').innerText = formatted;
+      const clockElem = document.getElementById('hud-clock-text');
+      if (clockElem) clockElem.innerText = formatted;
     }
 
     function addFiveMinsToTracking() {
@@ -944,9 +857,11 @@
       trackingState.accumulatedSec = 0;
       trackingState.timerId = null;
 
-      document.getElementById('global-track-btn').innerText = '▶ Start Focus';
-      document.getElementById('global-track-btn').className = 'btn btn-sm';
-      document.getElementById('tracking-clock').innerText = '00:00:00';
+      const hudPauseBtn = document.getElementById('hud-pause-text');
+      if (hudPauseBtn) hudPauseBtn.innerText = '▶ Start Focus';
+
+      const clockElem = document.getElementById('hud-clock-text');
+      if (clockElem) clockElem.innerText = '00:00:00';
 
       if (wakeLock) { wakeLock.release(); wakeLock = null; }
 
@@ -959,6 +874,15 @@
     /* HERO ACTIVE FOCUS HUD */
     function openDeskHud() {
       document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
+      document.getElementById('hud-clock-text').innerText = formatTime(trackingState.accumulatedSec);
+      
+      const hudPauseBtn = document.getElementById('hud-pause-text');
+      if (hudPauseBtn) {
+        if (!trackingState.isRunning) hudPauseBtn.innerText = '▶ Start Focus';
+        else if (trackingState.isPaused) hudPauseBtn.innerText = '▶ Resume';
+        else hudPauseBtn.innerText = '⏸ Pause';
+      }
+
       renderHeroDeskHudContent();
       document.getElementById('desk-hud').style.display = 'flex';
     }
@@ -971,10 +895,34 @@
       const container = document.getElementById('hud-scroll-body');
       container.innerHTML = '';
 
+      const detected = autoDetectCurrentScheduleSlot();
+      const allProjects = Array.from(new Set([
+        ...Object.keys(appData.projectColors || {}),
+        ...appData.tasks.map(t => t.project).filter(Boolean),
+        ...Object.keys(appData.manualProjectTimes || {})
+      ]));
+
+      // HUD Context Selector
+      const selectorBox = document.createElement('div');
+      selectorBox.style.marginBottom = '12px';
+      
+      let htmlOptions = `<option value="DETECTED">📋 Current Slot: ${escapeHtml(detected.title)} (${escapeHtml(detected.proj)})</option>`;
+      allProjects.forEach(p => {
+        htmlOptions += `<option value="PROJ::${escapeHtml(p)}" ${trackingState.targetProj === p ? 'selected' : ''}>📂 Project: ${escapeHtml(p)}</option>`;
+      });
+      htmlOptions += `<option value="ADHOC::Unscheduled" ${trackingState.targetProj === 'Unscheduled' ? 'selected' : ''}>⚡ Unscheduled / Ad-hoc Work</option>`;
+
+      selectorBox.innerHTML = `
+        <label style="font-size:0.7rem; color:#a1a1aa; font-family:var(--font-mono); font-weight:700; display:block; margin-bottom:4px;">CHANGE FOCUS TARGET:</label>
+        <select id="hud-target-select" onchange="manualChangeTrackingTargetInHud()" style="background:#18181b; color:#fff; border:1px solid #27272a; padding:8px 10px; border-radius:8px; font-size:0.8rem;">
+          ${htmlOptions}
+        </select>
+      `;
+      container.appendChild(selectorBox);
+
       const targetTitle = trackingState.blockTitle;
       const targetProj = trackingState.targetProj;
 
-      // Find matching task for subtasks & notes
       const matchedTask = appData.tasks.find(t => 
         t.title.trim().toLowerCase() === targetTitle.trim().toLowerCase() ||
         (t.project && t.project.trim().toLowerCase() === targetProj.trim().toLowerCase() && !t.completed)
@@ -1678,7 +1626,6 @@
 
         saveData();
         closeModal('calendar-modal');
-        updateTrackingTargetOptions();
         renderScheduleCalendar();
       }
     }
@@ -1689,7 +1636,6 @@
         appData.calendarEvents = (appData.calendarEvents || []).filter(e => e.id !== editId);
         saveData();
         closeModal('calendar-modal');
-        updateTrackingTargetOptions();
         renderScheduleCalendar();
       }
     }
@@ -1778,8 +1724,6 @@
       const dateStr = viewInput.value.split('T')[0];
       const dateObj = new Date(dateStr + 'T00:00:00');
       document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-
-      updateTrackingTargetOptions();
 
       const area = document.getElementById('calendar-render-area');
       area.innerHTML = '';
@@ -2241,7 +2185,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v35';
+        const CACHE_NAME = 'todo-pwa-v36';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
