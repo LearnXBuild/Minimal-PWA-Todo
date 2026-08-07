@@ -45,7 +45,7 @@
     .content-section { display: none; padding: 18px 16px; max-width: 880px; margin: 0 auto; width: 100%; box-sizing: border-box; }
     .content-section.active { display: block; }
 
-    /* Compact Page Headers */
+    /* Page Headers */
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); gap: 10px; flex-wrap: wrap; }
     h1 { font-family: var(--font-mono); font-size: 0.92rem; font-weight: 700; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); }
     
@@ -78,6 +78,42 @@
     input, select, textarea { border: 1px solid var(--border-dark); border-radius: var(--radius); padding: 7px 10px; font-size: 0.82rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; }
     input:focus, select:focus, textarea:focus { border-color: var(--text); }
 
+    /* Global Tracking Banner in Schedule */
+    .tracking-banner {
+      background: var(--surface);
+      border: 1px solid var(--border-dark);
+      border-radius: var(--radius);
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-sm);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .tracking-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+      70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
     /* Filter Bar */
     .filter-bar { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; background: var(--surface); padding: 10px 12px; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); }
     .filter-top-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
@@ -96,13 +132,7 @@
     
     .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; width: 100%; }
     .task-title { font-weight: 600; font-size: 0.9rem; display: flex; align-items: flex-start; gap: 8px; min-width: 0; flex: 1; line-height: 1.35; }
-    .task-title span { 
-      overflow-wrap: break-word; 
-      word-break: normal; 
-      white-space: normal; 
-      display: inline-block;
-      width: 100%;
-    }
+    .task-title span { overflow-wrap: break-word; word-break: normal; white-space: normal; display: inline-block; width: 100%; }
     .task-title.long-title span { font-size: 0.82rem; }
 
     .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 6px 0 2px 0; }
@@ -112,58 +142,16 @@
     .task-card.collapsed .task-body { display: none; }
 
     /* Circular SVG Progress Ring */
-    .circular-progress-wrap {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      width: 28px;
-      height: 28px;
-      flex-shrink: 0;
-      padding: 1px;
-    }
+    .circular-progress-wrap { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 28px; height: 28px; flex-shrink: 0; padding: 1px; }
     .circular-progress-wrap svg { transform: rotate(-90deg); width: 28px; height: 28px; }
     .circular-progress-wrap circle { fill: none; stroke-width: 2.5; stroke-linecap: round; }
     .circular-progress-bg { stroke: var(--surface-hover); }
     .circular-progress-fill { stroke: var(--text); transition: stroke-dashoffset 0.3s ease; }
-    .circular-progress-text {
-      position: absolute;
-      font-size: 0.52rem;
-      font-family: var(--font-mono);
-      font-weight: 700;
-      color: var(--text);
-      text-align: center;
-    }
+    .circular-progress-text { position: absolute; font-size: 0.52rem; font-family: var(--font-mono); font-weight: 700; color: var(--text); text-align: center; }
 
     /* 3-Dot Task Action Menu */
-    .task-menu-dropdown {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 28px;
-      background: var(--surface);
-      border: 1px solid var(--border-dark);
-      border-radius: 8px;
-      box-shadow: var(--shadow-float);
-      z-index: 30;
-      flex-direction: column;
-      min-width: 130px;
-      padding: 4px;
-    }
-    .menu-item-btn {
-      background: none;
-      border: none;
-      text-align: left;
-      padding: 6px 10px;
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text);
-      cursor: pointer;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .task-menu-dropdown { display: none; position: absolute; right: 0; top: 28px; background: var(--surface); border: 1px solid var(--border-dark); border-radius: 8px; box-shadow: var(--shadow-float); z-index: 30; flex-direction: column; min-width: 130px; padding: 4px; }
+    .menu-item-btn { background: none; border: none; text-align: left; padding: 6px 10px; font-size: 0.75rem; font-weight: 500; color: var(--text); cursor: pointer; border-radius: 4px; display: flex; align-items: center; gap: 6px; }
     .menu-item-btn:hover { background: var(--surface-hover); }
     .menu-item-btn.danger { color: #ef4444; }
 
@@ -176,23 +164,9 @@
     .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
 
     .subtask-grid { display: grid; grid-template-columns: 18px 1fr auto; align-items: flex-start; gap: 6px; width: 100%; }
-    .sub-title { 
-      font-size: 0.8rem; 
-      font-weight: 600; 
-      color: var(--text); 
-      min-width: 0; 
-      width: 100%; 
-      display: block; 
-      overflow-wrap: break-word; 
-      word-break: normal; 
-      white-space: normal;
-      line-height: 1.35;
-    }
+    .sub-title { font-size: 0.8rem; font-weight: 600; color: var(--text); min-width: 0; width: 100%; display: block; overflow-wrap: break-word; word-break: normal; white-space: normal; line-height: 1.35; }
 
-    /* Timer Controls */
-    .timer-badge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); font-size: 0.78rem; background: var(--surface-hover); padding: 3px 8px; border-radius: 6px; font-weight: 700; }
-
-    /* Time-Slotted Calendar View & Split Grid */
+    /* Time-Slotted Calendar View */
     .split-calendar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .time-slot-container { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
     .time-slot-row { display: grid; grid-template-columns: 55px 1fr; gap: 8px; border-bottom: 1px solid var(--border); padding: 6px 0; min-height: 42px; align-items: flex-start; }
@@ -201,27 +175,77 @@
     
     .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 8px 10px; border-radius: 6px; cursor: pointer; transition: background 0.15s ease; border-left: 3px solid var(--text); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: flex-start; }
     .time-block-card.is-meeting { border-left-color: #3b82f6; border-left-style: dashed; }
-    .time-block-card:hover { background: var(--surface-hover); }
+    .time-block-card.is-active-tracking { border-left-color: #22c55e; border-left-width: 4px; background: #f0fdf4; }
 
-    /* Days Checkbox Grid */
+    /* FIXED DESK STAND FOCUS HUD (OLED DARK MODE) */
+    .desk-hud-overlay {
+      position: fixed;
+      inset: 0;
+      background: #000000;
+      color: #ffffff;
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .hud-header-fixed {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #27272a;
+      flex-shrink: 0;
+      position: relative;
+    }
+    .hud-clock {
+      font-family: var(--font-mono);
+      font-size: 2.8rem;
+      font-weight: 700;
+      margin: 8px 0;
+      letter-spacing: -0.02em;
+    }
+    .hud-scroll-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .hud-task-card {
+      background: #18181b;
+      border: 1px solid #27272a;
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .hud-footer-fixed {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      padding-top: 14px;
+      border-top: 1px solid #27272a;
+      flex-shrink: 0;
+    }
+
+    /* Reports & Tables */
+    .report-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.82rem; }
+    .report-table th, .report-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+    .report-table th { font-family: var(--font-mono); font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; background: var(--surface-hover); }
+
     .days-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
     .day-chip-label { font-size: 0.7rem; font-family: var(--font-mono); padding: 4px 8px; border: 1px solid var(--border-dark); border-radius: 6px; cursor: pointer; user-select: none; }
     .day-chip-label input { display: none; }
     .day-chip-label.selected { background: var(--text); color: var(--surface); border-color: var(--text); }
 
-    /* Project Manager List */
     .project-mgr-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); }
 
-    /* Modals & Profile Drawer */
     .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
     .modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 440px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 15px 30px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
 
-    /* Canvas & Reports */
     #graph-canvas { width: 100%; height: 360px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
-    .report-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
-    .report-card { border: 1px solid var(--border); padding: 14px; border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
-
+    
     .flex-gap { display: flex; gap: 6px; }
     .space-y { display: flex; flex-direction: column; gap: 8px; }
 
@@ -281,6 +305,25 @@
           <button class="btn btn-sm" onclick="openCalendarEventModal(null, 'task')">+ Task Block</button>
         </div>
       </header>
+
+      <!-- GLOBAL SCHEDULE TRACKER BANNER -->
+      <div class="tracking-banner">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div class="pulse-dot" id="tracking-dot" style="display:none;"></div>
+          <div>
+            <div class="tracking-badge" id="tracking-clock">00:00:00</div>
+            <div style="font-size:0.72rem; color:var(--text-muted); display:flex; align-items:center; gap:4px; margin-top:2px;">
+              <span>ACTIVE:</span>
+              <select id="tracking-target-select" onchange="manualChangeTrackingTarget()" style="border:none; background:transparent; font-weight:700; font-size:0.72rem; padding:0; width:auto; cursor:pointer; color:var(--text); outline:none;"></select>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex-gap">
+          <button class="btn btn-sm" id="global-track-btn" onclick="toggleGlobalTracking()">▶ Start Tracking</button>
+          <button class="btn btn-secondary btn-sm" onclick="openDeskHud()">🖥️ Desk Mode</button>
+        </div>
+      </div>
       
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
         <input type="date" id="cal-view-date" onchange="renderScheduleCalendar()" style="width: 140px; padding:4px 8px;">
@@ -294,16 +337,9 @@
     <section id="sec-tasks" class="content-section">
       <header>
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <!-- Dynamic Project Name Selector -->
           <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
             <option value="ALL">ALL PROJECTS</option>
           </select>
-
-          <!-- Project-Based Timer -->
-          <div id="project-timer-container" style="display:flex; align-items:center; gap:8px;">
-            <span id="proj-timer-badge" class="timer-badge">0m 0s</span>
-            <button id="proj-timer-btn" class="btn btn-sm" onclick="toggleProjectTimer()">Start Project Timer</button>
-          </div>
         </div>
         
         <div class="flex-gap" style="align-items: center;">
@@ -348,7 +384,7 @@
           <button class="btn btn-secondary" onclick="openProjectLimitModal()">Limits</button>
         </div>
       </header>
-      <div class="report-grid" id="report-container"></div>
+      <div id="report-container" class="space-y"></div>
     </section>
   </main>
 
@@ -357,6 +393,37 @@
     <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks</button>
     <button class="nav-btn" onclick="switchTab('graph', this)">Graph</button>
     <button class="nav-btn" onclick="switchTab('reports', this)">Reports</button>
+  </div>
+
+  <!-- FIXED DESK STAND FOCUS HUD (OLED DARK MODE) -->
+  <div class="desk-hud-overlay" id="desk-hud">
+    <div class="hud-header-fixed">
+      <button class="btn btn-secondary btn-sm" style="position:absolute; left:0; top:0; background:#18181b; color:#fff; border-color:#27272a;" onclick="closeDeskHud()">✕ Exit HUD</button>
+      <div style="font-family:var(--font-mono); font-size:0.75rem; color:#a1a1aa; text-transform:uppercase;" id="hud-project-title">PASS GENERATOR</div>
+      <div class="hud-clock" id="hud-clock-text">00:00:00</div>
+      <div style="font-size:0.75rem; color:#22c55e; font-weight:600;" id="hud-block-name">Refactor Async Queue</div>
+    </div>
+
+    <div class="hud-scroll-body" id="hud-scroll-body"></div>
+
+    <div class="hud-footer-fixed">
+      <button class="btn btn-secondary" style="background:#18181b; color:#fff; border-color:#27272a; padding:8px 16px;" onclick="toggleGlobalTracking()"><span id="hud-pause-text">⏸ Pause</span></button>
+      <button class="btn btn-secondary" style="background:#18181b; color:#fff; border-color:#27272a; padding:8px 16px;" onclick="addFiveMinsToTracking()">+5 Mins</button>
+      <button class="btn btn-danger" style="padding:8px 16px;" onclick="stopAndSaveTracking()">⏹ Stop & Save</button>
+    </div>
+  </div>
+
+  <!-- IDLE / WELCOME BACK MODAL -->
+  <div class="modal-overlay" id="idle-modal">
+    <div class="modal">
+      <h2 style="font-size: 0.95rem; margin-bottom: 8px; font-family: var(--font-mono);">☕ Welcome Back</h2>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;" id="idle-msg-text">You were away from the workspace for a bit.</p>
+      <div class="space-y">
+        <button class="btn btn-secondary" style="width:100%; justify-content:flex-start;" onclick="resolveIdleChoice('break')">☕ Log as Break Time</button>
+        <button class="btn btn-secondary" style="width:100%; justify-content:flex-start;" onclick="resolveIdleChoice('keep')">🧠 Keep Full Time in Project</button>
+        <button class="btn btn-danger" style="width:100%; justify-content:flex-start;" onclick="resolveIdleChoice('discard')">✂️ Discard Away Time</button>
+      </div>
+    </div>
   </div>
 
   <!-- PROFILE / SETTINGS DRAWER MODAL -->
@@ -478,7 +545,7 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD/EDIT CALENDAR TIME BLOCK WITH DESCRIPTION / NOTES -->
+  <!-- MODAL: ADD/EDIT CALENDAR TIME BLOCK -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal">
       <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);" id="cal-modal-title">Schedule Block</h2>
@@ -549,13 +616,16 @@
     </div>
   </div>
 
-  <!-- MODAL: PROJECT LIMITS -->
+  <!-- MODAL: PROJECT LIMITS (DROPDOWN) -->
   <div class="modal-overlay" id="limit-modal">
     <div class="modal">
       <h2 style="font-size: 0.95rem; margin-bottom: 10px; font-family: var(--font-mono);">Set Project Time Limit</h2>
       <div class="space-y">
-        <input type="text" id="p-name" placeholder="Project Name">
-        <input type="number" id="p-limit" placeholder="Limit in Hours">
+        <div>
+          <label style="font-size: 0.7rem; color: var(--text-muted); font-family: var(--font-mono); display: block; margin-bottom: 4px;">SELECT PROJECT:</label>
+          <select id="p-limit-project-select"></select>
+        </div>
+        <input type="number" id="p-limit" placeholder="Weekly Limit in Hours">
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('limit-modal')">Cancel</button>
@@ -582,9 +652,18 @@
       return `${year}-${month}-${day}`;
     }
 
+    function getISOWeekKey(d) {
+      const date = new Date(d.getTime());
+      date.setHours(0, 0, 0, 0);
+      date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+      const week1 = new Date(date.getFullYear(), 0, 4);
+      const weekNum = 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+      return `${date.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
+    }
+
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v31', 'todo-pwa-v30', 'todo-pwa-v29'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v32', 'todo-pwa-v31'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -593,6 +672,7 @@
       let mergedManualTimes = {};
       let mergedCollapsed = {};
       let mergedCalendarEvents = [];
+      let mergedWeeklySummaries = {};
       let hideCompleted = false;
       let isSplitView = false;
       let ghToken = '';
@@ -613,6 +693,7 @@
             if (parsed.tagColors) Object.assign(mergedTagColors, parsed.tagColors);
             if (parsed.manualProjectTimes) Object.assign(mergedManualTimes, parsed.manualProjectTimes);
             if (parsed.collapsedTasks) Object.assign(mergedCollapsed, parsed.collapsedTasks);
+            if (parsed.weeklySummaries) Object.assign(mergedWeeklySummaries, parsed.weeklySummaries);
             
             if (parsed.calendarEvents) {
               parsed.calendarEvents.forEach(evt => {
@@ -644,6 +725,7 @@
         manualProjectTimes: mergedManualTimes,
         collapsedTasks: mergedCollapsed,
         calendarEvents: mergedCalendarEvents,
+        weeklySummaries: mergedWeeklySummaries,
         hideCompleted,
         isSplitView,
         ghToken,
@@ -653,10 +735,260 @@
 
     let appData = loadAndMigrateData();
     let selectedFilterTags = new Set();
-    let activeProjectTimer = null;
+    
+    /* GLOBAL TRACKING ENGINE & IDLE STATES */
+    let trackingState = {
+      isRunning: false,
+      isPaused: false,
+      startTime: null,
+      accumulatedSec: 0,
+      targetProj: 'Unscheduled',
+      blockTitle: 'General Work',
+      timerId: null,
+      lastInteraction: Date.now()
+    };
+
+    let wakeLock = null;
 
     function saveData() {
+      compactOldWeeklyLogs();
       localStorage.setItem('claude_pwa_todo_master', JSON.stringify(appData));
+    }
+
+    /* WEEKLY ROLLUP COMPACTION FOR LEAN JSON */
+    function compactOldWeeklyLogs() {
+      const currentWeekKey = getISOWeekKey(new Date());
+      if (!appData.weeklySummaries) appData.weeklySummaries = {};
+
+      if (!appData.weeklySummaries[currentWeekKey]) {
+        appData.weeklySummaries[currentWeekKey] = {};
+      }
+
+      // Compact current manual times into weekly summary
+      Object.entries(appData.manualProjectTimes || {}).forEach(([proj, sec]) => {
+        appData.weeklySummaries[currentWeekKey][proj] = sec;
+      });
+    }
+
+    /* INACTIVITY & IDLENESS TRACKING */
+    function setupActivityListeners() {
+      const resetActivity = () => {
+        if (trackingState.isRunning && !trackingState.isPaused) {
+          const now = Date.now();
+          const idleSec = Math.floor((now - trackingState.lastInteraction) / 1000);
+          if (idleSec > 900) { // 15 Mins
+            triggerIdlePrompt(idleSec);
+          }
+          trackingState.lastInteraction = now;
+        }
+      };
+      window.addEventListener('mousemove', resetActivity);
+      window.addEventListener('keydown', resetActivity);
+      window.addEventListener('touchstart', resetActivity);
+      window.addEventListener('click', resetActivity);
+    }
+    setupActivityListeners();
+
+    function triggerIdlePrompt(idleSec) {
+      trackingState.isPaused = true;
+      const mins = Math.floor(idleSec / 60);
+      document.getElementById('idle-msg-text').innerText = `You were away from the workspace for ~${mins} minutes. How would you like to log this time?`;
+      document.getElementById('idle-modal').style.display = 'flex';
+    }
+
+    function resolveIdleChoice(choice) {
+      document.getElementById('idle-modal').style.display = 'none';
+      if (choice === 'break') {
+        if (!appData.manualProjectTimes['Break']) appData.manualProjectTimes['Break'] = 0;
+        appData.manualProjectTimes['Break'] += 900;
+      } else if (choice === 'discard') {
+        trackingState.accumulatedSec = Math.max(0, trackingState.accumulatedSec - 900);
+      }
+      trackingState.isPaused = false;
+      trackingState.lastInteraction = Date.now();
+      saveData();
+    }
+
+    /* GLOBAL TRACKING CONTROL LOGIC */
+    function autoDetectCurrentScheduleSlot() {
+      const now = new Date();
+      const currentHour = now.getHours();
+      const todayStr = formatDateLocal(now);
+
+      const activeEvent = (appData.calendarEvents || []).find(e => {
+        if (e.date && e.date.split('T')[0] === todayStr) {
+          const startH = parseInt(e.startTime.split(':')[0], 10);
+          const endH = parseInt(e.endTime.split(':')[0], 10);
+          return currentHour >= startH && currentHour < endH;
+        }
+        return false;
+      });
+
+      if (activeEvent) {
+        return { proj: activeEvent.project || 'General', title: activeEvent.title };
+      }
+      return { proj: 'Unscheduled', title: 'Ad-hoc Task' };
+    }
+
+    function updateTrackingTargetOptions() {
+      const select = document.getElementById('tracking-target-select');
+      if (!select) return;
+
+      const detected = autoDetectCurrentScheduleSlot();
+      const allProjects = Array.from(new Set([
+        ...Object.keys(appData.projectColors || {}),
+        ...appData.tasks.map(t => t.project).filter(Boolean)
+      ]));
+
+      let html = `<option value="${escapeHtml(detected.proj)}">📋 ${escapeHtml(detected.title)} (${escapeHtml(detected.proj)})</option>`;
+      allProjects.forEach(p => {
+        html += `<option value="${escapeHtml(p)}">📂 Project: ${escapeHtml(p)}</option>`;
+      });
+      html += `<option value="Unscheduled">⚡ Unscheduled Work</option>`;
+
+      select.innerHTML = html;
+      if (!trackingState.isRunning) {
+        trackingState.targetProj = detected.proj;
+        trackingState.blockTitle = detected.title;
+      }
+    }
+
+    function manualChangeTrackingTarget() {
+      const val = document.getElementById('tracking-target-select').value;
+      trackingState.targetProj = val;
+      renderScheduleCalendar();
+    }
+
+    async function toggleGlobalTracking() {
+      const btn = document.getElementById('global-track-btn');
+      const dot = document.getElementById('tracking-dot');
+      const hudPauseBtn = document.getElementById('hud-pause-text');
+
+      if (!trackingState.isRunning) {
+        // START TRACKING
+        trackingState.isRunning = true;
+        trackingState.isPaused = false;
+        trackingState.startTime = Date.now();
+        trackingState.lastInteraction = Date.now();
+
+        trackingState.timerId = setInterval(trackingTick, 1000);
+
+        btn.innerText = '⏸ Pause';
+        btn.className = 'btn btn-secondary btn-sm';
+        dot.style.display = 'block';
+        if (hudPauseBtn) hudPauseBtn.innerText = '⏸ Pause';
+
+        try {
+          if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
+        } catch(e) {}
+
+      } else if (trackingState.isRunning && !trackingState.isPaused) {
+        // PAUSE TRACKING
+        trackingState.isPaused = true;
+        btn.innerText = '▶ Resume';
+        btn.className = 'btn btn-sm';
+        dot.style.display = 'none';
+        if (hudPauseBtn) hudPauseBtn.innerText = '▶ Resume';
+      } else {
+        // RESUME
+        trackingState.isPaused = false;
+        trackingState.startTime = Date.now();
+        btn.innerText = '⏸ Pause';
+        btn.className = 'btn btn-secondary btn-sm';
+        dot.style.display = 'block';
+        if (hudPauseBtn) hudPauseBtn.innerText = '⏸ Pause';
+      }
+      renderScheduleCalendar();
+    }
+
+    function trackingTick() {
+      if (!trackingState.isRunning || trackingState.isPaused) return;
+
+      const now = Date.now();
+      const elapsedSec = Math.floor((now - trackingState.startTime) / 1000);
+      trackingState.startTime = now;
+      trackingState.accumulatedSec += elapsedSec;
+
+      const formatted = formatTime(trackingState.accumulatedSec);
+      document.getElementById('tracking-clock').innerText = formatted;
+      document.getElementById('hud-clock-text').innerText = formatted;
+    }
+
+    function addFiveMinsToTracking() {
+      trackingState.accumulatedSec += 300;
+      trackingTick();
+    }
+
+    function stopAndSaveTracking() {
+      if (!trackingState.isRunning) return;
+
+      clearInterval(trackingState.timerId);
+      const proj = trackingState.targetProj || 'Unscheduled';
+
+      if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
+      appData.manualProjectTimes[proj] = (appData.manualProjectTimes[proj] || 0) + trackingState.accumulatedSec;
+
+      trackingState.isRunning = false;
+      trackingState.isPaused = false;
+      trackingState.accumulatedSec = 0;
+      trackingState.timerId = null;
+
+      document.getElementById('global-track-btn').innerText = '▶ Start Tracking';
+      document.getElementById('global-track-btn').className = 'btn btn-sm';
+      document.getElementById('tracking-dot').style.display = 'none';
+      document.getElementById('tracking-clock').innerText = '00:00:00';
+
+      if (wakeLock) { wakeLock.release(); wakeLock = null; }
+
+      saveData();
+      closeDeskHud();
+      renderScheduleCalendar();
+      renderReports();
+      alert(`Saved ${formatTime(trackingState.accumulatedSec)} to '${proj}'!`);
+    }
+
+    /* DESK HUD OVERLAY CONTROLS */
+    function openDeskHud() {
+      document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
+      document.getElementById('hud-block-name').innerText = trackingState.blockTitle;
+      
+      renderDeskHudTasks();
+      document.getElementById('desk-hud').style.display = 'flex';
+    }
+
+    function closeDeskHud() {
+      document.getElementById('desk-hud').style.display = 'none';
+    }
+
+    function renderDeskHudTasks() {
+      const container = document.getElementById('hud-scroll-body');
+      container.innerHTML = '';
+
+      const targetProj = trackingState.targetProj;
+      const tasks = appData.tasks.filter(t => t.project && t.project.trim().toLowerCase() === targetProj.trim().toLowerCase() && !t.completed);
+
+      if (tasks.length === 0) {
+        container.innerHTML = `<div style="text-align:center; color:#a1a1aa; font-family:var(--font-mono); padding:20px 0;">No active open tasks for ${escapeHtml(targetProj)}.</div>`;
+        return;
+      }
+
+      tasks.forEach(t => {
+        const card = document.createElement('div');
+        card.className = 'hud-task-card';
+        card.innerHTML = `
+          <div style="font-weight:700; font-size:0.92rem; color:#fff; margin-bottom:6px;">${escapeHtml(t.title)}</div>
+          ${t.description ? `<div style="font-size:0.75rem; color:#a1a1aa; margin-bottom:8px;">${escapeHtml(t.description)}</div>` : ''}
+          <div style="display:flex; flex-direction:column; gap:6px; margin-top:8px;">
+            ${(t.subtasks || []).map(sub => `
+              <label style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:${sub.completed ? '#71717a' : '#e4e4e7'}; cursor:pointer;">
+                <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${t.id}', '${sub.id}'); renderDeskHudTasks();">
+                <span style="${sub.completed ? 'text-decoration:line-through;' : ''}">${escapeHtml(sub.title)}</span>
+              </label>
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(card);
+      });
     }
 
     function openProfileModal() { 
@@ -727,7 +1059,6 @@
       if (tab === 'reports') renderReports();
     }
 
-    /* --- SEARCH BAR CLEAR OPTION --- */
     function handleSearchInput() {
       const val = document.getElementById('search-input').value;
       document.getElementById('clear-search-btn').style.display = val ? 'block' : 'none';
@@ -740,7 +1071,6 @@
       renderTasks();
     }
 
-    /* --- PROJECT MANAGER & PROJECT TIMER --- */
     function openProjectManagerModal() {
       renderProjectManagerList();
       document.getElementById('project-mgr-modal').style.display = 'flex';
@@ -827,102 +1157,9 @@
       });
     }
 
-    function updateProjectTimerUI() {
-      const selectedProj = document.getElementById('task-project-filter').value;
-      const isAllProjects = !selectedProj || selectedProj === 'ALL' || selectedProj.toUpperCase() === 'ALL PROJECTS';
-      const badge = document.getElementById('proj-timer-badge');
-      const btn = document.getElementById('proj-timer-btn');
-      const container = document.getElementById('project-timer-container');
-
-      if (!badge || !btn || !container) return;
-
-      if (isAllProjects) {
-        container.style.opacity = '0.5';
-        btn.disabled = true;
-        btn.innerText = 'Select Project to Time';
-        badge.innerText = '0m 0s';
-        return;
-      }
-
-      container.style.opacity = '1';
-      btn.disabled = false;
-
-      const isRunning = activeProjectTimer && activeProjectTimer.projName.trim().toLowerCase() === selectedProj.trim().toLowerCase();
-      btn.innerText = isRunning ? 'Pause Timer' : 'Start Project Timer';
-      btn.className = isRunning ? 'btn btn-sm btn-secondary' : 'btn btn-sm';
-
-      let spentSec = 0;
-      Object.entries(appData.manualProjectTimes || {}).forEach(([pName, sec]) => {
-        if (pName.trim().toLowerCase() === selectedProj.trim().toLowerCase()) {
-          spentSec = sec;
-        }
-      });
-
-      badge.innerText = formatTime(spentSec);
-    }
-
-    function toggleProjectTimer() {
-      const selectedProj = document.getElementById('task-project-filter').value;
-      const isAllProjects = !selectedProj || selectedProj === 'ALL' || selectedProj.toUpperCase() === 'ALL PROJECTS';
-      if (isAllProjects) return;
-
-      if (activeProjectTimer && activeProjectTimer.projName.trim().toLowerCase() === selectedProj.trim().toLowerCase()) {
-        clearInterval(activeProjectTimer.timerId);
-        const elapsed = Math.floor((Date.now() - activeProjectTimer.startTime) / 1000);
-        if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
-        
-        let matchedKey = selectedProj;
-        Object.keys(appData.manualProjectTimes).forEach(k => {
-          if (k.trim().toLowerCase() === selectedProj.trim().toLowerCase()) matchedKey = k;
-        });
-        appData.manualProjectTimes[matchedKey] = (appData.manualProjectTimes[matchedKey] || 0) + elapsed;
-        
-        activeProjectTimer = null;
-        saveData();
-        updateProjectTimerUI();
-      } else {
-        if (activeProjectTimer) {
-          clearInterval(activeProjectTimer.timerId);
-          const elapsed = Math.floor((Date.now() - activeProjectTimer.startTime) / 1000);
-          if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
-          
-          let matchedKey = activeProjectTimer.projName;
-          Object.keys(appData.manualProjectTimes).forEach(k => {
-            if (k.trim().toLowerCase() === activeProjectTimer.projName.trim().toLowerCase()) matchedKey = k;
-          });
-          appData.manualProjectTimes[matchedKey] = (appData.manualProjectTimes[matchedKey] || 0) + elapsed;
-        }
-
-        activeProjectTimer = {
-          projName: selectedProj,
-          startTime: Date.now(),
-          timerId: setInterval(() => updateProjectTimerTick(), 1000)
-        };
-        updateProjectTimerUI();
-      }
-    }
-
-    function updateProjectTimerTick() {
-      if (!activeProjectTimer) return;
-      const badge = document.getElementById('proj-timer-badge');
-      const selectedProj = document.getElementById('task-project-filter').value;
-      if (badge && activeProjectTimer.projName.trim().toLowerCase() === selectedProj.trim().toLowerCase()) {
-        const currentElapsed = Math.floor((Date.now() - activeProjectTimer.startTime) / 1000);
-        let baseSec = 0;
-        Object.entries(appData.manualProjectTimes || {}).forEach(([pName, sec]) => {
-          if (pName.trim().toLowerCase() === selectedProj.trim().toLowerCase()) {
-            baseSec = sec;
-          }
-        });
-        badge.innerText = formatTime(baseSec + currentElapsed);
-      }
-    }
-
-    /* --- TASK & SUBTASK MANAGEMENT --- */
     function filterTasksByProjectSelect() { 
       selectedFilterTags.clear();
       renderTagFilters();
-      updateProjectTimerUI();
       renderTasks(); 
     }
 
@@ -946,6 +1183,7 @@
       renderTasks();
     }
 
+    /* AUTO-FILL PROJECT NAME WHEN ADDING TASK */
     function openTaskModal(taskId = null) {
       const depSelect = document.getElementById('t-dep');
       depSelect.innerHTML = '<option value="">None</option>';
@@ -953,6 +1191,9 @@
       appData.tasks.forEach(t => {
         if (t.id !== taskId) depSelect.innerHTML += `<option value="${t.id}">${escapeHtml(t.title)}</option>`;
       });
+
+      const selectedProjFilter = document.getElementById('task-project-filter').value;
+      const isAll = !selectedProjFilter || selectedProjFilter === 'ALL' || selectedProjFilter.toUpperCase() === 'ALL PROJECTS';
 
       if (taskId) {
         const task = appData.tasks.find(t => t.id === taskId);
@@ -969,7 +1210,15 @@
         document.getElementById('edit-task-id').value = '';
         document.getElementById('t-title').value = '';
         document.getElementById('t-desc').value = '';
-        document.getElementById('t-project').value = '';
+        
+        // AUTO-FILL PREFERRED PROJECT IF INSIDE SPECIFIC PROJECT VIEW
+        if (!isAll) {
+          document.getElementById('t-project').value = selectedProjFilter;
+          document.getElementById('t-project-color').value = appData.projectColors[selectedProjFilter] || '#e2e8f0';
+        } else {
+          document.getElementById('t-project').value = '';
+        }
+
         document.getElementById('t-tags').value = '';
         document.getElementById('t-dep').value = '';
       }
@@ -1107,7 +1356,6 @@
       }
     }
 
-    /* --- TARGETED SINGLE-PROJECT GITHUB GRAPHQL SYNC --- */
     async function resyncSelectedProject() {
       const targetProj = document.getElementById('task-project-filter').value;
       const isAll = !targetProj || targetProj === 'ALL' || targetProj.toUpperCase() === 'ALL PROJECTS';
@@ -1267,7 +1515,6 @@
       }
     }
 
-    /* --- SCHEDULE CALENDAR WITH TASK DESCRIPTION MATCHING & AUTO-SCROLL --- */
     function scheduleTaskToCalendar(taskTitle, taskProject, taskDesc = '') {
       openCalendarEventModal(null, 'task');
       document.getElementById('cal-title').value = taskTitle;
@@ -1389,6 +1636,7 @@
 
         saveData();
         closeModal('calendar-modal');
+        updateTrackingTargetOptions();
         renderScheduleCalendar();
       }
     }
@@ -1399,11 +1647,11 @@
         appData.calendarEvents = (appData.calendarEvents || []).filter(e => e.id !== editId);
         saveData();
         closeModal('calendar-modal');
+        updateTrackingTargetOptions();
         renderScheduleCalendar();
       }
     }
 
-    /* SEARCH IN ALL PROJECTS WHEN JUMPING FROM CALENDAR */
     function jumpToSpecificTask(taskTitle, projName) {
       const tasksBtn = document.querySelectorAll('.nav-btn')[1];
       switchTab('tasks', tasksBtn);
@@ -1417,7 +1665,6 @@
       }
 
       renderTagFilters();
-      updateProjectTimerUI();
       renderTasks();
     }
 
@@ -1446,11 +1693,13 @@
             <div class="slot-events">
               ${matchingEvents.map(evt => {
                 const isMeeting = evt.type === 'meeting';
+                const isCurrentlyTracked = trackingState.isRunning && evt.project && evt.project.trim().toLowerCase() === trackingState.targetProj.trim().toLowerCase();
+
                 return `
-                  <div class="time-block-card ${isMeeting ? 'is-meeting' : ''}">
+                  <div class="time-block-card ${isMeeting ? 'is-meeting' : ''} ${isCurrentlyTracked ? 'is-active-tracking' : ''}">
                     <div onclick="${!isMeeting ? `jumpToSpecificTask('${evt.title.replace(/'/g, "\\'")}', '${evt.project}')` : ''}" style="flex:1;">
                       <div style="font-weight:700; font-size:0.82rem; display:flex; align-items:center; gap:6px;">
-                        ${isMeeting ? '🔁' : '📋'} ${escapeHtml(evt.title)}
+                        ${isCurrentlyTracked ? '🟢 ' : (isMeeting ? '🔁 ' : '📋 ')} ${escapeHtml(evt.title)}
                       </div>
                       ${evt.description ? `<div style="font-size:0.72rem; color:var(--text); margin-top:2px; font-style:italic;">${escapeHtml(evt.description)}</div>` : ''}
                       <div style="font-size:0.68rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
@@ -1490,6 +1739,8 @@
       const dateObj = new Date(dateStr + 'T00:00:00');
       document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
+      updateTrackingTargetOptions();
+
       const area = document.getElementById('calendar-render-area');
       area.innerHTML = '';
 
@@ -1521,7 +1772,6 @@
       scrollToCurrentTimeSlot();
     }
 
-    /* --- RENDER SCOPED TAGS & CASE-INSENSITIVE SUBTASK-AWARE FILTERING --- */
     function renderTagFilters() {
       const container = document.getElementById('tag-filters');
       container.innerHTML = '';
@@ -1567,7 +1817,6 @@
       let filtered = appData.tasks.filter(task => {
         if (appData.hideCompleted && task.completed) return false;
         
-        // STRICT CASE-INSENSITIVE EXACT PROJECT MATCHING
         if (!isAllProjects) {
           if (!task.project || task.project.trim().toLowerCase() !== selectedProjectFilter.trim().toLowerCase()) {
             return false;
@@ -1601,7 +1850,6 @@
         const isCollapsed = appData.collapsedTasks && appData.collapsedTasks[task.id];
         const isLongTitle = task.title.length > 45;
 
-        // SVG Circular Ring Calculation
         const radius = 8;
         const circumference = 2 * Math.PI * radius;
         const strokeDashoffset = circumference - (progressPct / 100) * circumference;
@@ -1628,7 +1876,6 @@
               <span>${escapeHtml(task.title)}</span>
             </div>
             
-            <!-- Right Actions Area: Circular Progress Ring NEXT TO 3-Dot Menu -->
             <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; position:relative;">
               <div class="circular-progress-wrap" title="${doneSub}/${totalSub} subtasks completed (${progressPct}%)">
                 <svg>
@@ -1649,7 +1896,6 @@
             </div>
           </div>
 
-          <!-- Tags Displayed OUTSIDE the Expand Section: PROJECT TAG SHOWN ONLY WHEN ALL PROJECTS ARE SELECTED -->
           <div class="task-meta" style="margin-left: 24px;">
             ${(isAllProjects && task.project) ? `<span class="pill" style="background:${projColor}; color:#1e293b;">${escapeHtml(task.project)}</span>` : ''}
             ${(task.tags || []).map(t => `<span class="pill pill-tag" style="background:${appData.tagColors[t] || '#f1f5f9'};">#${escapeHtml(t)}</span>`).join('')}
@@ -1688,12 +1934,12 @@
       });
     }
 
-    /* --- GRAPH & REPORTS --- */
     function updateProjectDropdowns() {
       const taskProjSelect = document.getElementById('task-project-filter');
       const graphSelect = document.getElementById('graph-project-filter');
       const manualSelect = document.getElementById('m-project-select');
       const calSelect = document.getElementById('cal-project-select');
+      const limitProjSelect = document.getElementById('p-limit-project-select');
 
       const allProjects = Array.from(new Set([
         ...Object.keys(appData.projectColors || {}),
@@ -1707,6 +1953,7 @@
       let graphOptions = '<option value="ALL">All Projects</option>';
       let manualOptions = '';
       let calOptions = '<option value="">None</option>';
+      let limitOptions = '';
 
       allProjects.forEach(proj => {
         const safeProj = proj.trim();
@@ -1715,6 +1962,7 @@
           graphOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
           manualOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
           calOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
+          limitOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
         }
       });
 
@@ -1722,6 +1970,7 @@
       graphSelect.innerHTML = graphOptions;
       manualSelect.innerHTML = manualOptions;
       if (calSelect) calSelect.innerHTML = calOptions;
+      if (limitProjSelect) limitProjSelect.innerHTML = limitOptions;
 
       taskProjSelect.value = currTaskVal;
       if (!taskProjSelect.value) {
@@ -1787,12 +2036,7 @@
       updateProjectDropdowns();
       if (targetProject) {
         document.getElementById('m-project-select').value = targetProject;
-        let currentSec = 0;
-        Object.entries(appData.manualProjectTimes || {}).forEach(([pName, sec]) => {
-          if (pName.trim().toLowerCase() === targetProject.trim().toLowerCase()) {
-            currentSec = sec;
-          }
-        });
+        let currentSec = (appData.manualProjectTimes || {})[targetProject] || 0;
         document.getElementById('m-hours').value = (currentSec / 3600).toFixed(1);
         document.getElementById('m-minutes').value = '0';
       } else {
@@ -1819,19 +2063,19 @@
 
         saveData();
         closeModal('manual-time-modal');
-        updateProjectTimerUI();
         renderReports();
       }
     }
 
+    /* PROJECT LIMIT MODAL WITH DROPDOWN */
     function openProjectLimitModal() {
-      document.getElementById('p-name').value = '';
+      updateProjectDropdowns();
       document.getElementById('p-limit').value = '';
       document.getElementById('limit-modal').style.display = 'flex';
     }
 
     function saveProjectLimit() {
-      const name = document.getElementById('p-name').value.trim();
+      const name = document.getElementById('p-limit-project-select').value;
       const limit = parseFloat(document.getElementById('p-limit').value);
       if (name && !isNaN(limit)) {
         appData.projectLimits[name] = limit;
@@ -1841,58 +2085,103 @@
       }
     }
 
+    /* TABULAR REPORTS VIEW WITH WEEKLY COMPACTION HISTORY */
     function renderReports() {
       const container = document.getElementById('report-container');
       container.innerHTML = '';
 
-      const projectTimes = {};
+      const currentWeekKey = getISOWeekKey(new Date());
+      const currentWeekTimes = (appData.weeklySummaries && appData.weeklySummaries[currentWeekKey]) || appData.manualProjectTimes || {};
 
-      appData.tasks.forEach(task => {
-        if (task.project) {
-          projectTimes[task.project] = (projectTimes[task.project] || 0) + task.timeSpent;
-        }
-      });
+      const allProjects = Array.from(new Set([
+        ...Object.keys(currentWeekTimes),
+        ...Object.keys(appData.projectLimits || {})
+      ]));
 
-      Object.entries(appData.manualProjectTimes || {}).forEach(([proj, sec]) => {
-        projectTimes[proj] = (projectTimes[proj] || 0) + sec;
-      });
+      let html = `
+        <div style="border:1px solid var(--border); border-radius:var(--radius); padding:14px; background:var(--surface);">
+          <div style="font-weight:700; font-family:var(--font-mono); font-size:0.9rem; margin-bottom:10px;">📊 CURRENT WEEK TIME ALLOCATION (${currentWeekKey})</div>
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Tracked Time</th>
+                <th>Weekly Limit</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
 
-      const allProjects = new Set([...Object.keys(projectTimes), ...Object.keys(appData.projectLimits)]);
+      if (allProjects.length === 0) {
+        html += `<tr><td colspan="4" style="color:var(--text-muted); text-align:center;">No time logged for this week yet.</td></tr>`;
+      } else {
+        allProjects.forEach(proj => {
+          const spentSec = currentWeekTimes[proj] || 0;
+          const limitHrs = appData.projectLimits[proj] || null;
+          const spentFormatted = formatTime(spentSec);
 
-      if (allProjects.size === 0) {
-        container.innerHTML = `<div style="color: var(--text-muted); font-family: var(--font-mono); font-size: 0.85rem;">No project time tracked yet.</div>`;
-        return;
+          let statusTag = `<span style="color:var(--text-muted);">Tracked</span>`;
+          if (limitHrs) {
+            const spentHrs = spentSec / 3600;
+            const pct = Math.round((spentHrs / limitHrs) * 100);
+            statusTag = `<span style="color:${pct >= 100 ? '#ef4444' : '#22c55e'}; font-weight:700;">${pct}% (${spentHrs.toFixed(1)}h / ${limitHrs}h)</span>`;
+          }
+
+          html += `
+            <tr>
+              <td style="font-weight:600;">${escapeHtml(proj)}</td>
+              <td style="font-family:var(--font-mono);">${spentFormatted}</td>
+              <td style="font-family:var(--font-mono);">${limitHrs ? limitHrs + ' hrs' : '—'}</td>
+              <td>${statusTag}</td>
+            </tr>
+          `;
+        });
       }
 
-      allProjects.forEach(proj => {
-        const spentSec = projectTimes[proj] || 0;
-        const spentHours = (spentSec / 3600).toFixed(2);
-        const limitHours = appData.projectLimits[proj] || null;
+      html += `</tbody></table></div>`;
 
-        let statusText = `${spentHours} hrs spent`;
-        let pct = 0;
-
-        if (limitHours) {
-          pct = Math.min(Math.round((spentHours / limitHours) * 100), 100);
-          statusText += ` of ${limitHours} hrs limit (${pct}%)`;
-        }
-
-        const card = document.createElement('div');
-        card.className = 'report-card';
-        card.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="font-weight: 700; font-family: var(--font-mono); font-size: 0.92rem;">${escapeHtml(proj)}</div>
-            <button class="btn btn-secondary btn-sm" onclick="openManualTimeModal('${escapeHtml(proj)}')">Edit Logged Time</button>
-          </div>
-          <div style="font-size: 0.78rem; color: var(--text-muted); margin: 8px 0;">${statusText}</div>
-          ${limitHours ? `
-            <div class="progress-bar">
-              <div class="progress-fill" style="width: ${pct}%; background: ${pct >= 100 ? '#ef4444' : 'var(--text)'};"></div>
-            </div>
-          ` : ''}
+      // WEEK-OVER-WEEK HISTORICAL SUMMARIES TABLE
+      const pastWeeks = Object.keys(appData.weeklySummaries || {}).filter(w => w !== currentWeekKey);
+      if (pastWeeks.length > 0) {
+        html += `
+          <div style="border:1px solid var(--border); border-radius:var(--radius); padding:14px; background:var(--surface); margin-top:14px;">
+            <div style="font-weight:700; font-family:var(--font-mono); font-size:0.9rem; margin-bottom:10px;">📈 HISTORICAL WEEKLY SUMMARIES</div>
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Week Period</th>
+                  <th>Top Focus Project</th>
+                  <th>Total Time</th>
+                </tr>
+              </thead>
+              <tbody>
         `;
-        container.appendChild(card);
-      });
+
+        pastWeeks.forEach(wKey => {
+          const weekData = appData.weeklySummaries[wKey];
+          let totalSec = 0;
+          let topProj = 'None';
+          let maxSec = 0;
+
+          Object.entries(weekData).forEach(([p, s]) => {
+            totalSec += s;
+            if (s > maxSec) { maxSec = s; topProj = p; }
+          });
+
+          html += `
+            <tr>
+              <td style="font-family:var(--font-mono); font-weight:700;">${wKey}</td>
+              <td>${escapeHtml(topProj)} (${formatTime(maxSec)})</td>
+              <td style="font-family:var(--font-mono);">${formatTime(totalSec)}</td>
+            </tr>
+          `;
+        });
+
+        html += `</tbody></table></div>`;
+      }
+
+      container.innerHTML = html;
     }
 
     function formatTime(sec) {
@@ -1902,7 +2191,7 @@
       return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
     }
 
-    /* --- PWA REGISTRATION --- */
+    /* PWA REGISTRATION */
     const manifestBlob = new Blob([JSON.stringify({
       name: "Minimal Task Workspace",
       short_name: "Tasks",
@@ -1916,7 +2205,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v32';
+        const CACHE_NAME = 'todo-pwa-v33';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
@@ -1930,7 +2219,6 @@
 
     // INITIALIZATION RENDER SEQUENCE
     updateProjectDropdowns();
-    updateProjectTimerUI();
     renderTagFilters();
     renderTasks();
     renderScheduleCalendar();
