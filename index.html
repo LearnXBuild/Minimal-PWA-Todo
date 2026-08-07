@@ -231,7 +231,7 @@
       .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface); border-bottom: 1px solid var(--border); }
 
       .mobile-nav {
-        position: fixed; bottom: 0; left: 0; right: 0; height: 54px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px);
+        position: fixed; bottom: 0; left: 0; right: 0; height: 54px; background: var(--surface); border-top: 1px solid var(--border); display: flex; justify-around: space-around; align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px);
       }
       .mobile-nav button { background: none; border: none; font-size: 0.7rem; font-weight: 500; font-family: var(--font-mono); color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px; }
       .mobile-nav button.active { color: var(--text); font-weight: 700; }
@@ -617,7 +617,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v36', 'todo-pwa-v35'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v37', 'todo-pwa-v36'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -779,9 +779,23 @@
       return { proj: 'Unscheduled', title: 'Ad-hoc Tracking' };
     }
 
+    /* SWITCH TARGET MID-SESSION RESET LOGIC */
     function manualChangeTrackingTargetInHud() {
       const select = document.getElementById('hud-target-select');
       if (!select) return;
+
+      // If timer was running, auto-save time accumulated so far for previous project before switching
+      if (trackingState.isRunning && trackingState.accumulatedSec > 0) {
+        const prevProj = trackingState.targetProj || 'Unscheduled';
+        if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
+        appData.manualProjectTimes[prevProj] = (appData.manualProjectTimes[prevProj] || 0) + trackingState.accumulatedSec;
+        saveData();
+        renderReports();
+      }
+
+      // Reset timer clock for new focus target
+      trackingState.accumulatedSec = 0;
+      trackingState.startTime = Date.now();
 
       const rawVal = select.value;
       if (rawVal === "DETECTED") {
@@ -798,6 +812,7 @@
       }
 
       document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
+      document.getElementById('hud-clock-text').innerText = '00:00:00';
       renderHeroDeskHudContent();
     }
 
@@ -805,9 +820,12 @@
       const hudPauseBtn = document.getElementById('hud-pause-text');
 
       if (!trackingState.isRunning) {
-        const detected = autoDetectCurrentScheduleSlot();
-        trackingState.targetProj = detected.proj;
-        trackingState.blockTitle = detected.title;
+        const select = document.getElementById('hud-target-select');
+        if (!select || select.value === "DETECTED") {
+          const detected = autoDetectCurrentScheduleSlot();
+          trackingState.targetProj = detected.proj;
+          trackingState.blockTitle = detected.title;
+        }
 
         trackingState.isRunning = true;
         trackingState.isPaused = false;
@@ -854,10 +872,18 @@
       if (!trackingState.isRunning) return;
 
       clearInterval(trackingState.timerId);
-      const proj = trackingState.targetProj || 'Unscheduled';
+      
+      // Explicitly lock save target to current selected project or Unscheduled
+      let projToSave = trackingState.targetProj;
+      if (!projToSave || projToSave === 'DETECTED') {
+        const detected = autoDetectCurrentScheduleSlot();
+        projToSave = detected.proj;
+      }
 
       if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
-      appData.manualProjectTimes[proj] = (appData.manualProjectTimes[proj] || 0) + trackingState.accumulatedSec;
+      appData.manualProjectTimes[projToSave] = (appData.manualProjectTimes[projToSave] || 0) + trackingState.accumulatedSec;
+
+      const savedSec = trackingState.accumulatedSec;
 
       trackingState.isRunning = false;
       trackingState.isPaused = false;
@@ -875,7 +901,7 @@
       saveData();
       closeDeskHud();
       renderReports();
-      alert(`Saved ${formatTime(trackingState.accumulatedSec)} to '${proj}'!`);
+      alert(`Saved ${formatTime(savedSec)} to '${projToSave}'!`);
     }
 
     /* HERO ACTIVE FOCUS HUD */
@@ -2183,7 +2209,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v37';
+        const CACHE_NAME = 'todo-pwa-v38';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
