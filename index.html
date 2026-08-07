@@ -629,7 +629,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v41', 'todo-pwa-v40'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v42', 'todo-pwa-v41'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -775,9 +775,11 @@
       const now = new Date();
       const currentHour = now.getHours();
       const todayStr = formatDateLocal(now);
+      const dayOfWeek = now.getDay();
 
       const activeEvent = (appData.calendarEvents || []).find(e => {
-        if (e.date && e.date.split('T')[0] === todayStr) {
+        const isToday = (e.recurringDays && e.recurringDays.includes(dayOfWeek)) || (e.date && e.date.split('T')[0] === todayStr);
+        if (isToday && e.startTime && e.endTime) {
           const startH = parseInt(e.startTime.split(':')[0], 10);
           const endH = parseInt(e.endTime.split(':')[0], 10);
           return currentHour >= startH && currentHour < endH;
@@ -788,9 +790,10 @@
       if (activeEvent) {
         return { proj: activeEvent.project || 'General', title: activeEvent.title };
       }
-      return { proj: 'Unscheduled', title: 'Ad-hoc Tracking' };
+      return null;
     }
 
+    /* STEP 1, 2, 3: AUTO-DEDUCE OR UNSCHEDULED */
     function manualChangeTrackingTargetInHud() {
       const select = document.getElementById('hud-target-select');
       if (!select) return;
@@ -809,15 +812,20 @@
       const rawVal = select.value;
       if (rawVal === "DETECTED") {
         const detected = autoDetectCurrentScheduleSlot();
-        trackingState.targetProj = detected.proj;
-        trackingState.blockTitle = detected.title;
+        if (detected) {
+          trackingState.targetProj = detected.proj;
+          trackingState.blockTitle = detected.title;
+        } else {
+          trackingState.targetProj = "Unscheduled";
+          trackingState.blockTitle = "Ad-hoc Tracking";
+        }
       } else if (rawVal.startsWith("PROJ::")) {
         const pName = rawVal.replace("PROJ::", "");
         trackingState.targetProj = pName;
         trackingState.blockTitle = `Focus: ${pName}`;
       } else {
         trackingState.targetProj = "Unscheduled";
-        trackingState.blockTitle = "General Work";
+        trackingState.blockTitle = "Ad-hoc Tracking";
       }
 
       document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
@@ -832,8 +840,13 @@
         const select = document.getElementById('hud-target-select');
         if (!select || select.value === "DETECTED") {
           const detected = autoDetectCurrentScheduleSlot();
-          trackingState.targetProj = detected.proj;
-          trackingState.blockTitle = detected.title;
+          if (detected) {
+            trackingState.targetProj = detected.proj;
+            trackingState.blockTitle = detected.title;
+          } else {
+            trackingState.targetProj = "Unscheduled";
+            trackingState.blockTitle = "Ad-hoc Tracking";
+          }
         }
 
         trackingState.isRunning = true;
@@ -893,7 +906,7 @@
           projToSave = val.replace("PROJ::", "");
         } else if (val === "DETECTED") {
           const detected = autoDetectCurrentScheduleSlot();
-          projToSave = detected.proj;
+          projToSave = detected ? detected.proj : "Unscheduled";
         }
       }
 
@@ -921,8 +934,18 @@
       alert(`Saved ${formatTime(savedSec)} to '${projToSave}'!`);
     }
 
-    /* RESTORED FOCUS HUD (EXACT SCHEDULED ITEM + UP NEXT CHRONOLOGICAL LIST) */
+    /* STEP 1 & 2: AUTO-DEDUCED SCHEDULE OR UNSCHEDULED CLEAN HUD */
     function openDeskHud() {
+      // Auto-deduce current schedule slot on open
+      const detected = autoDetectCurrentScheduleSlot();
+      if (detected) {
+        trackingState.targetProj = detected.proj;
+        trackingState.blockTitle = detected.title;
+      } else {
+        trackingState.targetProj = "Unscheduled";
+        trackingState.blockTitle = "Ad-hoc Tracking";
+      }
+
       document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
       document.getElementById('hud-clock-text').innerText = formatTime(trackingState.accumulatedSec);
       
@@ -956,7 +979,7 @@
       const selectorBox = document.createElement('div');
       selectorBox.style.marginBottom = '12px';
       
-      let htmlOptions = `<option value="DETECTED">📋 Current Slot: ${escapeHtml(detected.title)} (${escapeHtml(detected.proj)})</option>`;
+      let htmlOptions = `<option value="DETECTED" ${trackingState.targetProj === (detected ? detected.proj : 'Unscheduled') ? 'selected' : ''}>📋 Current Slot: ${detected ? detected.title + ' (' + detected.proj + ')' : 'None (Unscheduled)'}</option>`;
       allProjects.forEach(p => {
         htmlOptions += `<option value="PROJ::${escapeHtml(p)}" ${trackingState.targetProj === p ? 'selected' : ''}>📂 Project: ${escapeHtml(p)}</option>`;
       });
@@ -970,79 +993,84 @@
       `;
       container.appendChild(selectorBox);
 
-      const targetTitle = trackingState.blockTitle;
-      const targetProj = trackingState.targetProj;
+      const isUnscheduled = trackingState.targetProj === 'Unscheduled';
 
-      // Find the exact active scheduled calendar event for today
-      const todayStr = formatDateLocal(new Date());
-      const currentHour = new Date().getHours();
+      if (!isUnscheduled) {
+        const targetTitle = trackingState.blockTitle;
+        const targetProj = trackingState.targetProj;
 
-      const todayEvents = (appData.calendarEvents || []).filter(e => {
-        const evtDate = e.date ? e.date.split('T')[0] : '';
-        return evtDate === todayStr;
-      }).sort((a, b) => {
-        return parseInt(a.startTime.split(':')[0], 10) - parseInt(b.startTime.split(':')[0], 10);
-      });
+        const todayStr = formatDateLocal(new Date());
+        const dayOfWeek = new Date().getDay();
 
-      const activeEvent = todayEvents.find(e => {
-        const startH = parseInt(e.startTime.split(':')[0], 10);
-        const endH = parseInt(e.endTime.split(':')[0], 10);
-        return currentHour >= startH && currentHour < endH;
-      }) || todayEvents[0];
+        const todayEvents = (appData.calendarEvents || []).filter(e => {
+          const isToday = (e.recurringDays && e.recurringDays.includes(dayOfWeek)) || (e.date && e.date.split('T')[0] === todayStr);
+          return isToday;
+        }).sort((a, b) => {
+          return parseInt(a.startTime.split(':')[0], 10) - parseInt(b.startTime.split(':')[0], 10);
+        });
 
-      const displayTitle = activeEvent ? activeEvent.title : targetTitle;
-      const displayDesc = activeEvent ? activeEvent.description : '';
+        const activeEvent = todayEvents.find(e => e.title.toLowerCase() === targetTitle.toLowerCase() || e.project === targetProj) || todayEvents[0];
 
-      // Match task subtasks by schedule item title or project
-      const matchedTask = appData.tasks.find(t => 
-        (activeEvent && t.title.trim().toLowerCase() === activeEvent.title.trim().toLowerCase()) ||
-        t.title.trim().toLowerCase() === targetTitle.trim().toLowerCase() ||
-        (t.project && t.project.trim().toLowerCase() === targetProj.trim().toLowerCase() && !t.completed)
-      );
+        const displayTitle = activeEvent ? activeEvent.title : targetTitle;
+        const displayDesc = activeEvent ? activeEvent.description : '';
 
-      // HERO CURRENT ITEM CARD
-      const heroCard = document.createElement('div');
-      heroCard.className = 'hud-hero-card';
-      heroCard.innerHTML = `
-        <div style="font-size:0.7rem; color:#22c55e; font-family:var(--font-mono); font-weight:700; margin-bottom:4px; text-transform:uppercase;">🎯 CURRENT SCHEDULED ITEM</div>
-        <div style="font-size:1.2rem; font-weight:700; color:#ffffff; line-height:1.3; margin-bottom:8px;">${escapeHtml(displayTitle)}</div>
-        
-        ${displayDesc ? `
-          <div style="font-size:0.82rem; color:#a1a1aa; background:#09090b; padding:10px; border-radius:8px; border:1px solid #27272a; margin-bottom:12px;">
-            ${escapeHtml(displayDesc)}
-          </div>
-        ` : ''}
+        const matchedTask = appData.tasks.find(t => 
+          (activeEvent && t.title.trim().toLowerCase() === activeEvent.title.trim().toLowerCase()) ||
+          t.title.trim().toLowerCase() === targetTitle.trim().toLowerCase() ||
+          (t.project && t.project.trim().toLowerCase() === targetProj.trim().toLowerCase() && !t.completed)
+        );
 
-        ${(matchedTask && matchedTask.subtasks && matchedTask.subtasks.length > 0) ? `
-          <div style="font-size:0.75rem; color:#a1a1aa; font-family:var(--font-mono); margin-bottom:6px; font-weight:700;">SUBTASKS (Tap to complete):</div>
-          <div>
-            ${matchedTask.subtasks.map(sub => `
-              <div class="hud-subtask-item">
-                <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${matchedTask.id}', '${sub.id}'); renderHeroDeskHudContent();" style="width:18px; height:18px; cursor:pointer; margin-top:1px;">
-                <span style="${sub.completed ? 'text-decoration:line-through; color:#71717a;' : 'color:#e4e4e7;'}">${escapeHtml(sub.title)}</span>
-              </div>
-            `).join('')}
-          </div>
-        ` : ''}
-      `;
-      container.appendChild(heroCard);
+        // CURRENT FOCUS CARD (STEP 1)
+        const heroCard = document.createElement('div');
+        heroCard.className = 'hud-hero-card';
+        heroCard.innerHTML = `
+          <div style="font-size:0.7rem; color:#22c55e; font-family:var(--font-mono); font-weight:700; margin-bottom:4px; text-transform:uppercase;">🎯 CURRENT FOCUS</div>
+          <div style="font-size:1.2rem; font-weight:700; color:#ffffff; line-height:1.3; margin-bottom:8px;">${escapeHtml(displayTitle)}</div>
+          
+          ${displayDesc ? `
+            <div style="font-size:0.82rem; color:#a1a1aa; background:#09090b; padding:10px; border-radius:8px; border:1px solid #27272a; margin-bottom:12px;">
+              ${escapeHtml(displayDesc)}
+            </div>
+          ` : ''}
 
-      // CHRONOLOGICALLY SORTED UP NEXT TODAY SECTION RESTORED
-      if (todayEvents.length > 0) {
-        const upNextBox = document.createElement('div');
-        upNextBox.style.cssText = "background:#09090b; border:1px solid #27272a; border-radius:10px; padding:12px; margin-top:8px;";
-        upNextBox.innerHTML = `
-          <div style="font-size:0.7rem; color:#a1a1aa; font-family:var(--font-mono); font-weight:700; margin-bottom:8px;">⏭️ SCHEDULED TODAY (CHRONOLOGICAL)</div>
-          <div style="display:flex; flex-direction:column; gap:6px;">
-            ${todayEvents.map(evt => `
-              <div style="font-size:0.8rem; color:#e4e4e7; display:flex; justify-content:space-between; align-items:center;">
-                <span>• ${escapeHtml(evt.title)}</span>
-                <span style="font-family:var(--font-mono); color:#a1a1aa; font-size:0.75rem;">${evt.startTime}</span>
-              </div>
-            `).join('')}
-          </div>
+          ${(matchedTask && matchedTask.subtasks && matchedTask.subtasks.length > 0) ? `
+            <div style="font-size:0.75rem; color:#a1a1aa; font-family:var(--font-mono); margin-bottom:6px; font-weight:700;">SUBTASKS (Tap to complete):</div>
+            <div>
+              ${matchedTask.subtasks.map(sub => `
+                <div class="hud-subtask-item">
+                  <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${matchedTask.id}', '${sub.id}'); renderHeroDeskHudContent();" style="width:18px; height:18px; cursor:pointer; margin-top:1px;">
+                  <span style="${sub.completed ? 'text-decoration:line-through; color:#71717a;' : 'color:#e4e4e7;'}">${escapeHtml(sub.title)}</span>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
         `;
-        container.appendChild(upNextBox);
+        container.appendChild(heroCard);
+
+        // REST OF TASKS ON CALENDAR FOR THAT PROJECT TODAY
+        const projectEvents = todayEvents.filter(e => e.project && e.project.trim().toLowerCase() === targetProj.trim().toLowerCase());
+        if (projectEvents.length > 0) {
+          const upNextBox = document.createElement('div');
+          upNextBox.style.cssText = "background:#09090b; border:1px solid #27272a; border-radius:10px; padding:12px; margin-top:8px;";
+          upNextBox.innerHTML = `
+            <div style="font-size:0.7rem; color:#a1a1aa; font-family:var(--font-mono); font-weight:700; margin-bottom:8px;">⏭️ OTHER SCHEDULED ITEMS FOR '${escapeHtml(targetProj)}' TODAY</div>
+            <div style="display:flex; flex-direction:column; gap:6px;">
+              ${projectEvents.map(evt => `
+                <div style="font-size:0.8rem; color:#e4e4e7; display:flex; justify-content:space-between; align-items:center;">
+                  <span>• ${escapeHtml(evt.title)}</span>
+                  <span style="font-family:var(--font-mono); color:#a1a1aa; font-size:0.75rem;">${evt.startTime}</span>
+                </div>
+              `).join('')}
+            </div>
+          `;
+          container.appendChild(upNextBox);
+        }
+      } else {
+        // STEP 2: UNSCHEDULED / AD-HOC (NO CURRENT FOCUS BLOCK SHOWN)
+        const adhocNotice = document.createElement('div');
+        adhocNotice.style.cssText = "background:#18181b; border:1px solid #27272a; border-radius:12px; padding:20px; text-align:center; color:#a1a1aa; font-family:var(--font-mono); font-size:0.85rem;";
+        adhocNotice.innerHTML = `⚡ Tracking Ad-hoc / Unscheduled Time.<br>Hit 'Start Focus' to log random time.`;
+        container.appendChild(adhocNotice);
       }
     }
 
@@ -2178,7 +2206,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v42';
+        const CACHE_NAME = 'todo-pwa-v43';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
