@@ -629,7 +629,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v40', 'todo-pwa-v39'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v41', 'todo-pwa-v40'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -921,7 +921,7 @@
       alert(`Saved ${formatTime(savedSec)} to '${projToSave}'!`);
     }
 
-    /* FOCUSED HUD (CURRENT ITEM ONLY) */
+    /* RESTORED FOCUS HUD (EXACT SCHEDULED ITEM + UP NEXT CHRONOLOGICAL LIST) */
     function openDeskHud() {
       document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
       document.getElementById('hud-clock-text').innerText = formatTime(trackingState.accumulatedSec);
@@ -973,26 +973,38 @@
       const targetTitle = trackingState.blockTitle;
       const targetProj = trackingState.targetProj;
 
-      // Find exact scheduled item or task for today matching target title/project
+      // Find the exact active scheduled calendar event for today
       const todayStr = formatDateLocal(new Date());
-      const matchedEvent = (appData.calendarEvents || []).find(e => {
+      const currentHour = new Date().getHours();
+
+      const todayEvents = (appData.calendarEvents || []).filter(e => {
         const evtDate = e.date ? e.date.split('T')[0] : '';
-        return evtDate === todayStr && (e.title.toLowerCase() === targetTitle.toLowerCase() || e.project === targetProj);
+        return evtDate === todayStr;
+      }).sort((a, b) => {
+        return parseInt(a.startTime.split(':')[0], 10) - parseInt(b.startTime.split(':')[0], 10);
       });
 
+      const activeEvent = todayEvents.find(e => {
+        const startH = parseInt(e.startTime.split(':')[0], 10);
+        const endH = parseInt(e.endTime.split(':')[0], 10);
+        return currentHour >= startH && currentHour < endH;
+      }) || todayEvents[0];
+
+      const displayTitle = activeEvent ? activeEvent.title : targetTitle;
+      const displayDesc = activeEvent ? activeEvent.description : '';
+
+      // Match task subtasks by schedule item title or project
       const matchedTask = appData.tasks.find(t => 
+        (activeEvent && t.title.trim().toLowerCase() === activeEvent.title.trim().toLowerCase()) ||
         t.title.trim().toLowerCase() === targetTitle.trim().toLowerCase() ||
         (t.project && t.project.trim().toLowerCase() === targetProj.trim().toLowerCase() && !t.completed)
       );
 
-      const displayTitle = matchedEvent ? matchedEvent.title : targetTitle;
-      const displayDesc = matchedEvent ? matchedEvent.description : (matchedTask ? matchedTask.description : '');
-
-      // HERO CURRENT ITEM CARD ONLY
+      // HERO CURRENT ITEM CARD
       const heroCard = document.createElement('div');
       heroCard.className = 'hud-hero-card';
       heroCard.innerHTML = `
-        <div style="font-size:0.7rem; color:#22c55e; font-family:var(--font-mono); font-weight:700; margin-bottom:4px; text-transform:uppercase;">🎯 CURRENT FOCUS ITEM</div>
+        <div style="font-size:0.7rem; color:#22c55e; font-family:var(--font-mono); font-weight:700; margin-bottom:4px; text-transform:uppercase;">🎯 CURRENT SCHEDULED ITEM</div>
         <div style="font-size:1.2rem; font-weight:700; color:#ffffff; line-height:1.3; margin-bottom:8px;">${escapeHtml(displayTitle)}</div>
         
         ${displayDesc ? `
@@ -1014,6 +1026,24 @@
         ` : ''}
       `;
       container.appendChild(heroCard);
+
+      // CHRONOLOGICALLY SORTED UP NEXT TODAY SECTION RESTORED
+      if (todayEvents.length > 0) {
+        const upNextBox = document.createElement('div');
+        upNextBox.style.cssText = "background:#09090b; border:1px solid #27272a; border-radius:10px; padding:12px; margin-top:8px;";
+        upNextBox.innerHTML = `
+          <div style="font-size:0.7rem; color:#a1a1aa; font-family:var(--font-mono); font-weight:700; margin-bottom:8px;">⏭️ SCHEDULED TODAY (CHRONOLOGICAL)</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            ${todayEvents.map(evt => `
+              <div style="font-size:0.8rem; color:#e4e4e7; display:flex; justify-content:space-between; align-items:center;">
+                <span>• ${escapeHtml(evt.title)}</span>
+                <span style="font-family:var(--font-mono); color:#a1a1aa; font-size:0.75rem;">${evt.startTime}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        container.appendChild(upNextBox);
+      }
     }
 
     function openProfileModal() { 
@@ -2148,7 +2178,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v41';
+        const CACHE_NAME = 'todo-pwa-v42';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
