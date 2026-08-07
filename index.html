@@ -632,7 +632,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v45', 'todo-pwa-v44'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v46', 'todo-pwa-v45'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -774,18 +774,21 @@
       saveData();
     }
 
+    /* PRECISE MINUTE-LEVEL TIME DEDUCTION */
     function autoDetectCurrentScheduleSlot() {
       const now = new Date();
-      const currentHour = now.getHours();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
       const todayStr = formatDateLocal(now);
       const dayOfWeek = now.getDay();
 
       const activeEvent = (appData.calendarEvents || []).find(e => {
         const isToday = (e.recurringDays && e.recurringDays.includes(dayOfWeek)) || (e.date && e.date.split('T')[0] === todayStr);
         if (isToday && e.startTime && e.endTime) {
-          const startH = parseInt(e.startTime.split(':')[0], 10);
-          const endH = parseInt(e.endTime.split(':')[0], 10);
-          return currentHour >= startH && currentHour < endH;
+          const [startH, startM] = e.startTime.split(':').map(Number);
+          const [endH, endM] = e.endTime.split(':').map(Number);
+          const startTotal = startH * 60 + startM;
+          const endTotal = endH * 60 + endM;
+          return currentMinutes >= startTotal && currentMinutes < endTotal;
         }
         return false;
       });
@@ -999,7 +1002,8 @@
 
       const todayStr = formatDateLocal(new Date());
       const dayOfWeek = new Date().getDay();
-      const currentHour = new Date().getHours();
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
       const todayEvents = (appData.calendarEvents || []).filter(e => {
         const isToday = (e.recurringDays && e.recurringDays.includes(dayOfWeek)) || (e.date && e.date.split('T')[0] === todayStr);
@@ -1023,11 +1027,12 @@
           projBox.innerHTML += `<div style="color:#71717a; font-family:var(--font-mono); font-size:0.8rem; padding:10px;">No scheduled calendar blocks for this project today.</div>`;
         } else {
           projectEvents.forEach(evt => {
-            const startH = parseInt(evt.startTime.split(':')[0], 10);
-            const endH = parseInt(evt.endTime.split(':')[0], 10);
-            const isActiveNow = currentHour >= startH && currentHour < endH;
+            const [startH, startM] = evt.startTime.split(':').map(Number);
+            const [endH, endM] = evt.endTime.split(':').map(Number);
+            const startTotal = startH * 60 + startM;
+            const endTotal = endH * 60 + endM;
+            const isActiveNow = currentMinutes >= startTotal && currentMinutes < endTotal;
 
-            // Match task by exact title match to pull description and subtasks
             const matchedTask = appData.tasks.find(t => 
               t.title.trim().toLowerCase() === evt.title.trim().toLowerCase()
             );
@@ -1646,7 +1651,7 @@
       }
     }
 
-    function scheduleTaskToCalendar(taskTitle, taskProject, taskDesc = '', taskId = null) {
+    function scheduleTaskToCalendar(taskTitle, taskProject, taskDesc = '') {
       openCalendarEventModal(null, 'meeting');
       document.getElementById('cal-title').value = taskTitle;
       document.getElementById('cal-desc').value = taskDesc || '';
@@ -1995,7 +2000,7 @@
               <button class="btn btn-secondary btn-sm" onclick="toggleTaskMenu('menu-${task.id}', event)">⋮</button>
               <div id="menu-${task.id}" class="task-menu-dropdown">
                 <button class="menu-item-btn" onclick="openTaskModal('${task.id}')">✏️ Edit</button>
-                <button class="menu-item-btn" onclick="scheduleTaskToCalendar('${escapedTitle}', '${task.project}', '${escapedDesc}', '${task.id}')">📅 Schedule</button>
+                <button class="menu-item-btn" onclick="scheduleTaskToCalendar('${escapedTitle}', '${task.project}', '${escapedDesc}')">📅 Schedule</button>
                 <button class="menu-item-btn danger" onclick="deleteTask('${task.id}')">🗑️ Delete</button>
               </div>
             </div>
@@ -2249,7 +2254,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v46';
+        const CACHE_NAME = 'todo-pwa-v47';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
