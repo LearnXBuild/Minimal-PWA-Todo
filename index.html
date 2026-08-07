@@ -617,7 +617,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v37', 'todo-pwa-v36'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v38', 'todo-pwa-v37'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -779,12 +779,12 @@
       return { proj: 'Unscheduled', title: 'Ad-hoc Tracking' };
     }
 
-    /* SWITCH TARGET MID-SESSION RESET LOGIC */
+    /* ACCURATE MID-SESSION TARGET SWITCH & TIME BINDING */
     function manualChangeTrackingTargetInHud() {
       const select = document.getElementById('hud-target-select');
       if (!select) return;
 
-      // If timer was running, auto-save time accumulated so far for previous project before switching
+      // Auto-commit time accumulated so far on previous project before resetting
       if (trackingState.isRunning && trackingState.accumulatedSec > 0) {
         const prevProj = trackingState.targetProj || 'Unscheduled';
         if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
@@ -793,7 +793,7 @@
         renderReports();
       }
 
-      // Reset timer clock for new focus target
+      // Reset timer variables cleanly
       trackingState.accumulatedSec = 0;
       trackingState.startTime = Date.now();
 
@@ -808,7 +808,7 @@
         trackingState.blockTitle = `Focus: ${pName}`;
       } else {
         trackingState.targetProj = "Unscheduled";
-        trackingState.blockTitle = "Ad-hoc Tracking";
+        trackingState.blockTitle = "General Work";
       }
 
       document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
@@ -869,15 +869,24 @@
     }
 
     function stopAndSaveTracking() {
-      if (!trackingState.isRunning) return;
+      if (!trackingState.isRunning && trackingState.accumulatedSec === 0) return;
 
       clearInterval(trackingState.timerId);
-      
-      // Explicitly lock save target to current selected project or Unscheduled
-      let projToSave = trackingState.targetProj;
-      if (!projToSave || projToSave === 'DETECTED') {
-        const detected = autoDetectCurrentScheduleSlot();
-        projToSave = detected.proj;
+
+      // Read directly from current active HUD select value to avoid target mismatch
+      const select = document.getElementById('hud-target-select');
+      let projToSave = trackingState.targetProj || 'Unscheduled';
+
+      if (select) {
+        const val = select.value;
+        if (val === "ADHOC::Unscheduled") {
+          projToSave = "Unscheduled";
+        } else if (val.startsWith("PROJ::")) {
+          projToSave = val.replace("PROJ::", "");
+        } else if (val === "DETECTED") {
+          const detected = autoDetectCurrentScheduleSlot();
+          projToSave = detected.proj;
+        }
       }
 
       if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
@@ -2209,7 +2218,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v38';
+        const CACHE_NAME = 'todo-pwa-v39';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
