@@ -27,13 +27,9 @@
       --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
       
       --bento-mint: #e8f5e9;
-      --bento-mint-accent: #2e7d32;
       --bento-purple: #f3e5f5;
-      --bento-purple-accent: #7b1fa2;
       --bento-peach: #fff3e0;
-      --bento-peach-accent: #e65100;
       --bento-blue: #e0f7fa;
-      --bento-blue-accent: #00838f;
       --accent-primary: #6366f1;
     }
 
@@ -126,8 +122,8 @@
     .circular-progress-fill { stroke: var(--accent-primary); transition: stroke-dashoffset 0.3s ease; }
     .circular-progress-text { position: absolute; font-size: 0.58rem; font-weight: 800; color: var(--text); text-align: center; }
 
-    .task-menu-dropdown { display: none; position: absolute; right: 0; top: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 30; flex-direction: column; min-width: 140px; padding: 6px; }
-    .menu-item-btn { background: none; border: none; text-align: left; padding: 7px 12px; font-size: 0.78rem; font-weight: 600; color: var(--text); cursor: pointer; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; }
+    .task-menu-dropdown { display: none; position: absolute; right: 0; top: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 30; flex-direction: column; min-width: 150px; padding: 6px; }
+    .menu-item-btn { background: none; border: none; text-align: left; padding: 7px 12px; font-size: 0.78rem; font-weight: 600; color: var(--text); cursor: pointer; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; text-decoration: none; }
     .menu-item-btn:hover { background: var(--surface-hover); }
     .menu-item-btn.danger { color: #ef4444; }
 
@@ -153,81 +149,19 @@
     .slot-time { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
     .slot-events { display: flex; flex-direction: column; gap: 8px; }
     
-    .time-block-card { border: 1px solid rgba(0,0,0,0.06); background: var(--bento-blue); padding: 10px 14px; border-radius: var(--radius); cursor: pointer; border-left: 4px solid var(--bento-blue-accent); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: flex-start; }
-    .time-block-card.is-meeting { background: var(--bento-purple); border-left-color: var(--bento-purple-accent); }
+    .time-block-card { border: 1px solid rgba(0,0,0,0.06); background: var(--bento-blue); padding: 10px 14px; border-radius: var(--radius); cursor: pointer; border-left: 4px solid #00838f; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: flex-start; }
+    .time-block-card.is-meeting { background: var(--bento-purple); border-left-color: #7b1fa2; }
 
     /* FOCUS MODE DESK HUD */
-    .desk-hud-overlay {
-      position: fixed;
-      inset: 0;
-      background: #0f172a;
-      color: #ffffff;
-      z-index: 200;
-      display: none;
-      flex-direction: column;
-      padding: 24px;
-      box-sizing: border-box;
-    }
-    .hud-header-fixed {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding-bottom: 16px;
-      border-bottom: 1px solid #1e293b;
-      flex-shrink: 0;
-      width: 100%;
-    }
-    .hud-top-bar {
-      display: flex;
-      justify-content: flex-start;
-      width: 100%;
-      margin-bottom: 10px;
-    }
-    .hud-clock {
-      font-family: var(--font-mono);
-      font-size: 3.5rem;
-      font-weight: 700;
-      margin: 6px 0;
-      letter-spacing: -0.03em;
-      color: #38bdf8;
-    }
-    .hud-scroll-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 0;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .hud-hero-card {
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      width: 100%;
-      box-sizing: border-box;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-    .hud-hero-card.is-active-now {
-      border: 2px solid #22c55e;
-      box-shadow: 0 0 20px rgba(34, 197, 94, 0.25);
-    }
-    .hud-subtask-item {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      padding: 8px 0;
-      border-bottom: 1px solid #334155;
-      font-size: 0.88rem;
-    }
-    .hud-footer-fixed {
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      padding-top: 16px;
-      border-top: 1px solid #1e293b;
-      flex-shrink: 0;
-    }
+    .desk-hud-overlay { position: fixed; inset: 0; background: #0f172a; color: #ffffff; z-index: 200; display: none; flex-direction: column; padding: 24px; box-sizing: border-box; }
+    .hud-header-fixed { display: flex; flex-direction: column; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #1e293b; flex-shrink: 0; width: 100%; }
+    .hud-top-bar { display: flex; justify-content: flex-start; width: 100%; margin-bottom: 10px; }
+    .hud-clock { font-family: var(--font-mono); font-size: 3.5rem; font-weight: 700; margin: 6px 0; letter-spacing: -0.03em; color: #38bdf8; }
+    .hud-scroll-body { flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px; }
+    .hud-hero-card { background: #1e293b; border: 1px solid #334155; border-radius: var(--radius-lg); padding: 20px; width: 100%; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .hud-hero-card.is-active-now { border: 2px solid #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.25); }
+    .hud-subtask-item { display: flex; flex-direction: column; gap: 4px; padding: 8px 0; border-bottom: 1px solid #334155; font-size: 0.88rem; }
+    .hud-footer-fixed { display: flex; gap: 12px; justify-content: center; padding-top: 16px; border-top: 1px solid #1e293b; flex-shrink: 0; }
 
     .report-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
     .report-table th, .report-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
@@ -238,7 +172,7 @@
     .day-chip-label input { display: none; }
     .day-chip-label.selected { background: var(--text); color: var(--surface); border-color: var(--text); }
 
-    .project-mgr-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
+    .project-mgr-item { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
     .modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 460px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
@@ -256,36 +190,8 @@
 
       .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
 
-      .mobile-nav {
-        position: fixed; 
-        bottom: 0; 
-        left: 0; 
-        right: 0; 
-        height: 60px; 
-        background: var(--surface); 
-        border-top: 1px solid var(--border); 
-        display: grid; 
-        grid-template-columns: repeat(3, 1fr); 
-        align-items: center; 
-        z-index: 50; 
-        padding-bottom: env(safe-area-inset-bottom, 0px);
-        box-shadow: 0 -4px 15px rgba(0,0,0,0.03);
-      }
-      .mobile-nav button { 
-        background: none; 
-        border: none; 
-        font-size: 0.8rem; 
-        font-weight: 700; 
-        color: var(--text-muted); 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center;
-        gap: 2px; 
-        height: 100%;
-        width: 100%;
-        cursor: pointer;
-      }
+      .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -4px 15px rgba(0,0,0,0.03); }
+      .mobile-nav button { background: none; border: none; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 100%; width: 100%; cursor: pointer; }
       .mobile-nav button.active { color: var(--accent-primary); }
     }
 
@@ -316,7 +222,6 @@
   </div>
 
   <main id="main-scroll-container">
-    <!-- SCHEDULE CALENDAR SECTION -->
     <section id="sec-calendar" class="content-section active">
       <header>
         <h1>SCHEDULE CALENDAR</h1>
@@ -337,7 +242,6 @@
       <div id="calendar-render-area"></div>
     </section>
 
-    <!-- TASKS SECTION -->
     <section id="sec-tasks" class="content-section">
       <header>
         <div style="display:flex; flex-direction:column; gap:6px;">
@@ -366,7 +270,6 @@
       <div class="task-list" id="task-container"></div>
     </section>
 
-    <!-- REPORTS SECTION -->
     <section id="sec-reports" class="content-section">
       <header>
         <h1>REPORTS & LIMITS</h1>
@@ -379,14 +282,13 @@
     </section>
   </main>
 
-  <!-- EVENLY SPACED 3-TAB MOBILE NAVIGATION -->
   <div class="mobile-nav">
     <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule</button>
     <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks</button>
     <button class="nav-btn" onclick="switchTab('reports', this)">Reports</button>
   </div>
 
-  <!-- FOCUS MODE DESK HUD OVERLAY -->
+  <!-- FOCUS MODE HUD OVERLAY -->
   <div class="desk-hud-overlay" id="desk-hud">
     <div class="hud-header-fixed">
       <div class="hud-top-bar">
@@ -405,20 +307,20 @@
     </div>
   </div>
 
-  <!-- IDLE / WELCOME BACK MODAL -->
-  <div class="modal-overlay" id="idle-modal">
+  <!-- MODAL: COLUMN / STATUS CONFIGURATION PER PROJECT -->
+  <div class="modal-overlay" id="project-columns-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 8px;">☕ Welcome Back</h2>
-      <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;" id="idle-msg-text">You were away from the workspace for a bit.</p>
-      <div class="space-y">
-        <button class="btn btn-secondary" style="width:100%; justify-content:flex-start;" onclick="resolveIdleChoice('break')">☕ Log as Break Time</button>
-        <button class="btn btn-secondary" style="width:100%; justify-content:flex-start;" onclick="resolveIdleChoice('keep')">🧠 Keep Full Time in Project</button>
-        <button class="btn btn-danger" style="width:100%; justify-content:flex-start;" onclick="resolveIdleChoice('discard')">✂️ Discard Away Time</button>
+      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 6px;" id="col-modal-proj-title">Column Settings</h2>
+      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Select which status columns should be synced when clicking Sync on this project:</p>
+      <div id="col-modal-options-wrapper" class="space-y" style="margin-bottom:16px;"></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('project-columns-modal')">Cancel</button>
+        <button class="btn" onclick="saveProjectColumnSettings()">Save Columns</button>
       </div>
     </div>
   </div>
 
-  <!-- PROFILE / SETTINGS DRAWER MODAL -->
+  <!-- PROFILE MODAL -->
   <div class="modal-overlay" id="profile-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 16px;">Profile & Settings</h2>
@@ -447,22 +349,7 @@
     </div>
   </div>
 
-  <!-- MODAL: GITHUB STATUS COLUMN PICKER -->
-  <div class="modal-overlay" id="gh-status-picker-modal">
-    <div class="modal">
-      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 8px;" id="gh-status-modal-title">Sync Columns</h2>
-      <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 14px;">Select which status column items to pull from GitHub into your workspace:</p>
-      
-      <div id="gh-status-options-container" class="space-y" style="margin-bottom: 16px;"></div>
-
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeModal('gh-status-picker-modal')">Cancel</button>
-        <button class="btn" onclick="executeGithubSyncWithSelectedStatuses()">Sync Selected</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MODAL: MANAGE & ADD PROJECTS -->
+  <!-- MANAGE PROJECTS MODAL -->
   <div class="modal-overlay" id="project-mgr-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 14px;">Manage & Add Projects</h2>
@@ -493,7 +380,7 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD/EDIT TASK -->
+  <!-- TASK MODAL -->
   <div class="modal-overlay" id="task-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="modal-title">Create Task</h2>
@@ -529,7 +416,7 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD/EDIT SUBTASK -->
+  <!-- SUBTASK MODAL -->
   <div class="modal-overlay" id="subtask-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="submodal-title">Subtask</h2>
@@ -556,7 +443,7 @@
     </div>
   </div>
 
-  <!-- MODAL: ADD/EDIT CALENDAR EVENT -->
+  <!-- CALENDAR EVENT MODAL -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="cal-modal-title">Event Block</h2>
@@ -605,7 +492,7 @@
     </div>
   </div>
 
-  <!-- MODAL: MANUAL TIME ENTRY -->
+  <!-- MANUAL TIME ENTRY MODAL -->
   <div class="modal-overlay" id="manual-time-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="time-modal-title">Log / Edit Project Time</h2>
@@ -626,7 +513,7 @@
     </div>
   </div>
 
-  <!-- MODAL: PROJECT LIMITS (DROPDOWN) -->
+  <!-- PROJECT LIMITS MODAL -->
   <div class="modal-overlay" id="limit-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Set Project Time Limit</h2>
@@ -673,7 +560,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v47', 'todo-pwa-v46'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v48', 'todo-pwa-v47'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -683,6 +570,7 @@
       let mergedCollapsed = {};
       let mergedCalendarEvents = [];
       let mergedWeeklySummaries = {};
+      let mergedProjectSyncColumns = {};
       let hideCompleted = false;
       let isSplitView = false;
       let ghToken = '';
@@ -704,6 +592,7 @@
             if (parsed.manualProjectTimes) Object.assign(mergedManualTimes, parsed.manualProjectTimes);
             if (parsed.collapsedTasks) Object.assign(mergedCollapsed, parsed.collapsedTasks);
             if (parsed.weeklySummaries) Object.assign(mergedWeeklySummaries, parsed.weeklySummaries);
+            if (parsed.projectSyncColumns) Object.assign(mergedProjectSyncColumns, parsed.projectSyncColumns);
             
             if (parsed.calendarEvents) {
               parsed.calendarEvents.forEach(evt => {
@@ -736,6 +625,7 @@
         collapsedTasks: mergedCollapsed,
         calendarEvents: mergedCalendarEvents,
         weeklySummaries: mergedWeeklySummaries,
+        projectSyncColumns: mergedProjectSyncColumns,
         hideCompleted,
         isSplitView,
         ghToken,
@@ -815,7 +705,6 @@
       saveData();
     }
 
-    /* PRECISE MINUTE-LEVEL TIME DEDUCTION */
     function autoDetectCurrentScheduleSlot() {
       const now = new Date();
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
@@ -1020,7 +909,6 @@
         ...Object.keys(appData.manualProjectTimes || {})
       ])).filter(p => p !== 'Unscheduled');
 
-      // HUD Context Selector
       const selectorBox = document.createElement('div');
       selectorBox.style.marginBottom = '12px';
       
@@ -1054,7 +942,6 @@
       });
 
       if (isManualProject) {
-        // MANUAL PROJECT SELECTION VIEW
         const targetProj = trackingState.targetProj;
         const projectEvents = todayEvents.filter(e => e.project && e.project.trim().toLowerCase() === targetProj.trim().toLowerCase());
 
@@ -1124,7 +1011,6 @@
         }
         container.appendChild(projBox);
       } else if (!isUnscheduled && detected) {
-        // CURRENT SLOT VIEW
         const activeEvent = todayEvents.find(e => e.title.toLowerCase() === detected.title.toLowerCase() || e.project === detected.proj) || todayEvents[0];
         const matchedTask = appData.tasks.find(t => 
           activeEvent && t.title.trim().toLowerCase() === activeEvent.title.trim().toLowerCase()
@@ -1191,7 +1077,6 @@
           container.appendChild(upNextBox);
         }
       } else {
-        // UNSCHEDULED / AD-HOC VIEW
         const adhocNotice = document.createElement('div');
         adhocNotice.style.cssText = "background:#1e293b; border:1px solid #334155; border-radius:var(--radius-lg); padding:24px; text-align:center; color:#cbd5e1; font-size:0.9rem; line-height:1.5;";
         adhocNotice.innerHTML = `⚡ Tracking Ad-hoc / Unscheduled Time.<br>Hit 'Start Focus' to log random time.`;
@@ -1319,6 +1204,7 @@
         delete appData.projectColors[projName];
         delete appData.projectLimits[projName];
         delete appData.manualProjectTimes[projName];
+        if (appData.projectSyncColumns) delete appData.projectSyncColumns[projName];
 
         saveData();
         renderProjectManagerList();
@@ -1327,6 +1213,91 @@
         renderTasks();
         renderReports();
       }
+    }
+
+    /* PERSISTENT COLUMN CONFIGURATION PER PROJECT */
+    let currentConfiguringProj = null;
+
+    async function openProjectColumnConfig(projName) {
+      currentConfiguringProj = projName;
+      document.getElementById('col-modal-proj-title').innerText = `Columns: ${projName}`;
+
+      const container = document.getElementById('col-modal-options-wrapper');
+      container.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">Fetching available columns from GitHub...</div>`;
+      document.getElementById('project-columns-modal').style.display = 'flex';
+
+      try {
+        const graphqlQuery = {
+          query: `
+            query($org: String!, $searchTitle: String!) {
+              organization(login: $org) {
+                projectsV2(first: 10, query: $searchTitle) {
+                  nodes {
+                    title
+                    fields(first: 20) {
+                      nodes {
+                        ... on ProjectV2SingleSelectField {
+                          name
+                          options { name }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          `,
+          variables: { org: appData.ghOrg, searchTitle: projName }
+        };
+
+        const res = await fetch('https://api.github.com/graphql', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${appData.ghToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(graphqlQuery)
+        });
+
+        const json = await res.json();
+        const projects = json.data?.organization?.projectsV2?.nodes || [];
+        const foundBoard = projects.find(p => p.title.toLowerCase().includes(projName.toLowerCase()));
+
+        const statusField = (foundBoard?.fields?.nodes || []).find(f => f.name && f.name.toLowerCase() === 'status');
+        const availableOptions = statusField?.options?.map(o => o.name) || ['Todo', 'In Progress', 'In_Progress', 'Done'];
+
+        const savedCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress', 'todo'];
+
+        container.innerHTML = '';
+        availableOptions.forEach(opt => {
+          const normOpt = opt.toLowerCase().replace(/[\s_-]+/g, '');
+          const isChecked = savedCols.some(sc => sc.toLowerCase().replace(/[\s_-]+/g, '') === normOpt);
+
+          const label = document.createElement('label');
+          label.className = 'toggle-label';
+          label.style.cssText = "display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer;";
+          label.innerHTML = `
+            <input type="checkbox" class="proj-col-chk" value="${escapeHtml(opt)}" ${isChecked ? 'checked' : ''}>
+            <span style="font-weight:700; font-size:0.85rem;">${escapeHtml(opt)}</span>
+          `;
+          container.appendChild(label);
+        });
+
+      } catch(err) {
+        container.innerHTML = `<div style="font-size:0.8rem; color:#ef4444;">Error loading columns: ${escapeHtml(err.message)}</div>`;
+      }
+    }
+
+    function saveProjectColumnSettings() {
+      if (!currentConfiguringProj) return;
+
+      const checkedCols = Array.from(document.querySelectorAll('.proj-col-chk:checked')).map(c => c.value);
+      if (!appData.projectSyncColumns) appData.projectSyncColumns = {};
+      appData.projectSyncColumns[currentConfiguringProj] = checkedCols;
+
+      saveData();
+      closeModal('project-columns-modal');
+      alert(`Updated sync columns for '${currentConfiguringProj}'!`);
     }
 
     function renderProjectManagerList() {
@@ -1350,18 +1321,235 @@
         const item = document.createElement('div');
         item.className = 'project-mgr-item';
         item.innerHTML = `
-          <div style="display:flex; align-items:center; gap:10px;">
-            <span style="width:12px; height:12px; border-radius:50%; background:${color}; display:inline-block;"></span>
-            <span style="font-weight:700; font-size:0.88rem;">${escapeHtml(proj)}</span>
-            <span style="font-size:0.72rem; color:var(--text-muted);">(${taskCount} tasks)</span>
-          </div>
-          <div class="flex-gap">
-            <button class="btn btn-secondary btn-sm" onclick="syncGithubProjectByName('${escapeHtml(proj)}')">↻ Sync</button>
-            <button class="btn btn-danger btn-sm" onclick="deleteProject('${escapeHtml(proj)}')">Delete</button>
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="width:12px; height:12px; border-radius:50%; background:${color}; display:inline-block;"></span>
+              <span style="font-weight:700; font-size:0.88rem;">${escapeHtml(proj)}</span>
+              <span style="font-size:0.72rem; color:var(--text-muted);">(${taskCount} tasks)</span>
+            </div>
+            <div class="flex-gap">
+              <button class="btn btn-secondary btn-sm" onclick="openProjectColumnConfig('${escapeHtml(proj)}')">⚙️ Columns</button>
+              <button class="btn btn-secondary btn-sm" onclick="syncGithubProjectByName('${escapeHtml(proj)}')">↻ Sync</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteProject('${escapeHtml(proj)}')">Delete</button>
+            </div>
           </div>
         `;
         wrapper.appendChild(item);
       });
+    }
+
+    /* RECURSIVE PAGINATED GITHUB SYNC (PULLS ALL 500+ ITEMS) */
+    async function resyncSelectedProject() {
+      const targetProj = document.getElementById('task-project-filter').value;
+      const isAll = !targetProj || targetProj === 'ALL' || targetProj.toUpperCase() === 'ALL PROJECTS';
+      if (isAll) {
+        alert("Please tap the project title to select a project to sync.");
+        return;
+      }
+      await syncGithubProjectByName(targetProj);
+    }
+
+    async function syncGithubProjectByName(projName) {
+      if (!appData.ghToken || !appData.ghOrg) {
+        openProfileModal();
+        alert("Please configure your GitHub Access Token and Org Name in Profile Settings (👤) first.");
+        return;
+      }
+
+      const resyncBtn = document.getElementById('resync-btn');
+      if (resyncBtn) resyncBtn.innerText = '↻ Syncing...';
+
+      const configuredCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress', 'todo'];
+      const normalizedTargetCols = configuredCols.map(c => c.toLowerCase().replace(/[\s_-]+/g, ''));
+
+      let allBoardItems = [];
+      let hasNextPage = true;
+      let endCursor = null;
+
+      try {
+        while (hasNextPage) {
+          const graphqlQuery = {
+            query: `
+              query($org: String!, $searchTitle: String!, $afterCursor: String) {
+                organization(login: $org) {
+                  projectsV2(first: 10, query: $searchTitle) {
+                    nodes {
+                      id
+                      title
+                      items(first: 100, after: $afterCursor) {
+                        pageInfo {
+                          hasNextPage
+                          endCursor
+                        }
+                        nodes {
+                          id
+                          fieldValues(first: 15) {
+                            nodes {
+                              ... on ProjectV2ItemFieldSingleSelectValue {
+                                name
+                                field { ... on ProjectV2SingleSelectField { name } }
+                              }
+                              ... on ProjectV2ItemFieldTextValue {
+                                text
+                                field { ... on ProjectV2Field { name } }
+                              }
+                            }
+                          }
+                          content {
+                            ... on Issue {
+                              id
+                              title
+                              body
+                              url
+                              state
+                              labels(first: 10) { nodes { name } }
+                              subIssues(first: 15) {
+                                nodes {
+                                  id
+                                  title
+                                  body
+                                  state
+                                }
+                              }
+                            }
+                            ... on DraftIssue {
+                              id
+                              title
+                              body
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `,
+            variables: { org: appData.ghOrg, searchTitle: projName, afterCursor: endCursor }
+          };
+
+          const res = await fetch('https://api.github.com/graphql', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${appData.ghToken}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(graphqlQuery)
+          });
+
+          const json = await res.json();
+          if (json.errors) throw new Error(json.errors[0].message);
+
+          const projects = json.data?.organization?.projectsV2?.nodes || [];
+          const foundBoard = projects.find(p => p.title.toLowerCase().includes(projName.toLowerCase()));
+
+          if (!foundBoard) throw new Error(`Project board matching '${projName}' not found on GitHub.`);
+
+          const itemsData = foundBoard.items;
+          const pageNodes = itemsData.nodes || [];
+          allBoardItems.push(...pageNodes);
+
+          hasNextPage = itemsData.pageInfo?.hasNextPage || false;
+          endCursor = itemsData.pageInfo?.endCursor || null;
+        }
+
+        if (!appData.projectColors[projName]) {
+          appData.projectColors[projName] = getRandomColor();
+        }
+
+        let count = 0;
+
+        allBoardItems.forEach(item => {
+          if (!item.content || !item.content.title) return;
+
+          let itemStatus = '';
+          let customTags = [];
+          let customLink = null;
+
+          (item.fieldValues?.nodes || []).forEach(fv => {
+            if (fv.field?.name?.toLowerCase() === 'status' && fv.name) {
+              itemStatus = fv.name.toLowerCase().replace(/[\s_-]+/g, '');
+            }
+            if (fv.field?.name?.toLowerCase() === 'tags') {
+              const rawVal = fv.name || fv.text || '';
+              customTags = rawVal.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+            }
+            if (fv.field?.name?.toLowerCase() === 'link') {
+              customLink = fv.text || fv.name || null;
+            }
+          });
+
+          if (normalizedTargetCols.includes(itemStatus)) {
+            const title = item.content.title;
+            const bodyText = item.content.body || '';
+            const githubUrl = item.content.url || null;
+
+            const subtasks = [];
+
+            if (item.content.subIssues && item.content.subIssues.nodes) {
+              item.content.subIssues.nodes.forEach(sub => {
+                subtasks.push({
+                  id: 'sub_' + Date.now() + Math.random(),
+                  title: sub.title,
+                  description: sub.body || '',
+                  tags: customTags.length > 0 ? customTags : ['sub-issue'],
+                  customUrl: customLink || null,
+                  completed: sub.state === 'CLOSED'
+                });
+              });
+            }
+
+            const checklistRegex = /- \[(x| )\] (.*)/g;
+            let match;
+            while ((match = checklistRegex.exec(bodyText)) !== null) {
+              subtasks.push({
+                id: 'sub_' + Date.now() + Math.random(),
+                title: match[2].trim(),
+                description: '',
+                tags: customTags,
+                customUrl: customLink || null,
+                completed: match[1] === 'x'
+              });
+            }
+
+            const rawLabels = (item.content.labels?.nodes || []).map(l => l.name.toLowerCase());
+            const combinedTaskTags = Array.from(new Set([...rawLabels, ...customTags]));
+
+            combinedTaskTags.forEach(t => { if (!appData.tagColors[t]) appData.tagColors[t] = getRandomColor(); });
+
+            let existingTask = appData.tasks.find(t => t.title === title && t.project && t.project.trim().toLowerCase() === projName.trim().toLowerCase());
+            if (!existingTask) {
+              appData.tasks.push({
+                id: 'task_' + Date.now() + Math.random(),
+                title,
+                description: bodyText ? bodyText.slice(0, 200) + '...' : '',
+                project: projName,
+                tags: combinedTaskTags,
+                githubUrl: githubUrl,
+                dependsOn: null,
+                completed: false,
+                subtasks,
+                timeSpent: 0
+              });
+              count++;
+            } else {
+              existingTask.subtasks = subtasks;
+              existingTask.githubUrl = githubUrl;
+            }
+          }
+        });
+
+        saveData();
+        updateProjectDropdowns();
+        renderTagFilters();
+        renderTasks();
+        alert(`Synced '${projName}' across ${allBoardItems.length} board items! ${count} new items loaded.`);
+
+      } catch(err) {
+        alert("Sync Error: " + err.message);
+      } finally {
+        if (resyncBtn) resyncBtn.innerText = '↻ Sync';
+      }
     }
 
     function filterTasksByProjectSelect() { 
@@ -1567,244 +1755,6 @@
         renderTagFilters();
         renderTasks();
       }
-    }
-
-    /* ENHANCED GITHUB SYNC WITH STATUS PICKER & CUSTOM FIELDS */
-    let pendingGhSync = null;
-
-    async function resyncSelectedProject() {
-      const targetProj = document.getElementById('task-project-filter').value;
-      const isAll = !targetProj || targetProj === 'ALL' || targetProj.toUpperCase() === 'ALL PROJECTS';
-      if (isAll) {
-        alert("Please tap the project title to select a project to sync.");
-        return;
-      }
-      await syncGithubProjectByName(targetProj);
-    }
-
-    async function syncGithubProjectByName(projName) {
-      if (!appData.ghToken || !appData.ghOrg) {
-        openProfileModal();
-        alert("Please configure your GitHub Access Token and Org Name in Profile Settings (👤) first.");
-        return;
-      }
-
-      const graphqlQuery = {
-        query: `
-          query($org: String!, $searchTitle: String!) {
-            organization(login: $org) {
-              projectsV2(first: 10, query: $searchTitle) {
-                nodes {
-                  id
-                  title
-                  fields(first: 20) {
-                    nodes {
-                      ... on ProjectV2SingleSelectField {
-                        id
-                        name
-                        options { id name }
-                      }
-                    }
-                  }
-                  items(first: 50) {
-                    nodes {
-                      id
-                      fieldValues(first: 15) {
-                        nodes {
-                          ... on ProjectV2ItemFieldSingleSelectValue {
-                            name
-                            field { ... on ProjectV2SingleSelectField { name } }
-                          }
-                          ... on ProjectV2ItemFieldTextValue {
-                            text
-                            field { ... on ProjectV2Field { name } }
-                          }
-                        }
-                      }
-                      content {
-                        ... on Issue {
-                          id
-                          title
-                          body
-                          url
-                          state
-                          labels(first: 10) { nodes { name } }
-                          subIssues(first: 15) {
-                            nodes {
-                              id
-                              title
-                              body
-                              state
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        `,
-        variables: { org: appData.ghOrg, searchTitle: projName }
-      };
-
-      try {
-        const res = await fetch('https://api.github.com/graphql', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${appData.ghToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(graphqlQuery)
-        });
-
-        const json = await res.json();
-        if (json.errors) throw new Error(json.errors[0].message);
-
-        const projects = json.data?.organization?.projectsV2?.nodes || [];
-        const foundBoard = projects.find(p => p.title.toLowerCase().includes(projName.toLowerCase()));
-
-        if (!foundBoard) throw new Error(`Project board matching '${projName}' not found on GitHub.`);
-
-        // Find Status field options
-        const statusField = (foundBoard.fields?.nodes || []).find(f => f.name && f.name.toLowerCase() === 'status');
-        const availableOptions = statusField?.options?.map(o => o.name) || ['Todo', 'In Progress', 'Done'];
-
-        pendingGhSync = { projName, boardData: foundBoard };
-        openGithubStatusPickerModal(availableOptions);
-
-      } catch(err) {
-        alert("Sync Error: " + err.message);
-      }
-    }
-
-    function openGithubStatusPickerModal(statusOptions) {
-      const container = document.getElementById('gh-status-options-container');
-      container.innerHTML = '';
-
-      statusOptions.forEach((status, idx) => {
-        const defaultChecked = status.toLowerCase().includes('in progress') || status.toLowerCase().includes('in_progress') || status.toLowerCase().includes('todo') || status.toLowerCase().includes('to do');
-        
-        const label = document.createElement('label');
-        label.className = 'toggle-label';
-        label.style.cssText = "display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer;";
-        label.innerHTML = `
-          <input type="checkbox" class="gh-status-chk" value="${escapeHtml(status)}" ${defaultChecked ? 'checked' : ''}>
-          <span style="font-weight:700; font-size:0.85rem;">${escapeHtml(status)}</span>
-        `;
-        container.appendChild(label);
-      });
-
-      document.getElementById('gh-status-picker-modal').style.display = 'flex';
-    }
-
-    function executeGithubSyncWithSelectedStatuses() {
-      if (!pendingGhSync) return;
-
-      const selectedStatuses = Array.from(document.querySelectorAll('.gh-status-chk:checked')).map(c => c.value.toLowerCase());
-      if (selectedStatuses.length === 0) {
-        alert("Please select at least one status column to sync.");
-        return;
-      }
-
-      const { projName, boardData } = pendingGhSync;
-
-      if (!appData.projectColors[projName]) {
-        appData.projectColors[projName] = getRandomColor();
-      }
-
-      let count = 0;
-      const items = boardData.items.nodes || [];
-
-      items.forEach(item => {
-        if (!item.content || !item.content.title) return;
-
-        let itemStatus = '';
-        let customTags = [];
-        let customLink = null;
-
-        (item.fieldValues?.nodes || []).forEach(fv => {
-          if (fv.field?.name?.toLowerCase() === 'status' && fv.name) {
-            itemStatus = fv.name.toLowerCase();
-          }
-          if (fv.field?.name?.toLowerCase() === 'tags') {
-            const rawVal = fv.name || fv.text || '';
-            customTags = rawVal.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
-          }
-          if (fv.field?.name?.toLowerCase() === 'link') {
-            customLink = fv.text || fv.name || null;
-          }
-        });
-
-        if (selectedStatuses.includes(itemStatus)) {
-          const title = item.content.title;
-          const bodyText = item.content.body || '';
-          const githubUrl = item.content.url || null;
-
-          const subtasks = [];
-
-          if (item.content.subIssues && item.content.subIssues.nodes) {
-            item.content.subIssues.nodes.forEach(sub => {
-              subtasks.push({
-                id: 'sub_' + Date.now() + Math.random(),
-                title: sub.title,
-                description: sub.body || '',
-                tags: customTags.length > 0 ? customTags : ['sub-issue'],
-                customUrl: customLink || null,
-                completed: sub.state === 'CLOSED'
-              });
-            });
-          }
-
-          const checklistRegex = /- \[(x| )\] (.*)/g;
-          let match;
-          while ((match = checklistRegex.exec(bodyText)) !== null) {
-            subtasks.push({
-              id: 'sub_' + Date.now() + Math.random(),
-              title: match[2].trim(),
-              description: '',
-              tags: customTags,
-              customUrl: customLink || null,
-              completed: match[1] === 'x'
-            });
-          }
-
-          const rawLabels = (item.content.labels?.nodes || []).map(l => l.name.toLowerCase());
-          const combinedTaskTags = Array.from(new Set([...rawLabels, ...customTags]));
-
-          combinedTaskTags.forEach(t => { if (!appData.tagColors[t]) appData.tagColors[t] = getRandomColor(); });
-
-          let existingTask = appData.tasks.find(t => t.title === title && t.project && t.project.trim().toLowerCase() === projName.trim().toLowerCase());
-          if (!existingTask) {
-            appData.tasks.push({
-              id: 'task_' + Date.now() + Math.random(),
-              title,
-              description: bodyText ? bodyText.slice(0, 200) + '...' : '',
-              project: projName,
-              tags: combinedTaskTags,
-              githubUrl: githubUrl,
-              dependsOn: null,
-              completed: false,
-              subtasks,
-              timeSpent: 0
-            });
-            count++;
-          } else {
-            existingTask.subtasks = subtasks;
-            existingTask.githubUrl = githubUrl;
-          }
-        }
-      });
-
-      saveData();
-      closeModal('gh-status-picker-modal');
-      pendingGhSync = null;
-
-      updateProjectDropdowns();
-      renderTagFilters();
-      renderTasks();
-      alert(`Synced '${projName}'! ${count} new items loaded.`);
     }
 
     function scheduleTaskToCalendar(taskTitle, taskProject, taskDesc = '') {
@@ -2073,6 +2023,7 @@
       });
     }
 
+    /* RENDER TASKS (CLEAN HEADER WITH GITHUB ISSUE LINK IN ⋮ MENU) */
     function renderTasks() {
       const container = document.getElementById('task-container');
       const searchQuery = document.getElementById('search-input').value.toLowerCase();
@@ -2143,8 +2094,6 @@
             </div>
             
             <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; position:relative;">
-              ${task.githubUrl ? `<a href="${escapeHtml(task.githubUrl)}" target="_blank" class="pill" style="background:#0f172a; color:#fff; text-decoration:none;" title="Open GitHub Issue">🐙 Issue</a>` : ''}
-
               <div class="circular-progress-wrap" title="${doneSub}/${totalSub} subtasks completed (${progressPct}%)">
                 <svg>
                   <circle class="circular-progress-bg" cx="16" cy="16" r="${radius}"></circle>
@@ -2159,6 +2108,7 @@
               <div id="menu-${task.id}" class="task-menu-dropdown">
                 <button class="menu-item-btn" onclick="openTaskModal('${task.id}')">✏️ Edit</button>
                 <button class="menu-item-btn" onclick="scheduleTaskToCalendar('${escapedTitle}', '${task.project}', '${escapedDesc}')">📅 Schedule</button>
+                ${task.githubUrl ? `<a href="${escapeHtml(task.githubUrl)}" target="_blank" class="menu-item-btn">🐙 Open GitHub</a>` : ''}
                 <button class="menu-item-btn danger" onclick="deleteTask('${task.id}')">🗑️ Delete</button>
               </div>
             </div>
@@ -2422,7 +2372,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v48';
+        const CACHE_NAME = 'todo-pwa-v49';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
