@@ -307,7 +307,7 @@
     </div>
   </div>
 
-  <!-- MODAL: COLUMN / STATUS CONFIGURATION PER PROJECT -->
+  <!-- MODAL: COLUMN CONFIGURATION PER PROJECT -->
   <div class="modal-overlay" id="project-columns-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 6px;" id="col-modal-proj-title">Column Settings</h2>
@@ -560,7 +560,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v49', 'todo-pwa-v48'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v50', 'todo-pwa-v49'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -1264,9 +1264,9 @@
         const foundBoard = projects.find(p => p.title.toLowerCase().includes(projName.toLowerCase()));
 
         const statusField = (foundBoard?.fields?.nodes || []).find(f => f.name && f.name.toLowerCase() === 'status');
-        const availableOptions = statusField?.options?.map(o => o.name) || ['Todo', 'In Progress', 'In_Progress', 'Done'];
+        const availableOptions = statusField?.options?.map(o => o.name) || ['In Progress', 'Todo', 'Leads', 'Done'];
 
-        const savedCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress', 'todo'];
+        const savedCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress'];
 
         container.innerHTML = '';
         availableOptions.forEach(opt => {
@@ -1338,7 +1338,7 @@
       });
     }
 
-    /* EXPANDED GRAPHQL FIELD VALUES EXTRACTION */
+    /* GITHUB SYNC ENGINE EXCLUSIVELY FOR CONFIGURED COLUMNS */
     async function resyncSelectedProject() {
       const targetProj = document.getElementById('task-project-filter').value;
       const isAll = !targetProj || targetProj === 'ALL' || targetProj.toUpperCase() === 'ALL PROJECTS';
@@ -1359,7 +1359,8 @@
       const resyncBtn = document.getElementById('resync-btn');
       if (resyncBtn) resyncBtn.innerText = '↻ Syncing...';
 
-      const configuredCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress', 'todo', 'leads'];
+      // Default STRICTLY to 'In Progress' unless configured otherwise in column settings
+      const configuredCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress'];
       const normalizedTargetCols = configuredCols.map(c => c.toLowerCase().replace(/[\s_-]+/g, ''));
 
       let allBoardItems = [];
@@ -1559,7 +1560,7 @@
         updateProjectDropdowns();
         renderTagFilters();
         renderTasks();
-        alert(`Synced '${projName}' across ${allBoardItems.length} items! ${count} items loaded/updated.`);
+        alert(`Synced '${projName}'! Fetched ${count} in-progress items across ${allBoardItems.length} total board cards.`);
 
       } catch(err) {
         alert("Sync Error: " + err.message);
@@ -2392,7 +2393,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v50';
+        const CACHE_NAME = 'todo-pwa-v51';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
