@@ -307,7 +307,7 @@
     </div>
   </div>
 
-  <!-- MODAL: COLUMN CONFIGURATION PER PROJECT -->
+  <!-- MODAL: COLUMN / STATUS CONFIGURATION PER PROJECT -->
   <div class="modal-overlay" id="project-columns-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 6px;" id="col-modal-proj-title">Column Settings</h2>
@@ -1338,7 +1338,7 @@
       });
     }
 
-    /* GITHUB SYNC ENGINE EXCLUSIVELY FOR CONFIGURED COLUMNS */
+    /* ACCURATE SUB-ISSUE TAGS & LINKS MAP EXTRACTION */
     async function resyncSelectedProject() {
       const targetProj = document.getElementById('task-project-filter').value;
       const isAll = !targetProj || targetProj === 'ALL' || targetProj.toUpperCase() === 'ALL PROJECTS';
@@ -1359,7 +1359,6 @@
       const resyncBtn = document.getElementById('resync-btn');
       if (resyncBtn) resyncBtn.innerText = '↻ Syncing...';
 
-      // Default STRICTLY to 'In Progress' unless configured otherwise in column settings
       const configuredCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress'];
       const normalizedTargetCols = configuredCols.map(c => c.toLowerCase().replace(/[\s_-]+/g, ''));
 
@@ -1393,14 +1392,6 @@
                               }
                               ... on ProjectV2ItemFieldTextValue {
                                 text
-                                field { ... on ProjectV2Field { name } }
-                              }
-                              ... on ProjectV2ItemFieldNumberValue {
-                                number
-                                field { ... on ProjectV2Field { name } }
-                              }
-                              ... on ProjectV2ItemFieldDateValue {
-                                date
                                 field { ... on ProjectV2Field { name } }
                               }
                             }
@@ -1467,8 +1458,36 @@
           appData.projectColors[projName] = getRandomColor();
         }
 
+        // STEP 1: Build a project-wide board card metadata map for sub-issue tags & links
+        const itemCardMetaMap = {};
+
+        allBoardItems.forEach(item => {
+          if (!item.content || !item.content.title) return;
+          const cardTitleNorm = item.content.title.trim().toLowerCase();
+
+          let cardTags = [];
+          let cardLink = null;
+
+          (item.fieldValues?.nodes || []).forEach(fv => {
+            const fieldName = fv.field?.name?.toLowerCase() || '';
+
+            if (fieldName === 'tags') {
+              const rawVal = fv.name || fv.text || '';
+              if (rawVal) {
+                cardTags = rawVal.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+              }
+            }
+            if (fieldName === 'link') {
+              cardLink = fv.text || fv.name || null;
+            }
+          });
+
+          itemCardMetaMap[cardTitleNorm] = { tags: cardTags, link: cardLink };
+        });
+
         let count = 0;
 
+        // STEP 2: Map parent issues & enrich sub-issues using itemCardMetaMap
         allBoardItems.forEach(item => {
           if (!item.content || !item.content.title) return;
 
@@ -1502,12 +1521,20 @@
 
             if (item.content.subIssues && item.content.subIssues.nodes) {
               item.content.subIssues.nodes.forEach(sub => {
+                const subTitleNorm = sub.title.trim().toLowerCase();
+                const subMeta = itemCardMetaMap[subTitleNorm] || {};
+
+                const resolvedSubTags = (subMeta.tags && subMeta.tags.length > 0) ? subMeta.tags : customTags;
+                const resolvedSubLink = subMeta.link || customLink;
+
+                resolvedSubTags.forEach(st => { if (!appData.tagColors[st]) appData.tagColors[st] = getRandomColor(); });
+
                 subtasks.push({
                   id: 'sub_' + Date.now() + Math.random(),
                   title: sub.title,
                   description: sub.body || '',
-                  tags: customTags.length > 0 ? customTags : ['sub-issue'],
-                  customUrl: customLink || null,
+                  tags: resolvedSubTags,
+                  customUrl: resolvedSubLink,
                   completed: sub.state === 'CLOSED'
                 });
               });
@@ -1521,7 +1548,7 @@
                 title: match[2].trim(),
                 description: '',
                 tags: customTags,
-                customUrl: customLink || null,
+                customUrl: customLink,
                 completed: match[1] === 'x'
               });
             }
@@ -1560,7 +1587,7 @@
         updateProjectDropdowns();
         renderTagFilters();
         renderTasks();
-        alert(`Synced '${projName}'! Fetched ${count} in-progress items across ${allBoardItems.length} total board cards.`);
+        alert(`Synced '${projName}'! Fetched ${count} target items and mapped sub-issue tags/links.`);
 
       } catch(err) {
         alert("Sync Error: " + err.message);
@@ -2393,7 +2420,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v51';
+        const CACHE_NAME = 'todo-pwa-v52';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
