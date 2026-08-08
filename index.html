@@ -122,7 +122,7 @@
     .circular-progress-fill { stroke: var(--accent-primary); transition: stroke-dashoffset 0.3s ease; }
     .circular-progress-text { position: absolute; font-size: 0.58rem; font-weight: 800; color: var(--text); text-align: center; }
 
-    .task-menu-dropdown { display: none; position: absolute; right: 0; top: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 30; flex-direction: column; min-width: 150px; padding: 6px; }
+    .task-menu-dropdown { display: none; position: absolute; right: 0; top: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 30; flex-direction: column; min-width: 160px; padding: 6px; }
     .menu-item-btn { background: none; border: none; text-align: left; padding: 7px 12px; font-size: 0.78rem; font-weight: 600; color: var(--text); cursor: pointer; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; text-decoration: none; }
     .menu-item-btn:hover { background: var(--surface-hover); }
     .menu-item-btn.danger { color: #ef4444; }
@@ -560,7 +560,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v48', 'todo-pwa-v47'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v49', 'todo-pwa-v48'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -1338,7 +1338,7 @@
       });
     }
 
-    /* RECURSIVE PAGINATED GITHUB SYNC (PULLS ALL 500+ ITEMS) */
+    /* EXPANDED GRAPHQL FIELD VALUES EXTRACTION */
     async function resyncSelectedProject() {
       const targetProj = document.getElementById('task-project-filter').value;
       const isAll = !targetProj || targetProj === 'ALL' || targetProj.toUpperCase() === 'ALL PROJECTS';
@@ -1359,7 +1359,7 @@
       const resyncBtn = document.getElementById('resync-btn');
       if (resyncBtn) resyncBtn.innerText = '↻ Syncing...';
 
-      const configuredCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress', 'todo'];
+      const configuredCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress', 'todo', 'leads'];
       const normalizedTargetCols = configuredCols.map(c => c.toLowerCase().replace(/[\s_-]+/g, ''));
 
       let allBoardItems = [];
@@ -1383,14 +1383,23 @@
                         }
                         nodes {
                           id
-                          fieldValues(first: 15) {
+                          fieldValues(first: 20) {
                             nodes {
                               ... on ProjectV2ItemFieldSingleSelectValue {
                                 name
+                                optionId
                                 field { ... on ProjectV2SingleSelectField { name } }
                               }
                               ... on ProjectV2ItemFieldTextValue {
                                 text
+                                field { ... on ProjectV2Field { name } }
+                              }
+                              ... on ProjectV2ItemFieldNumberValue {
+                                number
+                                field { ... on ProjectV2Field { name } }
+                              }
+                              ... on ProjectV2ItemFieldDateValue {
+                                date
                                 field { ... on ProjectV2Field { name } }
                               }
                             }
@@ -1467,14 +1476,18 @@
           let customLink = null;
 
           (item.fieldValues?.nodes || []).forEach(fv => {
-            if (fv.field?.name?.toLowerCase() === 'status' && fv.name) {
+            const fieldName = fv.field?.name?.toLowerCase() || '';
+
+            if (fieldName === 'status' && fv.name) {
               itemStatus = fv.name.toLowerCase().replace(/[\s_-]+/g, '');
             }
-            if (fv.field?.name?.toLowerCase() === 'tags') {
+            if (fieldName === 'tags') {
               const rawVal = fv.name || fv.text || '';
-              customTags = rawVal.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+              if (rawVal) {
+                customTags = rawVal.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+              }
             }
-            if (fv.field?.name?.toLowerCase() === 'link') {
+            if (fieldName === 'link') {
               customLink = fv.text || fv.name || null;
             }
           });
@@ -1522,10 +1535,11 @@
               appData.tasks.push({
                 id: 'task_' + Date.now() + Math.random(),
                 title,
-                description: bodyText ? bodyText.slice(0, 200) + '...' : '',
+                description: bodyText ? bodyText.slice(0, 250) + '...' : '',
                 project: projName,
                 tags: combinedTaskTags,
                 githubUrl: githubUrl,
+                customUrl: customLink,
                 dependsOn: null,
                 completed: false,
                 subtasks,
@@ -1535,6 +1549,8 @@
             } else {
               existingTask.subtasks = subtasks;
               existingTask.githubUrl = githubUrl;
+              existingTask.customUrl = customLink;
+              existingTask.tags = combinedTaskTags;
             }
           }
         });
@@ -1543,7 +1559,7 @@
         updateProjectDropdowns();
         renderTagFilters();
         renderTasks();
-        alert(`Synced '${projName}' across ${allBoardItems.length} board items! ${count} new items loaded.`);
+        alert(`Synced '${projName}' across ${allBoardItems.length} items! ${count} items loaded/updated.`);
 
       } catch(err) {
         alert("Sync Error: " + err.message);
@@ -2023,7 +2039,7 @@
       });
     }
 
-    /* RENDER TASKS (CLEAN HEADER WITH GITHUB ISSUE LINK IN ⋮ MENU) */
+    /* RENDER TASKS WITH CUSTOM LINKS IN TITLE AND IN ⋮ MENU */
     function renderTasks() {
       const container = document.getElementById('task-container');
       const searchQuery = document.getElementById('search-input').value.toLowerCase();
@@ -2090,7 +2106,10 @@
 
             <div class="task-title">
               <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; margin-top: 2px; accent-color: var(--accent-primary);">
-              <span>${escapeHtml(task.title)}</span>
+              <span>
+                ${escapeHtml(task.title)}
+                ${task.customUrl ? `<a href="${escapeHtml(task.customUrl)}" target="_blank" style="text-decoration:none; margin-left:6px;" title="Apply / View Link">🔗</a>` : ''}
+              </span>
             </div>
             
             <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; position:relative;">
@@ -2108,6 +2127,7 @@
               <div id="menu-${task.id}" class="task-menu-dropdown">
                 <button class="menu-item-btn" onclick="openTaskModal('${task.id}')">✏️ Edit</button>
                 <button class="menu-item-btn" onclick="scheduleTaskToCalendar('${escapedTitle}', '${task.project}', '${escapedDesc}')">📅 Schedule</button>
+                ${task.customUrl ? `<a href="${escapeHtml(task.customUrl)}" target="_blank" class="menu-item-btn">🔗 Open Job Link</a>` : ''}
                 ${task.githubUrl ? `<a href="${escapeHtml(task.githubUrl)}" target="_blank" class="menu-item-btn">🐙 Open GitHub</a>` : ''}
                 <button class="menu-item-btn danger" onclick="deleteTask('${task.id}')">🗑️ Delete</button>
               </div>
@@ -2372,7 +2392,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v49';
+        const CACHE_NAME = 'todo-pwa-v50';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
