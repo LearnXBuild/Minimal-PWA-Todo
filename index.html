@@ -110,7 +110,7 @@
     .task-card.collapsed .collapse-btn { transform: rotate(-90deg); }
     .task-card.collapsed .task-body { display: none; }
 
-    /* ENLARGED NO-OVERLAP CIRCULAR PROGRESS RING */
+    /* CIRCULAR PROGRESS RING */
     .circular-progress-wrap { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 38px; height: 38px; flex-shrink: 0; margin: 0 4px; }
     .circular-progress-wrap svg { transform: rotate(-90deg); width: 38px; height: 38px; }
     .circular-progress-wrap circle { fill: none; stroke-width: 3.5; stroke-linecap: round; }
@@ -132,7 +132,6 @@
 
     .subtask-grid { display: grid; grid-template-columns: 20px 1fr auto; align-items: flex-start; gap: 8px; width: 100%; }
     
-    /* SAME LINE SUBTASK TITLE, TAGS, AND LINK */
     .sub-title-line { font-size: 0.82rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; line-height: 1.4; width: 100%; }
 
     .sub-accordion { margin-top: 4px; font-size: 0.75rem; color: var(--text-muted); width: 100%; }
@@ -140,7 +139,7 @@
     .sub-accordion summary:hover { color: var(--text); }
     .sub-accordion-content { background: var(--surface); border: 1px solid var(--border); padding: 8px 10px; border-radius: var(--radius-sm); margin-top: 4px; white-space: pre-wrap; word-break: break-word; line-height: 1.4; }
 
-    /* B/W MINIMAL SCHEDULE CARDS */
+    /* SCHEDULE CARDS */
     .split-calendar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .time-slot-container { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
     .time-slot-row { display: grid; grid-template-columns: 60px 1fr; gap: 10px; border-bottom: 1px dashed var(--border); padding: 8px 0; min-height: 48px; align-items: flex-start; }
@@ -175,13 +174,16 @@
 
     .project-mgr-item { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
 
+    /* MODAL OVERLAYS & Z-INDEX STACKING HIERARCHY FIX */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
     .modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 460px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; }
     .modal-body-scroll { overflow-y: auto; flex: 1; padding-right: 4px; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-shrink: 0; }
     
-    /* MODAL STACKING FIX */
-    #project-columns-modal { z-index: 150 !important; }
+    /* FIX: Elevate project columns modal above parent manage project modal */
+    #project-columns-modal { z-index: 160 !important; }
+    #project-mgr-modal { z-index: 120 !important; }
+    #profile-modal { z-index: 110 !important; }
 
     .flex-gap { display: flex; gap: 8px; }
     .space-y { display: flex; flex-direction: column; gap: 10px; }
@@ -327,7 +329,7 @@
     </div>
   </div>
 
-  <!-- PROFILE MODAL (SCROLL OVERFLOW FIX) -->
+  <!-- PROFILE MODAL -->
   <div class="modal-overlay" id="profile-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Profile & Settings</h2>
@@ -455,7 +457,7 @@
     </div>
   </div>
 
-  <!-- CALENDAR EVENT MODAL (WITH ⭐ STAR PRIORITY OPTION) -->
+  <!-- CALENDAR EVENT MODAL -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="cal-modal-title">Event Block</h2>
@@ -2458,7 +2460,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v52';
+        const CACHE_NAME = 'todo-pwa-v53';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
