@@ -100,6 +100,9 @@
     .task-card.completed { opacity: 0.65; background: #fafafa; }
     .task-card.completed .task-title { text-decoration: line-through; }
     
+    /* ELEVATE ACTIVE CARD Z-INDEX WHEN MENU IS OPEN */
+    .task-card.has-open-menu { z-index: 50 !important; }
+
     .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; width: 100%; }
     .task-title { font-weight: 700; font-size: 0.95rem; display: flex; align-items: flex-start; gap: 10px; min-width: 0; flex: 1; line-height: 1.4; color: var(--text); }
     .task-title span { word-break: break-word; white-space: normal; display: inline-block; width: 100%; }
@@ -118,7 +121,7 @@
     .circular-progress-fill { stroke: var(--accent-primary); transition: stroke-dashoffset 0.3s ease; }
     .circular-progress-text { position: absolute; font-size: 0.62rem; font-weight: 800; color: var(--text); text-align: center; }
 
-    .task-menu-dropdown { display: none; position: absolute; right: 0; top: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 30; flex-direction: column; min-width: 160px; padding: 6px; }
+    .task-menu-dropdown { display: none; position: absolute; right: 0; top: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 60; flex-direction: column; min-width: 160px; padding: 6px; }
     .menu-item-btn { background: none; border: none; text-align: left; padding: 7px 12px; font-size: 0.78rem; font-weight: 600; color: var(--text); cursor: pointer; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; text-decoration: none; }
     .menu-item-btn:hover { background: var(--surface-hover); }
     .menu-item-btn.danger { color: #ef4444; }
@@ -174,13 +177,11 @@
 
     .project-mgr-item { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
 
-    /* MODAL OVERLAYS & Z-INDEX STACKING HIERARCHY FIX */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
     .modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 460px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; }
     .modal-body-scroll { overflow-y: auto; flex: 1; padding-right: 4px; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-shrink: 0; }
     
-    /* FIX: Elevate project columns modal above parent manage project modal */
     #project-columns-modal { z-index: 160 !important; }
     #project-mgr-modal { z-index: 120 !important; }
     #profile-modal { z-index: 110 !important; }
@@ -584,7 +585,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v51', 'todo-pwa-v50'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v52', 'todo-pwa-v51'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -836,7 +837,6 @@
       }
     }
 
-    /* UNSTUCK BACKGROUND TIMER ACCUMULATION */
     function trackingTick() {
       if (!trackingState.isRunning || trackingState.isPaused) return;
 
@@ -1636,17 +1636,34 @@
       renderTasks(); 
     }
 
+    /* UPDATED TASK MENU TOGGLE WITH DYNAMIC Z-INDEX ELEVATION */
     function toggleTaskMenu(menuId, e) {
       e.stopPropagation();
+      
       document.querySelectorAll('.task-menu-dropdown').forEach(m => {
-        if (m.id !== menuId) m.style.display = 'none';
+        if (m.id !== menuId) {
+          m.style.display = 'none';
+          const parentCard = m.closest('.task-card');
+          if (parentCard) parentCard.classList.remove('has-open-menu');
+        }
       });
+
       const m = document.getElementById(menuId);
-      if (m) m.style.display = m.style.display === 'flex' ? 'none' : 'flex';
+      if (m) {
+        const isOpening = m.style.display !== 'flex';
+        m.style.display = isOpening ? 'flex' : 'none';
+        
+        const parentCard = m.closest('.task-card');
+        if (parentCard) {
+          if (isOpening) parentCard.classList.add('has-open-menu');
+          else parentCard.classList.remove('has-open-menu');
+        }
+      }
     }
 
     document.addEventListener('click', () => {
       document.querySelectorAll('.task-menu-dropdown').forEach(m => m.style.display = 'none');
+      document.querySelectorAll('.task-card').forEach(card => card.classList.remove('has-open-menu'));
     });
 
     function toggleCollapseTask(taskId) {
@@ -2460,7 +2477,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v53';
+        const CACHE_NAME = 'todo-pwa-v54';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
