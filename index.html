@@ -26,10 +26,6 @@
       --font-mono: 'Space Mono', monospace;
       --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
       
-      --bento-mint: #e8f5e9;
-      --bento-purple: #f3e5f5;
-      --bento-peach: #fff3e0;
-      --bento-blue: #e0f7fa;
       --accent-primary: #6366f1;
     }
 
@@ -44,7 +40,7 @@
     .logo { font-size: 0.9rem; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; color: var(--text); }
     .logo-dot { width: 10px; height: 10px; background: var(--accent-primary); border-radius: 50%; box-shadow: 0 0 10px rgba(99, 102, 241, 0.4); }
 
-    .profile-icon-btn { background: var(--bento-purple); border: 1px solid rgba(123, 31, 162, 0.15); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; transition: transform 0.15s ease; }
+    .profile-icon-btn { background: #f3e8ff; border: 1px solid rgba(123, 31, 162, 0.15); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; transition: transform 0.15s ease; }
     .profile-icon-btn:hover { transform: scale(1.05); }
 
     nav { display: flex; flex-direction: column; gap: 6px; }
@@ -114,13 +110,13 @@
     .task-card.collapsed .collapse-btn { transform: rotate(-90deg); }
     .task-card.collapsed .task-body { display: none; }
 
-    /* Circular Progress Ring */
-    .circular-progress-wrap { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 34px; height: 34px; flex-shrink: 0; margin: 0 6px; }
-    .circular-progress-wrap svg { transform: rotate(-90deg); width: 34px; height: 34px; }
-    .circular-progress-wrap circle { fill: none; stroke-width: 3; stroke-linecap: round; }
-    .circular-progress-bg { stroke: var(--bg); }
+    /* ENLARGED NO-OVERLAP CIRCULAR PROGRESS RING */
+    .circular-progress-wrap { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 38px; height: 38px; flex-shrink: 0; margin: 0 4px; }
+    .circular-progress-wrap svg { transform: rotate(-90deg); width: 38px; height: 38px; }
+    .circular-progress-wrap circle { fill: none; stroke-width: 3.5; stroke-linecap: round; }
+    .circular-progress-bg { stroke: #f1f5f9; }
     .circular-progress-fill { stroke: var(--accent-primary); transition: stroke-dashoffset 0.3s ease; }
-    .circular-progress-text { position: absolute; font-size: 0.58rem; font-weight: 800; color: var(--text); text-align: center; }
+    .circular-progress-text { position: absolute; font-size: 0.62rem; font-weight: 800; color: var(--text); text-align: center; }
 
     .task-menu-dropdown { display: none; position: absolute; right: 0; top: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.1); z-index: 30; flex-direction: column; min-width: 160px; padding: 6px; }
     .menu-item-btn { background: none; border: none; text-align: left; padding: 7px 12px; font-size: 0.78rem; font-weight: 600; color: var(--text); cursor: pointer; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; text-decoration: none; }
@@ -131,26 +127,29 @@
     .pill-tag { font-weight: 600; border: 1px solid rgba(0,0,0,0.05); }
 
     .subtask-tree { margin-left: 6px; padding-left: 12px; border-left: 2px solid var(--border); margin-top: 10px; display: flex; flex-direction: column; gap: 8px; width: calc(100% - 6px); box-sizing: border-box; }
-    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 8px 12px; border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: 4px; width: 100%; box-sizing: border-box; }
-    .subtask-card.completed span.sub-title { text-decoration: line-through; color: var(--text-muted); }
+    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 10px 12px; border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: 6px; width: 100%; box-sizing: border-box; }
+    .subtask-card.completed span.sub-title-text { text-decoration: line-through; color: var(--text-muted); }
 
     .subtask-grid { display: grid; grid-template-columns: 20px 1fr auto; align-items: flex-start; gap: 8px; width: 100%; }
-    .sub-title { font-size: 0.82rem; font-weight: 600; color: var(--text); word-break: break-word; white-space: normal; line-height: 1.4; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+    
+    /* SAME LINE SUBTASK TITLE, TAGS, AND LINK */
+    .sub-title-line { font-size: 0.82rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; line-height: 1.4; width: 100%; }
 
-    .sub-accordion { margin-top: 4px; margin-left: 28px; font-size: 0.75rem; color: var(--text-muted); }
+    .sub-accordion { margin-top: 4px; font-size: 0.75rem; color: var(--text-muted); width: 100%; }
     .sub-accordion summary { cursor: pointer; font-weight: 700; color: var(--text-muted); outline: none; user-select: none; }
     .sub-accordion summary:hover { color: var(--text); }
     .sub-accordion-content { background: var(--surface); border: 1px solid var(--border); padding: 8px 10px; border-radius: var(--radius-sm); margin-top: 4px; white-space: pre-wrap; word-break: break-word; line-height: 1.4; }
 
-    /* Calendar Slot Cards */
+    /* B/W MINIMAL SCHEDULE CARDS */
     .split-calendar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .time-slot-container { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
     .time-slot-row { display: grid; grid-template-columns: 60px 1fr; gap: 10px; border-bottom: 1px dashed var(--border); padding: 8px 0; min-height: 48px; align-items: flex-start; }
     .slot-time { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
     .slot-events { display: flex; flex-direction: column; gap: 8px; }
     
-    .time-block-card { border: 1px solid rgba(0,0,0,0.06); background: var(--bento-blue); padding: 10px 14px; border-radius: var(--radius); cursor: pointer; border-left: 4px solid #00838f; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: flex-start; }
-    .time-block-card.is-meeting { background: var(--bento-purple); border-left-color: #7b1fa2; }
+    .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 10px 14px; border-radius: var(--radius); cursor: pointer; border-left: 4px solid var(--text); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: flex-start; transition: transform 0.15s ease; }
+    .time-block-card:hover { transform: translateY(-1px); }
+    .time-block-card.is-starred { border-left-color: #f59e0b; background: #fffdf5; }
 
     /* FOCUS MODE DESK HUD */
     .desk-hud-overlay { position: fixed; inset: 0; background: #0f172a; color: #ffffff; z-index: 200; display: none; flex-direction: column; padding: 24px; box-sizing: border-box; }
@@ -163,8 +162,10 @@
     .hud-subtask-item { display: flex; flex-direction: column; gap: 4px; padding: 8px 0; border-bottom: 1px solid #334155; font-size: 0.88rem; }
     .hud-footer-fixed { display: flex; gap: 12px; justify-content: center; padding-top: 16px; border-top: 1px solid #1e293b; flex-shrink: 0; }
 
-    .report-table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.85rem; }
-    .report-table th, .report-table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+    /* SCROLLABLE RESPONSIVE REPORT TABLE */
+    .report-table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius); }
+    .report-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 520px; }
+    .report-table th, .report-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
     .report-table th { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; background: var(--bg); }
 
     .days-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
@@ -175,9 +176,13 @@
     .project-mgr-item { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
-    .modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 460px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 90vh; overflow-y: auto; }
-    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+    .modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 460px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; }
+    .modal-body-scroll { overflow-y: auto; flex: 1; padding-right: 4px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-shrink: 0; }
     
+    /* MODAL STACKING FIX */
+    #project-columns-modal { z-index: 150 !important; }
+
     .flex-gap { display: flex; gap: 8px; }
     .space-y { display: flex; flex-direction: column; gap: 10px; }
 
@@ -307,12 +312,14 @@
     </div>
   </div>
 
-  <!-- MODAL: COLUMN / STATUS CONFIGURATION PER PROJECT -->
+  <!-- MODAL: COLUMN CONFIGURATION PER PROJECT -->
   <div class="modal-overlay" id="project-columns-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 6px;" id="col-modal-proj-title">Column Settings</h2>
       <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Select which status columns should be synced when clicking Sync on this project:</p>
-      <div id="col-modal-options-wrapper" class="space-y" style="margin-bottom:16px;"></div>
+      <div class="modal-body-scroll">
+        <div id="col-modal-options-wrapper" class="space-y"></div>
+      </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('project-columns-modal')">Cancel</button>
         <button class="btn" onclick="saveProjectColumnSettings()">Save Columns</button>
@@ -320,28 +327,30 @@
     </div>
   </div>
 
-  <!-- PROFILE MODAL -->
+  <!-- PROFILE MODAL (SCROLL OVERFLOW FIX) -->
   <div class="modal-overlay" id="profile-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 16px;">Profile & Settings</h2>
-      <div class="space-y">
-        <div>
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">GLOBAL GITHUB ACCESS TOKEN:</label>
-          <input type="password" id="global-gh-token" placeholder="ghp_xxxxxxxxxxxx" onchange="saveGlobalToken()">
+      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Profile & Settings</h2>
+      <div class="modal-body-scroll">
+        <div class="space-y">
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">GLOBAL GITHUB ACCESS TOKEN:</label>
+            <input type="password" id="global-gh-token" placeholder="ghp_xxxxxxxxxxxx" onchange="saveGlobalToken()">
+          </div>
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">ORGANIZATION / USER:</label>
+            <input type="text" id="global-gh-org" placeholder="e.g. LearnXBuild" onchange="saveGlobalOrg()">
+          </div>
+          <hr style="border: 0; border-top: 1px solid var(--border); margin: 4px 0;">
+          <label class="toggle-label" style="justify-content: space-between; padding: 4px 0;">
+            <span>HIDE COMPLETED TASKS</span>
+            <input type="checkbox" id="hide-completed-toggle" onchange="toggleHideCompleted()">
+          </label>
+          <hr style="border: 0; border-top: 1px solid var(--border); margin: 4px 0;">
+          <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="closeModal('profile-modal'); openProjectManagerModal();">📂 Manage & Add Projects</button>
+          <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="exportData()">💾 Backup Workspace JSON</button>
+          <button class="btn btn-danger" style="width: 100%; justify-content: flex-start;" onclick="clearCompletedTasks()">🗑️ Clear All Completed Tasks</button>
         </div>
-        <div>
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">ORGANIZATION / USER:</label>
-          <input type="text" id="global-gh-org" placeholder="e.g. LearnXBuild" onchange="saveGlobalOrg()">
-        </div>
-        <hr style="border: 0; border-top: 1px solid var(--border); margin: 8px 0;">
-        <label class="toggle-label" style="justify-content: space-between; padding: 4px 0;">
-          <span>HIDE COMPLETED TASKS</span>
-          <input type="checkbox" id="hide-completed-toggle" onchange="toggleHideCompleted()">
-        </label>
-        <hr style="border: 0; border-top: 1px solid var(--border); margin: 8px 0;">
-        <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="closeModal('profile-modal'); openProjectManagerModal();">📂 Manage & Add Projects</button>
-        <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" onclick="exportData()">💾 Backup Workspace JSON</button>
-        <button class="btn btn-danger" style="width: 100%; justify-content: flex-start;" onclick="clearCompletedTasks()">🗑️ Clear All Completed Tasks</button>
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('profile-modal')">Close</button>
@@ -352,27 +361,28 @@
   <!-- MANAGE PROJECTS MODAL -->
   <div class="modal-overlay" id="project-mgr-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 14px;">Manage & Add Projects</h2>
-      
-      <div class="space-y" style="margin-bottom: 18px;">
-        <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">+ CREATE LOCAL PROJECT</div>
-        <div class="flex-gap">
-          <input type="text" id="new-local-proj-name" placeholder="Project Name">
-          <input type="color" id="new-local-proj-color" value="#e2e8f0" style="width: 44px; padding: 2px; height: 38px; cursor: pointer; border-radius:var(--radius-sm);">
-          <button class="btn btn-sm" onclick="createLocalProject()">Add</button>
+      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Manage & Add Projects</h2>
+      <div class="modal-body-scroll">
+        <div class="space-y" style="margin-bottom: 18px;">
+          <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">+ CREATE LOCAL PROJECT</div>
+          <div class="flex-gap">
+            <input type="text" id="new-local-proj-name" placeholder="Project Name">
+            <input type="color" id="new-local-proj-color" value="#e2e8f0" style="width: 44px; padding: 2px; height: 38px; cursor: pointer; border-radius:var(--radius-sm);">
+            <button class="btn btn-sm" onclick="createLocalProject()">Add</button>
+          </div>
         </div>
-      </div>
 
-      <div class="space-y" style="margin-bottom: 18px;">
-        <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">+ ADD & SYNC GITHUB PROJECT BOARD</div>
-        <div class="space-y">
-          <input type="text" id="new-gh-proj-title" placeholder="GitHub Project Board Title">
-          <button class="btn btn-sm btn-secondary" onclick="addAndSyncNewGithubProject()">Sync & Add Project</button>
+        <div class="space-y" style="margin-bottom: 18px;">
+          <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">+ ADD & SYNC GITHUB PROJECT BOARD</div>
+          <div class="space-y">
+            <input type="text" id="new-gh-proj-title" placeholder="GitHub Project Board Title">
+            <button class="btn btn-sm btn-secondary" onclick="addAndSyncNewGithubProject()">Sync & Add Project</button>
+          </div>
         </div>
-      </div>
 
-      <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-bottom: 8px;">EXISTING PROJECTS</div>
-      <div class="space-y" id="project-list-wrapper"></div>
+        <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-bottom: 8px;">EXISTING PROJECTS</div>
+        <div class="space-y" id="project-list-wrapper"></div>
+      </div>
 
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('project-mgr-modal')">Done</button>
@@ -385,27 +395,28 @@
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="modal-title">Create Task</h2>
       <input type="hidden" id="edit-task-id">
-      
-      <div class="space-y">
-        <input type="text" id="t-title" placeholder="Task Title">
-        <textarea id="t-desc" placeholder="Description (optional)" rows="2"></textarea>
-        
-        <div>
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">PROJECT:</label>
-          <div class="flex-gap">
-            <input type="text" id="t-project" placeholder="Project Name">
-            <input type="color" id="t-project-color" value="#e2e8f0" style="width: 44px; padding: 2px; height: 38px; cursor: pointer; border-radius:var(--radius-sm);">
+      <div class="modal-body-scroll">
+        <div class="space-y">
+          <input type="text" id="t-title" placeholder="Task Title">
+          <textarea id="t-desc" placeholder="Description (optional)" rows="2"></textarea>
+          
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">PROJECT:</label>
+            <div class="flex-gap">
+              <input type="text" id="t-project" placeholder="Project Name">
+              <input type="color" id="t-project-color" value="#e2e8f0" style="width: 44px; padding: 2px; height: 38px; cursor: pointer; border-radius:var(--radius-sm);">
+            </div>
           </div>
-        </div>
 
-        <div>
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
-          <input type="text" id="t-tags" placeholder="urgent, bug">
-        </div>
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
+            <input type="text" id="t-tags" placeholder="urgent, bug">
+          </div>
 
-        <div>
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">DEPENDS ON:</label>
-          <select id="t-dep"><option value="">None</option></select>
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">DEPENDS ON:</label>
+            <select id="t-dep"><option value="">None</option></select>
+          </div>
         </div>
       </div>
       
@@ -422,17 +433,18 @@
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="submodal-title">Subtask</h2>
       <input type="hidden" id="sub-parent-task-id">
       <input type="hidden" id="sub-edit-id">
-      
-      <div class="space-y">
-        <input type="text" id="sub-title" placeholder="Subtask Title">
-        <textarea id="sub-desc" placeholder="Description (optional)" rows="2"></textarea>
-        <div>
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">TAGS:</label>
-          <input type="text" id="sub-tags" placeholder="review, fix">
-        </div>
-        <div>
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">CUSTOM LINK URL (OPTIONAL):</label>
-          <input type="url" id="sub-custom-url" placeholder="https://...">
+      <div class="modal-body-scroll">
+        <div class="space-y">
+          <input type="text" id="sub-title" placeholder="Subtask Title">
+          <textarea id="sub-desc" placeholder="Description (optional)" rows="2"></textarea>
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">TAGS:</label>
+            <input type="text" id="sub-tags" placeholder="review, fix">
+          </div>
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">CUSTOM LINK URL (OPTIONAL):</label>
+            <input type="url" id="sub-custom-url" placeholder="https://...">
+          </div>
         </div>
       </div>
       
@@ -443,44 +455,50 @@
     </div>
   </div>
 
-  <!-- CALENDAR EVENT MODAL -->
+  <!-- CALENDAR EVENT MODAL (WITH ⭐ STAR PRIORITY OPTION) -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="cal-modal-title">Event Block</h2>
       <input type="hidden" id="cal-edit-id">
-      
-      <div class="space-y">
-        <input type="text" id="cal-title" placeholder="Event Title">
-        <textarea id="cal-desc" placeholder="Description / Event Notes (optional)" rows="2"></textarea>
-        <input type="date" id="cal-date">
-        
-        <div class="flex-gap">
-          <div style="flex:1;">
-            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">START TIME:</label>
-            <input type="time" id="cal-start-time" value="09:00">
+      <div class="modal-body-scroll">
+        <div class="space-y">
+          <input type="text" id="cal-title" placeholder="Event Title">
+          <textarea id="cal-desc" placeholder="Description / Event Notes (optional)" rows="2"></textarea>
+          <input type="date" id="cal-date">
+          
+          <div class="flex-gap">
+            <div style="flex:1;">
+              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">START TIME:</label>
+              <input type="time" id="cal-start-time" value="09:00">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">END TIME:</label>
+              <input type="time" id="cal-end-time" value="10:00">
+            </div>
           </div>
-          <div style="flex:1;">
-            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">END TIME:</label>
-            <input type="time" id="cal-end-time" value="10:00">
-          </div>
-        </div>
 
-        <div id="meeting-recurring-days-box">
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">RECURRING DAYS (FOR EVENTS):</label>
-          <div class="days-grid">
-            <label class="day-chip-label" id="day-chip-0"><input type="checkbox" value="0" onchange="toggleDayChip(this)">SUN</label>
-            <label class="day-chip-label" id="day-chip-1"><input type="checkbox" value="1" onchange="toggleDayChip(this)">MON</label>
-            <label class="day-chip-label" id="day-chip-2"><input type="checkbox" value="2" onchange="toggleDayChip(this)">TUE</label>
-            <label class="day-chip-label" id="day-chip-3"><input type="checkbox" value="3" onchange="toggleDayChip(this)">WED</label>
-            <label class="day-chip-label" id="day-chip-4"><input type="checkbox" value="4" onchange="toggleDayChip(this)">THU</label>
-            <label class="day-chip-label" id="day-chip-5"><input type="checkbox" value="5" onchange="toggleDayChip(this)">FRI</label>
-            <label class="day-chip-label" id="day-chip-6"><input type="checkbox" value="6" onchange="toggleDayChip(this)">SAT</label>
-          </div>
-        </div>
+          <label class="toggle-label" style="background:var(--bg); padding:8px 12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
+            <input type="checkbox" id="cal-starred">
+            <span style="font-weight:700; color:var(--text);">⭐ Mark as Important / Priority Task</span>
+          </label>
 
-        <div>
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">ASSIGN PROJECT:</label>
-          <select id="cal-project-select"></select>
+          <div id="meeting-recurring-days-box">
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">RECURRING DAYS (FOR EVENTS):</label>
+            <div class="days-grid">
+              <label class="day-chip-label" id="day-chip-0"><input type="checkbox" value="0" onchange="toggleDayChip(this)">SUN</label>
+              <label class="day-chip-label" id="day-chip-1"><input type="checkbox" value="1" onchange="toggleDayChip(this)">MON</label>
+              <label class="day-chip-label" id="day-chip-2"><input type="checkbox" value="2" onchange="toggleDayChip(this)">TUE</label>
+              <label class="day-chip-label" id="day-chip-3"><input type="checkbox" value="3" onchange="toggleDayChip(this)">WED</label>
+              <label class="day-chip-label" id="day-chip-4"><input type="checkbox" value="4" onchange="toggleDayChip(this)">THU</label>
+              <label class="day-chip-label" id="day-chip-5"><input type="checkbox" value="5" onchange="toggleDayChip(this)">FRI</label>
+              <label class="day-chip-label" id="day-chip-6"><input type="checkbox" value="6" onchange="toggleDayChip(this)">SAT</label>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">ASSIGN PROJECT:</label>
+            <select id="cal-project-select"></select>
+          </div>
         </div>
       </div>
 
@@ -496,14 +514,16 @@
   <div class="modal-overlay" id="manual-time-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="time-modal-title">Log / Edit Project Time</h2>
-      <div class="space-y">
-        <div>
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">PROJECT:</label>
-          <select id="m-project-select"></select>
-        </div>
-        <div class="flex-gap">
-          <input type="number" id="m-hours" placeholder="Hours" min="0" step="0.1">
-          <input type="number" id="m-minutes" placeholder="Minutes" min="0" max="59">
+      <div class="modal-body-scroll">
+        <div class="space-y">
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">PROJECT:</label>
+            <select id="m-project-select"></select>
+          </div>
+          <div class="flex-gap">
+            <input type="number" id="m-hours" placeholder="Hours" min="0" step="0.1">
+            <input type="number" id="m-minutes" placeholder="Minutes" min="0" max="59">
+          </div>
         </div>
       </div>
       <div class="modal-actions">
@@ -517,12 +537,14 @@
   <div class="modal-overlay" id="limit-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Set Project Time Limit</h2>
-      <div class="space-y">
-        <div>
-          <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">SELECT PROJECT:</label>
-          <select id="p-limit-project-select"></select>
+      <div class="modal-body-scroll">
+        <div class="space-y">
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">SELECT PROJECT:</label>
+            <select id="p-limit-project-select"></select>
+          </div>
+          <input type="number" id="p-limit" placeholder="Weekly Limit in Hours">
         </div>
-        <input type="number" id="p-limit" placeholder="Weekly Limit in Hours">
       </div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('limit-modal')">Cancel</button>
@@ -560,7 +582,7 @@
 
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v50', 'todo-pwa-v49'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v51', 'todo-pwa-v50'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -600,7 +622,8 @@
                   ...evt,
                   type: evt.type || 'meeting',
                   date: evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date()),
-                  description: evt.description || ''
+                  description: evt.description || '',
+                  starred: !!evt.starred
                 };
                 if (!mergedCalendarEvents.some(e => e.id === sanitizedEvt.id)) {
                   mergedCalendarEvents.push(sanitizedEvt);
@@ -644,6 +667,7 @@
       targetProj: 'Unscheduled',
       blockTitle: 'General Work',
       timerId: null,
+      lastTickTime: Date.now(),
       lastInteraction: Date.now()
     };
 
@@ -701,6 +725,7 @@
         trackingState.accumulatedSec = Math.max(0, trackingState.accumulatedSec - 900);
       }
       trackingState.isPaused = false;
+      trackingState.lastTickTime = Date.now();
       trackingState.lastInteraction = Date.now();
       saveData();
     }
@@ -743,6 +768,7 @@
 
       trackingState.accumulatedSec = 0;
       trackingState.startTime = Date.now();
+      trackingState.lastTickTime = Date.now();
 
       const rawVal = select.value;
       if (rawVal === "DETECTED") {
@@ -787,6 +813,7 @@
         trackingState.isRunning = true;
         trackingState.isPaused = false;
         trackingState.startTime = Date.now();
+        trackingState.lastTickTime = Date.now();
         trackingState.lastInteraction = Date.now();
 
         trackingState.timerId = setInterval(trackingTick, 1000);
@@ -802,18 +829,21 @@
         if (hudPauseBtn) hudPauseBtn.innerText = '▶ Resume';
       } else {
         trackingState.isPaused = false;
-        trackingState.startTime = Date.now();
+        trackingState.lastTickTime = Date.now();
         if (hudPauseBtn) hudPauseBtn.innerText = '⏸ Pause';
       }
     }
 
+    /* UNSTUCK BACKGROUND TIMER ACCUMULATION */
     function trackingTick() {
       if (!trackingState.isRunning || trackingState.isPaused) return;
 
       const now = Date.now();
-      const elapsedSec = Math.floor((now - trackingState.startTime) / 1000);
-      trackingState.startTime = now;
-      trackingState.accumulatedSec += elapsedSec;
+      const deltaSec = Math.floor((now - trackingState.lastTickTime) / 1000);
+      if (deltaSec > 0) {
+        trackingState.accumulatedSec += deltaSec;
+        trackingState.lastTickTime = now;
+      }
 
       const formatted = formatTime(trackingState.accumulatedSec);
       const clockElem = document.getElementById('hud-clock-text');
@@ -822,7 +852,9 @@
 
     function addFiveMinsToTracking() {
       trackingState.accumulatedSec += 300;
-      trackingTick();
+      trackingState.lastTickTime = Date.now();
+      const clockElem = document.getElementById('hud-clock-text');
+      if (clockElem) clockElem.innerText = formatTime(trackingState.accumulatedSec);
     }
 
     function stopAndSaveTracking() {
@@ -969,7 +1001,9 @@
             card.className = `hud-hero-card ${isActiveNow ? 'is-active-now' : ''}`;
             card.innerHTML = `
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <div style="font-weight:800; font-size:1.1rem; color:#fff;">${escapeHtml(evt.title)}</div>
+                <div style="font-weight:800; font-size:1.1rem; color:#fff; display:flex; align-items:center; gap:6px;">
+                  ${evt.starred ? '⭐ ' : ''}${escapeHtml(evt.title)}
+                </div>
                 ${isActiveNow ? '<span style="font-size:0.68rem; background:#22c55e; color:#000; padding:3px 8px; border-radius:99px; font-weight:800;">ACTIVE NOW</span>' : ''}
               </div>
               <div style="font-size:0.75rem; color:#94a3b8; font-family:var(--font-mono); margin-bottom:10px;">${evt.startTime} - ${evt.endTime}</div>
@@ -1016,7 +1050,7 @@
           activeEvent && t.title.trim().toLowerCase() === activeEvent.title.trim().toLowerCase()
         );
 
-        const displayTitle = activeEvent ? activeEvent.title : detected.title;
+        const displayTitle = activeEvent ? (activeEvent.starred ? '⭐ ' : '') + activeEvent.title : detected.title;
         const displayDesc = activeEvent ? activeEvent.description : (matchedTask ? matchedTask.description : '');
 
         const heroCard = document.createElement('div');
@@ -1068,7 +1102,7 @@
             <div style="display:flex; flex-direction:column; gap:8px;">
               ${projectEvents.map(evt => `
                 <div style="font-size:0.85rem; color:#f1f5f9; display:flex; justify-content:space-between; align-items:center;">
-                  <span>• ${escapeHtml(evt.title)}</span>
+                  <span>${evt.starred ? '⭐ ' : ''}• ${escapeHtml(evt.title)}</span>
                   <span style="font-family:var(--font-mono); color:#94a3b8; font-size:0.78rem;">${evt.startTime}</span>
                 </div>
               `).join('')}
@@ -1338,7 +1372,7 @@
       });
     }
 
-    /* ACCURATE SUB-ISSUE TAGS & LINKS MAP EXTRACTION */
+    /* GITHUB SYNC ENGINE EXCLUSIVELY FOR CONFIGURED COLUMNS */
     async function resyncSelectedProject() {
       const targetProj = document.getElementById('task-project-filter').value;
       const isAll = !targetProj || targetProj === 'ALL' || targetProj.toUpperCase() === 'ALL PROJECTS';
@@ -1458,7 +1492,6 @@
           appData.projectColors[projName] = getRandomColor();
         }
 
-        // STEP 1: Build a project-wide board card metadata map for sub-issue tags & links
         const itemCardMetaMap = {};
 
         allBoardItems.forEach(item => {
@@ -1487,7 +1520,6 @@
 
         let count = 0;
 
-        // STEP 2: Map parent issues & enrich sub-issues using itemCardMetaMap
         allBoardItems.forEach(item => {
           if (!item.content || !item.content.title) return;
 
@@ -1587,7 +1619,7 @@
         updateProjectDropdowns();
         renderTagFilters();
         renderTasks();
-        alert(`Synced '${projName}'! Fetched ${count} target items and mapped sub-issue tags/links.`);
+        alert(`Synced '${projName}'! Fetched ${count} target items.`);
 
       } catch(err) {
         alert("Sync Error: " + err.message);
@@ -1837,6 +1869,7 @@
           document.getElementById('cal-start-time').value = evt.startTime || '09:00';
           document.getElementById('cal-end-time').value = evt.endTime || '10:00';
           document.getElementById('cal-project-select').value = evt.project || '';
+          document.getElementById('cal-starred').checked = !!evt.starred;
 
           if (evt.recurringDays) {
             evt.recurringDays.forEach(dNum => {
@@ -1857,6 +1890,7 @@
         document.getElementById('cal-date').value = dateVal;
         document.getElementById('cal-start-time').value = '09:00';
         document.getElementById('cal-end-time').value = '10:00';
+        document.getElementById('cal-starred').checked = false;
         delBtn.style.display = 'none';
       }
 
@@ -1872,6 +1906,7 @@
       const startTime = document.getElementById('cal-start-time').value;
       const endTime = document.getElementById('cal-end-time').value;
       const project = document.getElementById('cal-project-select').value;
+      const starred = document.getElementById('cal-starred').checked;
 
       const selectedDays = [];
       document.querySelectorAll('#meeting-recurring-days-box input:checked').forEach(chk => {
@@ -1890,6 +1925,7 @@
             evt.startTime = startTime;
             evt.endTime = endTime;
             evt.project = project;
+            evt.starred = starred;
             evt.recurringDays = selectedDays;
           }
         } else {
@@ -1901,6 +1937,7 @@
             startTime, 
             endTime, 
             project, 
+            starred,
             recurringDays: selectedDays 
           });
         }
@@ -1937,6 +1974,7 @@
       renderTasks();
     }
 
+    /* RENDER SCHEDULE SLOTS WITH ⭐ STAR PRIORITY & B/W CARDS */
     function renderSingleDaySlots(targetDateStr) {
       const cleanTargetDate = targetDateStr.split('T')[0];
       const dateObj = new Date(cleanTargetDate + 'T00:00:00');
@@ -1960,10 +1998,10 @@
             <div class="slot-time">${hourStr}</div>
             <div class="slot-events">
               ${matchingEvents.map(evt => `
-                <div class="time-block-card is-meeting">
+                <div class="time-block-card ${evt.starred ? 'is-starred' : ''}">
                   <div onclick="jumpToSpecificTask('${evt.title.replace(/'/g, "\\'")}', '${evt.project}')" style="flex:1;">
                     <div style="font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
-                      🔁 ${escapeHtml(evt.title)}
+                      ${evt.starred ? '⭐ ' : '🔁 '}${escapeHtml(evt.title)}
                     </div>
                     ${evt.description ? `<div style="font-size:0.75rem; color:var(--text); margin-top:2px; font-style:italic;">${escapeHtml(evt.description)}</div>` : ''}
                     <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:4px;">
@@ -2067,7 +2105,7 @@
       });
     }
 
-    /* RENDER TASKS WITH CUSTOM LINKS IN TITLE AND IN ⋮ MENU */
+    /* RENDER TASKS WITH ENHANCED SUBTASK LINE ALIGNMENT & LARGER PROGRESS RING */
     function renderTasks() {
       const container = document.getElementById('task-container');
       const searchQuery = document.getElementById('search-input').value.toLowerCase();
@@ -2111,7 +2149,7 @@
         const projColor = appData.projectColors[task.project] || '#e8f5e9';
         const isCollapsed = appData.collapsedTasks && appData.collapsedTasks[task.id];
 
-        const radius = 9;
+        const radius = 13;
         const circumference = 2 * Math.PI * radius;
         const strokeDashoffset = circumference - (progressPct / 100) * circumference;
 
@@ -2142,9 +2180,9 @@
             
             <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; position:relative;">
               <div class="circular-progress-wrap" title="${doneSub}/${totalSub} subtasks completed (${progressPct}%)">
-                <svg>
-                  <circle class="circular-progress-bg" cx="16" cy="16" r="${radius}"></circle>
-                  <circle class="circular-progress-fill" cx="16" cy="16" r="${radius}" 
+                <svg viewBox="0 0 36 36">
+                  <circle class="circular-progress-bg" cx="18" cy="18" r="${radius}"></circle>
+                  <circle class="circular-progress-fill" cx="18" cy="18" r="${radius}" 
                     stroke-dasharray="${circumference}" 
                     stroke-dashoffset="${strokeDashoffset}"></circle>
                 </svg>
@@ -2175,21 +2213,18 @@
                 <div class="subtask-card ${sub.completed ? 'completed' : ''}">
                   <div class="subtask-grid">
                     <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer; margin-top: 2px; accent-color: var(--accent-primary);">
-                    <div class="sub-title">
-                      <span>${escapeHtml(sub.title)}</span>
+                    
+                    <div class="sub-title-line">
+                      <span class="sub-title-text">${escapeHtml(sub.title)}</span>
+                      ${(sub.tags && sub.tags.length > 0) ? sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.65rem; padding: 1px 6px;">#${escapeHtml(st)}</span>`).join('') : ''}
                       ${sub.customUrl ? `<a href="${escapeHtml(sub.customUrl)}" target="_blank" style="text-decoration:none;" title="Open Link">🔗</a>` : ''}
                     </div>
+
                     <div class="flex-gap">
                       <button class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="openSubtaskModal('${task.id}', '${sub.id}')">Edit</button>
                       <button class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="deleteSubtask('${task.id}', '${sub.id}')">✕</button>
                     </div>
                   </div>
-
-                  ${(sub.tags && sub.tags.length > 0) ? `
-                    <div style="display:flex; gap:4px; margin-left:28px; margin-top:4px; flex-wrap:wrap;">
-                      ${sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.65rem; padding: 1px 6px;">#${escapeHtml(st)}</span>`).join('')}
-                    </div>
-                  ` : ''}
 
                   ${sub.description ? `
                     <details class="sub-accordion">
@@ -2302,6 +2337,7 @@
       }
     }
 
+    /* RENDER REPORTS WITH RESPONSIVE TABLE CONTAINER */
     function renderReports() {
       const container = document.getElementById('report-container');
       container.innerHTML = '';
@@ -2317,16 +2353,17 @@
       let html = `
         <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; background:var(--surface); box-shadow:var(--shadow-bento);">
           <div style="font-weight:800; font-size:0.9rem; margin-bottom:12px;">📊 CURRENT WEEK ALLOCATION (${currentWeekKey})</div>
-          <table class="report-table">
-            <thead>
-              <tr>
-                <th>Project</th>
-                <th>Tracked Time</th>
-                <th>Weekly Limit</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
+          <div class="report-table-wrapper">
+            <table class="report-table">
+              <thead>
+                <tr>
+                  <th>Project</th>
+                  <th>Tracked Time</th>
+                  <th>Weekly Limit</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
       `;
 
       if (allProjects.length === 0) {
@@ -2355,22 +2392,23 @@
         });
       }
 
-      html += `</tbody></table></div>`;
+      html += `</tbody></table></div></div>`;
 
       const pastWeeks = Object.keys(appData.weeklySummaries || {}).filter(w => w !== currentWeekKey);
       if (pastWeeks.length > 0) {
         html += `
           <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; background:var(--surface); box-shadow:var(--shadow-bento); margin-top:16px;">
             <div style="font-weight:800; font-size:0.9rem; margin-bottom:12px;">📈 HISTORICAL SUMMARIES</div>
-            <table class="report-table">
-              <thead>
-                <tr>
-                  <th>Week Period</th>
-                  <th>Top Focus Project</th>
-                  <th>Total Time</th>
-                </tr>
-              </thead>
-              <tbody>
+            <div class="report-table-wrapper">
+              <table class="report-table">
+                <thead>
+                  <tr>
+                    <th>Week Period</th>
+                    <th>Top Focus Project</th>
+                    <th>Total Time</th>
+                  </tr>
+                </thead>
+                <tbody>
         `;
 
         pastWeeks.forEach(wKey => {
@@ -2393,7 +2431,7 @@
           `;
         });
 
-        html += `</tbody></table></div>`;
+        html += `</tbody></table></div></div>`;
       }
 
       container.innerHTML = html;
