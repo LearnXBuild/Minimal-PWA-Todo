@@ -99,8 +99,6 @@
     .task-card:hover { transform: translateY(-2px); }
     .task-card.completed { opacity: 0.65; background: #fafafa; }
     .task-card.completed .task-title { text-decoration: line-through; }
-    
-    /* ELEVATE ACTIVE CARD Z-INDEX WHEN MENU IS OPEN */
     .task-card.has-open-menu { z-index: 50 !important; }
 
     .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; width: 100%; }
@@ -134,7 +132,6 @@
     .subtask-card.completed span.sub-title-text { text-decoration: line-through; color: var(--text-muted); }
 
     .subtask-grid { display: grid; grid-template-columns: 20px 1fr auto; align-items: flex-start; gap: 8px; width: 100%; }
-    
     .sub-title-line { font-size: 0.82rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; line-height: 1.4; width: 100%; }
 
     .sub-accordion { margin-top: 4px; font-size: 0.75rem; color: var(--text-muted); width: 100%; }
@@ -142,14 +139,15 @@
     .sub-accordion summary:hover { color: var(--text); }
     .sub-accordion-content { background: var(--surface); border: 1px solid var(--border); padding: 8px 10px; border-radius: var(--radius-sm); margin-top: 4px; white-space: pre-wrap; word-break: break-word; line-height: 1.4; }
 
-    /* SCHEDULE CARDS */
-    .split-calendar-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .time-slot-container { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; }
-    .time-slot-row { display: grid; grid-template-columns: 60px 1fr; gap: 10px; border-bottom: 1px dashed var(--border); padding: 8px 0; min-height: 48px; align-items: flex-start; }
-    .slot-time { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
-    .slot-events { display: flex; flex-direction: column; gap: 8px; }
-    
-    .time-block-card { border: 1px solid var(--border); background: var(--surface); padding: 10px 14px; border-radius: var(--radius); cursor: pointer; border-left: 4px solid var(--text); box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: flex-start; transition: transform 0.15s ease; }
+    /* BLOCK-STYLE SCHEDULE GRID */
+    .schedule-bucket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .schedule-bucket-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-bento); display: flex; flex-direction: column; min-height: 160px; }
+    .schedule-bucket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .schedule-bucket-title { font-size: 0.88rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 6px; }
+    .schedule-bucket-subtitle { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); }
+    .schedule-bucket-items { display: flex; flex-direction: column; gap: 8px; flex: 1; }
+
+    .time-block-card { border: 1px solid var(--border); background: var(--bg); padding: 10px 12px; border-radius: var(--radius-sm); cursor: pointer; border-left: 4px solid var(--text); display: flex; justify-content: space-between; align-items: flex-start; transition: transform 0.15s ease; width: 100%; box-sizing: border-box; }
     .time-block-card:hover { transform: translateY(-1px); }
     .time-block-card.is-starred { border-left-color: #f59e0b; background: #fffdf5; }
 
@@ -177,6 +175,7 @@
 
     .project-mgr-item { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
 
+    /* MODAL OVERLAYS & Z-INDEX */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
     .modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 460px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; }
     .modal-body-scroll { overflow-y: auto; flex: 1; padding-right: 4px; }
@@ -194,7 +193,7 @@
       aside { display: none; }
       main { padding-bottom: 80px; }
       .content-section { padding: 16px 14px; }
-      .split-calendar-grid { grid-template-columns: 1fr; }
+      .schedule-bucket-grid { grid-template-columns: 1fr; }
 
       .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
 
@@ -458,7 +457,7 @@
     </div>
   </div>
 
-  <!-- CALENDAR EVENT MODAL -->
+  <!-- CALENDAR EVENT MODAL (DUAL-MODE SCHEDULING: TIME OR BUCKET) -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="cal-modal-title">Event Block</h2>
@@ -469,14 +468,25 @@
           <textarea id="cal-desc" placeholder="Description / Event Notes (optional)" rows="2"></textarea>
           <input type="date" id="cal-date">
           
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">SCHEDULE BLOCK / BUCKET:</label>
+            <select id="cal-bucket-select">
+              <option value="auto">⏱️ Auto-deduce from Start Time</option>
+              <option value="morning">🌅 Morning (till 12 PM)</option>
+              <option value="afternoon">☀️ Afternoon (12 PM - 4 PM)</option>
+              <option value="evening">🌆 Evening (4 PM - 8 PM)</option>
+              <option value="others">🌙 Others / Night (8 PM onwards)</option>
+            </select>
+          </div>
+
           <div class="flex-gap">
             <div style="flex:1;">
-              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">START TIME:</label>
-              <input type="time" id="cal-start-time" value="09:00">
+              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">START TIME (OPTIONAL):</label>
+              <input type="time" id="cal-start-time">
             </div>
             <div style="flex:1;">
-              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">END TIME:</label>
-              <input type="time" id="cal-end-time" value="10:00">
+              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">END TIME (OPTIONAL):</label>
+              <input type="time" id="cal-end-time">
             </div>
           </div>
 
@@ -583,9 +593,32 @@
       return `${date.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
     }
 
+    /* BUCKET CALCULATION & DEDUCTION HELPERS */
+    function getEventBucket(evt) {
+      if (evt.bucket && evt.bucket !== 'auto') {
+        return evt.bucket.toLowerCase();
+      }
+      if (evt.startTime) {
+        const startH = parseInt(evt.startTime.split(':')[0], 10);
+        if (startH < 12) return 'morning';
+        if (startH < 16) return 'afternoon';
+        if (startH < 20) return 'evening';
+        return 'others';
+      }
+      return 'morning';
+    }
+
+    function getCurrentSystemBucket() {
+      const currentH = new Date().getHours();
+      if (currentH < 12) return 'morning';
+      if (currentH < 16) return 'afternoon';
+      if (currentH < 20) return 'evening';
+      return 'others';
+    }
+
     function loadAndMigrateData() {
       const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v52', 'todo-pwa-v51'];
+      const keysToSearch = [MASTER_KEY, 'todo-pwa-v53', 'todo-pwa-v52'];
 
       let mergedTasks = [];
       let mergedLimits = {};
@@ -626,6 +659,7 @@
                   type: evt.type || 'meeting',
                   date: evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date()),
                   description: evt.description || '',
+                  bucket: evt.bucket || getEventBucket(evt),
                   starred: !!evt.starred
                 };
                 if (!mergedCalendarEvents.some(e => e.id === sanitizedEvt.id)) {
@@ -733,27 +767,36 @@
       saveData();
     }
 
+    /* AUTO-DETECT CURRENT SCHEDULE SLOT (BUCKET & STAR AWARE) */
     function autoDetectCurrentScheduleSlot() {
       const now = new Date();
-      const currentMinutes = now.getHours() * 60 + now.getMinutes();
       const todayStr = formatDateLocal(now);
       const dayOfWeek = now.getDay();
+      const currentBucket = getCurrentSystemBucket();
 
-      const activeEvent = (appData.calendarEvents || []).find(e => {
+      const todayEvents = (appData.calendarEvents || []).filter(e => {
         const isToday = (e.recurringDays && e.recurringDays.includes(dayOfWeek)) || (e.date && e.date.split('T')[0] === todayStr);
-        if (isToday && e.startTime && e.endTime) {
-          const [startH, startM] = e.startTime.split(':').map(Number);
-          const [endH, endM] = e.endTime.split(':').map(Number);
-          const startTotal = startH * 60 + startM;
-          const endTotal = endH * 60 + endM;
-          return currentMinutes >= startTotal && currentMinutes < endTotal;
-        }
-        return false;
+        return isToday;
       });
 
-      if (activeEvent) {
-        return { proj: activeEvent.project || 'General', title: activeEvent.title };
+      // Priority 1: Starred event in the current time bucket
+      const starredInBucket = todayEvents.find(e => getEventBucket(e) === currentBucket && e.starred);
+      if (starredInBucket) {
+        return { proj: starredInBucket.project || 'General', title: starredInBucket.title };
       }
+
+      // Priority 2: Any event in the current time bucket
+      const anyInBucket = todayEvents.find(e => getEventBucket(e) === currentBucket);
+      if (anyInBucket) {
+        return { proj: anyInBucket.project || 'General', title: anyInBucket.title };
+      }
+
+      // Priority 3: First starred event today
+      const anyStarredToday = todayEvents.find(e => e.starred);
+      if (anyStarredToday) {
+        return { proj: anyStarredToday.project || 'General', title: anyStarredToday.title };
+      }
+
       return null;
     }
 
@@ -903,7 +946,6 @@
       alert(`Saved ${formatTime(savedSec)} to '${projToSave}'!`);
     }
 
-    /* OPEN HUD */
     function openDeskHud() {
       const detected = autoDetectCurrentScheduleSlot();
       if (detected) {
@@ -932,11 +974,13 @@
       document.getElementById('desk-hud').style.display = 'none';
     }
 
+    /* FOCUS HUD (STARRED & CURRENT BUCKET GREEN BORDER HIGHLIGHT) */
     function renderHeroDeskHudContent() {
       const container = document.getElementById('hud-scroll-body');
       container.innerHTML = '';
 
       const detected = autoDetectCurrentScheduleSlot();
+      const currentBucket = getCurrentSystemBucket();
       const allProjects = Array.from(new Set([
         ...Object.keys(appData.projectColors || {}),
         ...appData.tasks.map(t => t.project).filter(Boolean),
@@ -946,7 +990,7 @@
       const selectorBox = document.createElement('div');
       selectorBox.style.marginBottom = '12px';
       
-      let htmlOptions = `<option value="DETECTED" ${trackingState.targetProj === (detected ? detected.proj : 'Unscheduled') ? 'selected' : ''}>📋 Current Slot: ${detected ? detected.title + ' (' + detected.proj + ')' : 'None (Unscheduled)'}</option>`;
+      let htmlOptions = `<option value="DETECTED" ${trackingState.targetProj === (detected ? detected.proj : 'Unscheduled') ? 'selected' : ''}>📋 Current Block Focus: ${detected ? detected.title + ' (' + detected.proj + ')' : 'None (Unscheduled)'}</option>`;
       allProjects.forEach(p => {
         htmlOptions += `<option value="PROJ::${escapeHtml(p)}" ${trackingState.targetProj === p ? 'selected' : ''}>📂 Project: ${escapeHtml(p)}</option>`;
       });
@@ -965,14 +1009,10 @@
 
       const todayStr = formatDateLocal(new Date());
       const dayOfWeek = new Date().getDay();
-      const now = new Date();
-      const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
       const todayEvents = (appData.calendarEvents || []).filter(e => {
         const isToday = (e.recurringDays && e.recurringDays.includes(dayOfWeek)) || (e.date && e.date.split('T')[0] === todayStr);
         return isToday;
-      }).sort((a, b) => {
-        return parseInt(a.startTime.split(':')[0], 10) - parseInt(b.startTime.split(':')[0], 10);
       });
 
       if (isManualProject) {
@@ -989,26 +1029,26 @@
           projBox.innerHTML += `<div style="color:#64748b; font-size:0.85rem; padding:12px;">No scheduled calendar blocks for this project today.</div>`;
         } else {
           projectEvents.forEach(evt => {
-            const [startH, startM] = evt.startTime.split(':').map(Number);
-            const [endH, endM] = evt.endTime.split(':').map(Number);
-            const startTotal = startH * 60 + startM;
-            const endTotal = endH * 60 + endM;
-            const isActiveNow = currentMinutes >= startTotal && currentMinutes < endTotal;
+            const evtBucket = getEventBucket(evt);
+            // Highlight with green border if event is Starred and belongs to Current Time Bucket
+            const isPriorityNow = evt.starred && (evtBucket === currentBucket);
 
             const matchedTask = appData.tasks.find(t => 
               t.title.trim().toLowerCase() === evt.title.trim().toLowerCase()
             );
 
             const card = document.createElement('div');
-            card.className = `hud-hero-card ${isActiveNow ? 'is-active-now' : ''}`;
+            card.className = `hud-hero-card ${isPriorityNow ? 'is-active-now' : ''}`;
             card.innerHTML = `
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                 <div style="font-weight:800; font-size:1.1rem; color:#fff; display:flex; align-items:center; gap:6px;">
                   ${evt.starred ? '⭐ ' : ''}${escapeHtml(evt.title)}
                 </div>
-                ${isActiveNow ? '<span style="font-size:0.68rem; background:#22c55e; color:#000; padding:3px 8px; border-radius:99px; font-weight:800;">ACTIVE NOW</span>' : ''}
+                ${isPriorityNow ? '<span style="font-size:0.68rem; background:#22c55e; color:#000; padding:3px 8px; border-radius:99px; font-weight:800;">PRIORITY BLOCK</span>' : ''}
               </div>
-              <div style="font-size:0.75rem; color:#94a3b8; font-family:var(--font-mono); margin-bottom:10px;">${evt.startTime} - ${evt.endTime}</div>
+              <div style="font-size:0.75rem; color:#94a3b8; font-family:var(--font-mono); margin-bottom:10px;">
+                ${evt.startTime ? `${evt.startTime} ${evt.endTime ? '- ' + evt.endTime : ''} | ` : ''}${evtBucket.toUpperCase()}
+              </div>
 
               ${(evt.description || (matchedTask && matchedTask.description)) ? `
                 <div style="font-size:0.85rem; color:#cbd5e1; background:#0f172a; padding:10px; border-radius:var(--radius-sm); border:1px solid #334155; margin-bottom:12px;">
@@ -1052,13 +1092,16 @@
           activeEvent && t.title.trim().toLowerCase() === activeEvent.title.trim().toLowerCase()
         );
 
+        const isPriorityNow = activeEvent && activeEvent.starred;
         const displayTitle = activeEvent ? (activeEvent.starred ? '⭐ ' : '') + activeEvent.title : detected.title;
         const displayDesc = activeEvent ? activeEvent.description : (matchedTask ? matchedTask.description : '');
 
         const heroCard = document.createElement('div');
-        heroCard.className = 'hud-hero-card is-active-now';
+        heroCard.className = `hud-hero-card ${isPriorityNow ? 'is-active-now' : ''}`;
         heroCard.innerHTML = `
-          <div style="font-size:0.75rem; color:#22c55e; font-weight:800; margin-bottom:6px; text-transform:uppercase;">🎯 SCHEDULED RIGHT NOW</div>
+          <div style="font-size:0.75rem; color:${isPriorityNow ? '#22c55e' : '#38bdf8'}; font-weight:800; margin-bottom:6px; text-transform:uppercase;">
+            ${isPriorityNow ? '⭐ PRIORITY FOCUS BLOCK' : '🎯 ACTIVE BLOCK FOCUS'}
+          </div>
           <div style="font-size:1.25rem; font-weight:800; color:#ffffff; line-height:1.3; margin-bottom:10px;">${escapeHtml(displayTitle)}</div>
           
           ${displayDesc ? `
@@ -1100,12 +1143,12 @@
           const upNextBox = document.createElement('div');
           upNextBox.style.cssText = "background:#0f172a; border:1px solid #334155; border-radius:var(--radius); padding:14px; margin-top:8px;";
           upNextBox.innerHTML = `
-            <div style="font-size:0.75rem; color:#94a3b8; font-weight:800; margin-bottom:10px;">⏭️ OTHER SCHEDULED ITEMS FOR '${escapeHtml(detected.proj)}' TODAY</div>
+            <div style="font-size:0.75rem; color:#94a3b8; font-weight:800; margin-bottom:10px;">⏭️ OTHER ITEMS FOR '${escapeHtml(detected.proj)}' TODAY</div>
             <div style="display:flex; flex-direction:column; gap:8px;">
               ${projectEvents.map(evt => `
                 <div style="font-size:0.85rem; color:#f1f5f9; display:flex; justify-content:space-between; align-items:center;">
                   <span>${evt.starred ? '⭐ ' : ''}• ${escapeHtml(evt.title)}</span>
-                  <span style="font-family:var(--font-mono); color:#94a3b8; font-size:0.78rem;">${evt.startTime}</span>
+                  <span style="font-family:var(--font-mono); color:#94a3b8; font-size:0.78rem;">${evt.startTime || getEventBucket(evt).toUpperCase()}</span>
                 </div>
               `).join('')}
             </div>
@@ -1374,7 +1417,7 @@
       });
     }
 
-    /* GITHUB SYNC ENGINE EXCLUSIVELY FOR CONFIGURED COLUMNS */
+    /* GITHUB SYNC ENGINE WITH subIssues(first: 100) */
     async function resyncSelectedProject() {
       const targetProj = document.getElementById('task-project-filter').value;
       const isAll = !targetProj || targetProj === 'ALL' || targetProj.toUpperCase() === 'ALL PROJECTS';
@@ -1636,7 +1679,6 @@
       renderTasks(); 
     }
 
-    /* UPDATED TASK MENU TOGGLE WITH DYNAMIC Z-INDEX ELEVATION */
     function toggleTaskMenu(menuId, e) {
       e.stopPropagation();
       
@@ -1885,8 +1927,9 @@
           document.getElementById('cal-title').value = evt.title;
           document.getElementById('cal-desc').value = evt.description || '';
           document.getElementById('cal-date').value = evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date());
-          document.getElementById('cal-start-time').value = evt.startTime || '09:00';
-          document.getElementById('cal-end-time').value = evt.endTime || '10:00';
+          document.getElementById('cal-bucket-select').value = evt.bucket || getEventBucket(evt);
+          document.getElementById('cal-start-time').value = evt.startTime || '';
+          document.getElementById('cal-end-time').value = evt.endTime || '';
           document.getElementById('cal-project-select').value = evt.project || '';
           document.getElementById('cal-starred').checked = !!evt.starred;
 
@@ -1907,8 +1950,9 @@
         document.getElementById('cal-desc').value = '';
         const dateVal = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
         document.getElementById('cal-date').value = dateVal;
-        document.getElementById('cal-start-time').value = '09:00';
-        document.getElementById('cal-end-time').value = '10:00';
+        document.getElementById('cal-bucket-select').value = 'auto';
+        document.getElementById('cal-start-time').value = '';
+        document.getElementById('cal-end-time').value = '';
         document.getElementById('cal-starred').checked = false;
         delBtn.style.display = 'none';
       }
@@ -1922,17 +1966,31 @@
       const desc = document.getElementById('cal-desc').value.trim();
       const rawDate = document.getElementById('cal-date').value;
       const date = rawDate ? rawDate.split('T')[0] : formatDateLocal(new Date());
-      const startTime = document.getElementById('cal-start-time').value;
-      const endTime = document.getElementById('cal-end-time').value;
+      const rawBucket = document.getElementById('cal-bucket-select').value;
+      const startTime = document.getElementById('cal-start-time').value.trim();
+      const endTime = document.getElementById('cal-end-time').value.trim();
       const project = document.getElementById('cal-project-select').value;
       const starred = document.getElementById('cal-starred').checked;
+
+      let bucket = rawBucket;
+      if (bucket === 'auto') {
+        if (startTime) {
+          const startH = parseInt(startTime.split(':')[0], 10);
+          if (startH < 12) bucket = 'morning';
+          else if (startH < 16) bucket = 'afternoon';
+          else if (startH < 20) bucket = 'evening';
+          else bucket = 'others';
+        } else {
+          bucket = 'morning';
+        }
+      }
 
       const selectedDays = [];
       document.querySelectorAll('#meeting-recurring-days-box input:checked').forEach(chk => {
         selectedDays.push(parseInt(chk.value, 10));
       });
 
-      if (title && startTime) {
+      if (title) {
         if (!appData.calendarEvents) appData.calendarEvents = [];
 
         if (editId) {
@@ -1941,6 +1999,7 @@
             evt.title = title;
             evt.description = desc;
             evt.date = date;
+            evt.bucket = bucket;
             evt.startTime = startTime;
             evt.endTime = endTime;
             evt.project = project;
@@ -1953,6 +2012,7 @@
             title, 
             description: desc, 
             date, 
+            bucket,
             startTime, 
             endTime, 
             project, 
@@ -1993,8 +2053,8 @@
       renderTasks();
     }
 
-    /* RENDER SCHEDULE SLOTS WITH ⭐ STAR PRIORITY & B/W CARDS */
-    function renderSingleDaySlots(targetDateStr) {
+    /* RENDER 4-BLOCK SCHEDULE BENTO GRID */
+    function renderSingleDayBuckets(targetDateStr) {
       const cleanTargetDate = targetDateStr.split('T')[0];
       const dateObj = new Date(cleanTargetDate + 'T00:00:00');
       const dayOfWeek = dateObj.getDay();
@@ -2007,24 +2067,36 @@
         return eventCleanDate === cleanTargetDate;
       });
 
-      let html = '';
-      for (let hour = 0; hour < 24; hour++) {
-        const hourStr = `${String(hour).padStart(2, '0')}:00`;
-        const matchingEvents = dayEvents.filter(e => parseInt(e.startTime.split(':')[0], 10) === hour);
+      const buckets = [
+        { id: 'morning', title: '🌅 Morning', subtitle: 'Till 12 PM' },
+        { id: 'afternoon', title: '☀️ Afternoon', subtitle: '12 PM - 4 PM' },
+        { id: 'evening', title: '🌆 Evening', subtitle: '4 PM - 8 PM' },
+        { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards (Open)' }
+      ];
+
+      let html = '<div class="schedule-bucket-grid">';
+
+      buckets.forEach(b => {
+        const bucketEvents = dayEvents.filter(e => getEventBucket(e) === b.id);
 
         html += `
-          <div class="time-slot-row" id="slot-hour-${hour}">
-            <div class="slot-time">${hourStr}</div>
-            <div class="slot-events">
-              ${matchingEvents.map(evt => `
+          <div class="schedule-bucket-card">
+            <div class="schedule-bucket-header">
+              <div class="schedule-bucket-title">${b.title}</div>
+              <div class="schedule-bucket-subtitle">${b.subtitle} (${bucketEvents.length})</div>
+            </div>
+            <div class="schedule-bucket-items">
+              ${bucketEvents.length === 0 ? `
+                <div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No items scheduled.</div>
+              ` : bucketEvents.map(evt => `
                 <div class="time-block-card ${evt.starred ? 'is-starred' : ''}">
                   <div onclick="jumpToSpecificTask('${evt.title.replace(/'/g, "\\'")}', '${evt.project}')" style="flex:1;">
                     <div style="font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
-                      ${evt.starred ? '⭐ ' : '🔁 '}${escapeHtml(evt.title)}
+                      ${evt.starred ? '⭐ ' : ''}${escapeHtml(evt.title)}
                     </div>
                     ${evt.description ? `<div style="font-size:0.75rem; color:var(--text); margin-top:2px; font-style:italic;">${escapeHtml(evt.description)}</div>` : ''}
                     <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:4px;">
-                      ${evt.startTime} - ${evt.endTime} ${evt.project ? `| ${escapeHtml(evt.project)}` : ''}
+                      ${evt.startTime ? `${evt.startTime} ${evt.endTime ? '- ' + evt.endTime : ''} | ` : ''}${evt.project ? escapeHtml(evt.project) : 'General'}
                     </div>
                   </div>
                   <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem; align-self:flex-start;" onclick="event.stopPropagation(); openCalendarEventModal('${evt.id}', '${evt.type || 'meeting'}')">Edit</button>
@@ -2033,18 +2105,10 @@
             </div>
           </div>
         `;
-      }
-      return html;
-    }
+      });
 
-    function scrollToCurrentTimeSlot() {
-      const currentHour = new Date().getHours();
-      setTimeout(() => {
-        const slot = document.getElementById(`slot-hour-${currentHour}`);
-        if (slot) {
-          slot.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }, 100);
+      html += '</div>';
+      return html;
     }
 
     function renderScheduleCalendar() {
@@ -2070,24 +2134,22 @@
         area.innerHTML = `
           <div class="split-calendar-grid">
             <div>
-              <div style="font-size:0.82rem; font-weight:800; margin-bottom:6px;">
+              <div style="font-size:0.82rem; font-weight:800; margin-bottom:8px;">
                 ${dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
               </div>
-              <div class="time-slot-container">${renderSingleDaySlots(dateStr)}</div>
+              <div>${renderSingleDayBuckets(dateStr)}</div>
             </div>
             <div>
-              <div style="font-size:0.82rem; font-weight:800; margin-bottom:6px;">
+              <div style="font-size:0.82rem; font-weight:800; margin-bottom:8px;">
                 ${nextDayObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
               </div>
-              <div class="time-slot-container">${renderSingleDaySlots(nextDateStr)}</div>
+              <div>${renderSingleDayBuckets(nextDateStr)}</div>
             </div>
           </div>
         `;
       } else {
-        area.innerHTML = `<div class="time-slot-container">${renderSingleDaySlots(dateStr)}</div>`;
+        area.innerHTML = renderSingleDayBuckets(dateStr);
       }
-
-      scrollToCurrentTimeSlot();
     }
 
     function renderTagFilters() {
@@ -2124,7 +2186,6 @@
       });
     }
 
-    /* RENDER TASKS WITH ENHANCED SUBTASK LINE ALIGNMENT & LARGER PROGRESS RING */
     function renderTasks() {
       const container = document.getElementById('task-container');
       const searchQuery = document.getElementById('search-input').value.toLowerCase();
@@ -2356,7 +2417,6 @@
       }
     }
 
-    /* RENDER REPORTS WITH RESPONSIVE TABLE CONTAINER */
     function renderReports() {
       const container = document.getElementById('report-container');
       container.innerHTML = '';
@@ -2477,7 +2537,7 @@
 
     if ('serviceWorker' in navigator) {
       const swCode = `
-        const CACHE_NAME = 'todo-pwa-v54';
+        const CACHE_NAME = 'todo-pwa-v56';
         self.addEventListener('install', e => {
           e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
         });
