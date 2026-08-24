@@ -3,12 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Minimal Task Workspace</title>
+  <title>OneSpace</title>
   <meta name="theme-color" content="#f4f6f8">
   <link rel="manifest" id="pwa-manifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+  <!-- Supabase JS Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       --bg: #f4f6f8;
@@ -23,54 +25,45 @@
       --radius-sm: 10px;
       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
       --shadow-bento: 0 10px 25px -3px rgba(0, 0, 0, 0.05), 0 4px 10px -2px rgba(0, 0, 0, 0.02);
-      --font-mono: 'Space Mono', monospace;
-      --font-sans: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
-      
+      --font-mono: 'IBM Plex Mono', 'Space Mono', monospace;
+      --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
       --accent-primary: #6366f1;
+      --signal: #d97706;
+      --signal-bar: #cbd5e1;
+
+      /* Editorial Reader Mode Variables */
+      --paper: #f4efe6;
+      --paper-card: #ece6db;
+      --paper-ink: #1c1f1a;
+      --paper-ink-muted: #5c6058;
+      --paper-border: #d3cbbe;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-sans); }
     body { background: var(--bg); color: var(--text); display: flex; height: 100vh; height: 100dvh; overflow: hidden; flex-direction: row; }
 
-    /* Sidebar */
+    /* Desktop Sidebar */
     aside { width: 240px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 20px 14px; flex-shrink: 0; }
     main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 80px; width: 100%; min-width: 0; scroll-behavior: smooth; }
     
     .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 0 4px; }
-    .logo { font-size: 0.9rem; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; color: var(--text); }
+    .logo { font-size: 0.95rem; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; color: var(--text); }
     .logo-dot { width: 10px; height: 10px; background: var(--accent-primary); border-radius: 50%; box-shadow: 0 0 10px rgba(99, 102, 241, 0.4); }
 
     .profile-icon-btn { background: #f3e8ff; border: 1px solid rgba(123, 31, 162, 0.15); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; transition: transform 0.15s ease; }
     .profile-icon-btn:hover { transform: scale(1.05); }
 
     nav { display: flex; flex-direction: column; gap: 6px; }
-    nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 10px 14px; background: none; border: 1px solid transparent; border-radius: var(--radius); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
-    nav button.active, nav button:hover { background: var(--surface); color: var(--text); border-color: var(--border); box-shadow: var(--shadow-sm); }
-    nav button.active { background: var(--accent-primary); color: #fff; border-color: var(--accent-primary); box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
+    nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 10px 14px; background: none; border: 1px solid transparent; border-radius: var(--radius); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease; }
+    nav button:hover { background: var(--surface-hover); color: var(--text); }
+    nav button.active { background: var(--accent-primary); color: #fff; font-weight: 700; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
 
-    .content-section { display: none; padding: 24px 20px; max-width: 900px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+    .content-section { display: none; padding: 24px 20px; max-width: 1060px; margin: 0 auto; width: 100%; box-sizing: border-box; }
     .content-section.active { display: block; }
 
     /* Page Headers */
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
-    h1 { font-size: 1rem; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); }
-    
-    .project-title-select {
-      font-size: 1.1rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      background: transparent !important;
-      border: none !important;
-      color: var(--text);
-      cursor: pointer;
-      outline: none;
-      padding: 0;
-      width: auto;
-      max-width: 100%;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      appearance: none;
-    }
+    h1 { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); }
 
     /* Buttons & Inputs */
     .btn { background: var(--text); color: #fff; border: none; padding: 8px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s ease; box-shadow: var(--shadow-sm); text-decoration: none; }
@@ -83,125 +76,119 @@
     input, select, textarea { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 0.85rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; transition: border-color 0.2s ease; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent-primary); }
 
-    /* Bento Card Filter Bar */
+    /* Bento Filter Bar */
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; background: var(--surface); padding: 14px 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-bento); }
     .filter-top-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
-    .filter-chip { font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; transition: all 0.15s ease; }
+    .filter-chip { font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 99px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; transition: all 0.15s ease; color: var(--text-muted); }
     .filter-chip.active { background: var(--text); color: #fff; border-color: var(--text); }
-
     .toggle-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select: none; white-space: nowrap; }
-    .toggle-label input { width: 14px; height: 14px; cursor: pointer; accent-color: var(--accent-primary); }
 
-    /* Bento Task Cards */
-    .task-list { display: flex; flex-direction: column; gap: 12px; width: 100%; }
-    .task-card { border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; background: var(--surface); box-shadow: var(--shadow-bento); position: relative; width: 100%; box-sizing: border-box; transition: transform 0.2s ease; }
-    .task-card:hover { transform: translateY(-2px); }
-    .task-card.completed { opacity: 0.65; background: #fafafa; }
-    .task-card.completed .task-title { text-decoration: line-through; }
-    .task-card.has-open-menu { z-index: 50 !important; }
+    /* ==========================================================================
+       REMINDERS / LIST KANBAN BOARD
+       ========================================================================== */
+    .reminders-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; align-items: flex-start; }
+    .reminder-column { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-bento); display: flex; flex-direction: column; min-height: 250px; }
+    .reminder-col-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+    .reminder-col-title { font-size: 0.88rem; font-weight: 800; display: flex; align-items: center; gap: 8px; color: var(--text); }
+    .reminder-col-badge { background: var(--bg); border: 1px solid var(--border); color: var(--text-muted); font-size: 0.7rem; font-weight: 700; padding: 2px 8px; border-radius: 99px; font-family: var(--font-mono); }
+    .reminder-items-list { display: flex; flex-direction: column; gap: 8px; min-height: 50px; }
+    
+    .reminder-card { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; transition: transform 0.15s ease, opacity 0.2s ease; position: relative; }
+    .reminder-card:hover { transform: translateY(-1px); border-color: var(--border-dark); }
+    .reminder-card.completed { opacity: 0.6; }
+    .reminder-card.completed .reminder-title-text { text-decoration: line-through; color: var(--text-muted); }
+    
+    .reminder-row { display: flex; align-items: flex-start; gap: 10px; width: 100%; }
+    .reminder-circle { width: 18px; height: 18px; border: 2px solid var(--border-dark); border-radius: 50%; cursor: pointer; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; background: var(--surface); }
+    .reminder-circle:hover { border-color: var(--accent-primary); }
+    .reminder-card.completed .reminder-circle { background: var(--accent-primary); border-color: var(--accent-primary); }
+    .reminder-card.completed .reminder-circle::after { content: '✓'; color: #fff; font-size: 11px; font-weight: 800; }
 
-    .task-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; width: 100%; }
-    .task-title { font-weight: 700; font-size: 0.95rem; display: flex; align-items: flex-start; gap: 10px; min-width: 0; flex: 1; line-height: 1.4; color: var(--text); }
-    .task-title span { word-break: break-word; white-space: normal; display: inline-block; width: 100%; }
+    .reminder-title-text { font-size: 0.88rem; font-weight: 700; color: var(--text); flex: 1; word-break: break-word; line-height: 1.4; }
+    .reminder-meta { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-left: 28px; }
+    .pill { display: inline-flex; align-items: center; font-size: 0.68rem; padding: 2px 8px; border-radius: 99px; font-weight: 700; }
+    .pill-tag { border: 1px solid rgba(0,0,0,0.05); }
 
-    .task-meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 2px 0; }
+    .reminder-actions { display: flex; gap: 4px; margin-left: auto; }
+    .reminder-subtasks { margin-left: 28px; margin-top: 4px; border-left: 2px solid var(--border); padding-left: 10px; display: flex; flex-direction: column; gap: 4px; }
+    .sub-item { font-size: 0.78rem; display: flex; align-items: center; gap: 6px; color: var(--text); }
+    .sub-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
-    .collapse-btn { background: none; border: none; cursor: pointer; font-size: 0.75rem; color: var(--text-muted); padding: 2px; display: inline-flex; align-items: center; transition: transform 0.2s ease; margin-top: 2px; }
-    .task-card.collapsed .collapse-btn { transform: rotate(-90deg); }
-    .task-card.collapsed .task-body { display: none; }
+    /* ==========================================================================
+       SIGNALS: FEED & READER MODE STYLES
+       ========================================================================== */
+    .signals-feed-container { display: flex; flex-direction: column; gap: 14px; width: 100%; }
 
-    /* CIRCULAR PROGRESS RING */
-    .circular-progress-wrap { display: inline-flex; align-items: center; justify-content: center; position: relative; width: 38px; height: 38px; flex-shrink: 0; margin: 0 4px; }
-    .circular-progress-wrap svg { transform: rotate(-90deg); width: 38px; height: 38px; }
-    .circular-progress-wrap circle { fill: none; stroke-width: 3.5; stroke-linecap: round; }
-    .circular-progress-bg { stroke: #f1f5f9; }
-    .circular-progress-fill { stroke: var(--accent-primary); transition: stroke-dashoffset 0.3s ease; }
-    .circular-progress-text { position: absolute; font-size: 0.62rem; font-weight: 800; color: var(--text); text-align: center; }
+    /* Modern Bento Signal Card (Default) */
+    .signal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-bento); display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s ease; }
+    .signal-card:hover { transform: translateY(-2px); }
+    .signal-meta-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); flex-wrap: wrap; gap: 8px; }
+    .signal-headline { font-size: 1.05rem; font-weight: 800; line-height: 1.35; color: var(--text); text-decoration: none; }
+    .signal-body { font-size: 0.88rem; line-height: 1.6; color: var(--text-muted); }
+    .signal-deep-dive { background: #f0fdf4; border-left: 3px solid #22c55e; padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: #166534; font-family: var(--font-mono); line-height: 1.4; }
 
-    .task-menu-dropdown { display: none; position: absolute; right: 0; top: 32px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 60; flex-direction: column; min-width: 160px; padding: 6px; }
-    .menu-item-btn { background: none; border: none; text-align: left; padding: 7px 12px; font-size: 0.78rem; font-weight: 600; color: var(--text); cursor: pointer; border-radius: var(--radius-sm); display: flex; align-items: center; gap: 8px; text-decoration: none; }
-    .menu-item-btn:hover { background: var(--surface-hover); }
-    .menu-item-btn.danger { color: #ef4444; }
+    /* Signal Strength Bars */
+    .signal-meter { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; vertical-align: middle; }
+    .signal-meter .bar { width: 3px; background: var(--signal-bar); border-radius: 1px; }
+    .signal-meter .bar:nth-child(1) { height: 4px; }
+    .signal-meter .bar:nth-child(2) { height: 6px; }
+    .signal-meter .bar:nth-child(3) { height: 8px; }
+    .signal-meter .bar:nth-child(4) { height: 10px; }
+    .signal-meter .bar:nth-child(5) { height: 12px; }
+    .signal-meter .bar.on { background: var(--signal); }
 
-    .pill { display: inline-flex; align-items: center; font-size: 0.68rem; padding: 3px 10px; border-radius: 99px; font-weight: 700; }
-    .pill-tag { font-weight: 600; border: 1px solid rgba(0,0,0,0.05); }
+    /* Newspaper / Editorial Reader Mode Overrides */
+    .newspaper-mode { background: var(--paper); color: var(--paper-ink); }
+    .newspaper-mode .signal-card { background: var(--paper-card); border-color: var(--paper-border); border-radius: 4px; box-shadow: none; border-bottom: 2px solid var(--paper-border); }
+    .newspaper-mode .signal-headline { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--paper-ink); }
+    .newspaper-mode .signal-body { font-family: 'Source Serif 4', serif; font-size: 1rem; line-height: 1.65; color: var(--paper-ink-muted); }
+    .newspaper-mode .signal-meta-bar { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; }
 
-    .subtask-tree { margin-left: 6px; padding-left: 12px; border-left: 2px solid var(--border); margin-top: 10px; display: flex; flex-direction: column; gap: 8px; width: calc(100% - 6px); box-sizing: border-box; }
-    .subtask-card { border: 1px solid var(--border); background: var(--bg); padding: 10px 12px; border-radius: var(--radius-sm); display: flex; flex-direction: column; gap: 6px; width: 100%; box-sizing: border-box; }
-    .subtask-card.completed span.sub-title-text { text-decoration: line-through; color: var(--text-muted); }
-
-    .subtask-grid { display: grid; grid-template-columns: 20px 1fr auto; align-items: flex-start; gap: 8px; width: 100%; }
-    .sub-title-line { font-size: 0.82rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; line-height: 1.4; width: 100%; }
-
-    .sub-accordion { margin-top: 4px; font-size: 0.75rem; color: var(--text-muted); width: 100%; }
-    .sub-accordion summary { cursor: pointer; font-weight: 700; color: var(--text-muted); outline: none; user-select: none; }
-    .sub-accordion summary:hover { color: var(--text); }
-    .sub-accordion-content { background: var(--surface); border: 1px solid var(--border); padding: 8px 10px; border-radius: var(--radius-sm); margin-top: 4px; white-space: pre-wrap; word-break: break-word; line-height: 1.4; }
-
-    /* BLOCK-STYLE SCHEDULE GRID */
+    /* Calendar & Schedule Grid */
     .schedule-bucket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .schedule-bucket-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-bento); display: flex; flex-direction: column; min-height: 160px; }
     .schedule-bucket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
     .schedule-bucket-title { font-size: 0.88rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 6px; }
     .schedule-bucket-subtitle { font-size: 0.7rem; font-weight: 600; color: var(--text-muted); font-family: var(--font-mono); }
     .schedule-bucket-items { display: flex; flex-direction: column; gap: 8px; flex: 1; }
-
     .time-block-card { border: 1px solid var(--border); background: var(--bg); padding: 10px 12px; border-radius: var(--radius-sm); cursor: pointer; border-left: 4px solid var(--text); display: flex; justify-content: space-between; align-items: flex-start; transition: transform 0.15s ease; width: 100%; box-sizing: border-box; }
     .time-block-card:hover { transform: translateY(-1px); }
     .time-block-card.is-starred { border-left-color: #f59e0b; background: #fffdf5; }
 
-    /* FOCUS MODE DESK HUD */
+    /* Focus HUD */
     .desk-hud-overlay { position: fixed; inset: 0; background: #0f172a; color: #ffffff; z-index: 200; display: none; flex-direction: column; padding: 24px; box-sizing: border-box; }
     .hud-header-fixed { display: flex; flex-direction: column; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #1e293b; flex-shrink: 0; width: 100%; }
     .hud-top-bar { display: flex; justify-content: flex-start; width: 100%; margin-bottom: 10px; }
     .hud-clock { font-family: var(--font-mono); font-size: 3.5rem; font-weight: 700; margin: 6px 0; letter-spacing: -0.03em; color: #38bdf8; }
     .hud-scroll-body { flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px; }
-    .hud-hero-card { background: #1e293b; border: 1px solid #334155; border-radius: var(--radius-lg); padding: 20px; width: 100%; box-sizing: border-box; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-    .hud-hero-card.is-active-now { border: 2px solid #22c55e; box-shadow: 0 0 20px rgba(34, 197, 94, 0.25); }
-    .hud-subtask-item { display: flex; flex-direction: column; gap: 4px; padding: 8px 0; border-bottom: 1px solid #334155; font-size: 0.88rem; }
+    .hud-hero-card { background: #1e293b; border: 1px solid #334155; border-radius: var(--radius-lg); padding: 20px; width: 100%; box-sizing: border-box; }
+    .hud-hero-card.is-active-now { border: 2px solid #22c55e; }
     .hud-footer-fixed { display: flex; gap: 12px; justify-content: center; padding-top: 16px; border-top: 1px solid #1e293b; flex-shrink: 0; }
 
-    /* SCROLLABLE RESPONSIVE REPORT TABLE */
+    /* Reports Table */
     .report-table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius); }
     .report-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 520px; }
     .report-table th, .report-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
     .report-table th { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; background: var(--bg); }
 
-    .days-grid { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
-    .day-chip-label { font-size: 0.72rem; font-weight: 700; padding: 6px 12px; border: 1px solid var(--border-dark); border-radius: 99px; cursor: pointer; user-select: none; transition: all 0.15s ease; }
-    .day-chip-label input { display: none; }
-    .day-chip-label.selected { background: var(--text); color: var(--surface); border-color: var(--text); }
-
-    .project-mgr-item { display: flex; flex-direction: column; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); box-shadow: var(--shadow-sm); }
-
-    /* MODAL OVERLAYS & Z-INDEX */
+    /* Modals */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
     .modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 460px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; }
     .modal-body-scroll { overflow-y: auto; flex: 1; padding-right: 4px; }
     .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; flex-shrink: 0; }
-    
-    #project-columns-modal { z-index: 160 !important; }
-    #project-mgr-modal { z-index: 120 !important; }
-    #profile-modal { z-index: 110 !important; }
-
-    .flex-gap { display: flex; gap: 8px; }
     .space-y { display: flex; flex-direction: column; gap: 10px; }
+    .flex-gap { display: flex; gap: 8px; }
 
     @media (max-width: 640px) {
       body { flex-direction: column; }
       aside { display: none; }
-      main { padding-bottom: 80px; }
-      .content-section { padding: 16px 14px; }
       .schedule-bucket-grid { grid-template-columns: 1fr; }
-
       .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
-
-      .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px); box-shadow: 0 -4px 15px rgba(0,0,0,0.03); }
-      .mobile-nav button { background: none; border: none; font-size: 0.8rem; font-weight: 700; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 100%; width: 100%; cursor: pointer; }
+      .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px); }
+      .mobile-nav button { background: none; border: none; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 100%; width: 100%; cursor: pointer; }
       .mobile-nav button.active { color: var(--accent-primary); }
     }
-
     @media (min-width: 641px) {
       .mobile-nav, .mobile-header { display: none; }
     }
@@ -212,23 +199,25 @@
   <!-- DESKTOP SIDEBAR -->
   <aside>
     <div class="sidebar-header">
-      <div class="logo"><div class="logo-dot"></div> WORKSPACE</div>
+      <div class="logo"><div class="logo-dot"></div> ONESPACE</div>
       <button class="profile-icon-btn" onclick="openProfileModal()">👤</button>
     </div>
     <nav>
-      <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule Calendar</button>
-      <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks & Subtasks</button>
+      <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule</button>
+      <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks & Reminders</button>
+      <button class="nav-btn" onclick="switchTab('signals', this)">Signals Feed</button>
       <button class="nav-btn" onclick="switchTab('reports', this)">Reports & Limits</button>
     </nav>
   </aside>
 
   <!-- MOBILE HEADER -->
   <div class="mobile-header">
-    <div class="logo"><div class="logo-dot"></div> WORKSPACE</div>
+    <div class="logo"><div class="logo-dot"></div> ONESPACE</div>
     <button class="profile-icon-btn" onclick="openProfileModal()">👤</button>
   </div>
 
   <main id="main-scroll-container">
+    <!-- 1. SCHEDULE / CALENDAR TAB -->
     <section id="sec-calendar" class="content-section active">
       <header>
         <h1>SCHEDULE CALENDAR</h1>
@@ -249,34 +238,50 @@
       <div id="calendar-render-area"></div>
     </section>
 
+    <!-- 2. TASKS & REMINDERS TAB (APPLE REMINDERS-STYLE KANBAN LIST) -->
     <section id="sec-tasks" class="content-section">
       <header>
-        <div style="display:flex; flex-direction:column; gap:6px;">
-          <select id="task-project-filter" class="project-title-select" onchange="filterTasksByProjectSelect()">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <select id="task-project-filter" onchange="filterTasksByProjectSelect()" style="font-size:1rem; font-weight:800; border:none; background:transparent; cursor:pointer; width:auto;">
             <option value="ALL">ALL PROJECTS</option>
           </select>
         </div>
-        
         <div class="flex-gap" style="align-items: center;">
-          <button class="btn btn-secondary btn-sm" id="resync-btn" onclick="resyncSelectedProject()">↻ Sync</button>
-          <button class="btn" onclick="openTaskModal()">+ Add Task</button>
+          <button class="btn btn-secondary btn-sm" onclick="openProjectManagerModal()">📂 Projects</button>
+          <button class="btn btn-sm" onclick="openTaskModal()">+ Add Task</button>
         </div>
       </header>
 
       <div class="filter-bar">
         <div class="filter-top-row">
-          <div style="position: relative; flex: 1; min-width: 130px;">
-            <input type="text" id="search-input" placeholder="Search tasks..." oninput="handleSearchInput()" style="padding-right: 28px; border-radius:99px;">
-            <button id="clear-search-btn" onclick="clearSearch()" style="display:none; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 0.85rem; color: var(--text-muted); cursor: pointer;">✕</button>
-          </div>
+          <input type="text" id="search-input" placeholder="Search tasks & tags..." oninput="handleSearchInput()" style="border-radius:99px; flex:1;">
         </div>
         <div style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); margin-top: 2px;">FILTER BY TAGS:</div>
         <div class="filter-pills" id="tag-filters"></div>
       </div>
 
-      <div class="task-list" id="task-container"></div>
+      <div class="reminders-board" id="reminders-board-container"></div>
     </section>
 
+    <!-- 3. SIGNALS FEED TAB -->
+    <section id="sec-signals" class="content-section">
+      <header>
+        <h1>SIGNALS FEED</h1>
+        <div class="flex-gap" style="align-items: center;">
+          <button class="btn btn-secondary btn-sm" id="reader-mode-btn" onclick="toggleReaderMode()">📰 Reader Mode</button>
+          <button class="btn btn-secondary btn-sm" onclick="fetchSupabaseSignals()">↻ Refresh</button>
+        </div>
+      </header>
+
+      <div class="filter-bar">
+        <div class="filter-pills" id="signal-track-pills"></div>
+      </div>
+
+      <div id="signals-loading" style="text-align:center; padding: 40px; color: var(--text-muted); font-size:0.85rem; font-family:var(--font-mono);">Connecting to Supabase signals stream…</div>
+      <div id="signals-container" class="signals-feed-container"></div>
+    </section>
+
+    <!-- 4. REPORTS TAB -->
     <section id="sec-reports" class="content-section">
       <header>
         <h1>REPORTS & LIMITS</h1>
@@ -289,9 +294,11 @@
     </section>
   </main>
 
+  <!-- MOBILE NAVIGATION -->
   <div class="mobile-nav">
     <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule</button>
     <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks</button>
+    <button class="nav-btn" onclick="switchTab('signals', this)">Signals</button>
     <button class="nav-btn" onclick="switchTab('reports', this)">Reports</button>
   </div>
 
@@ -301,12 +308,10 @@
       <div class="hud-top-bar">
         <button class="btn btn-secondary btn-sm" style="background:#1e293b; color:#fff; border-color:#334155;" onclick="closeDeskHud()">✕ Exit HUD</button>
       </div>
-      <div style="font-size:0.8rem; font-weight:800; color:#94a3b8; text-transform:uppercase; text-align:center; word-break:break-word; max-width:90%;" id="hud-project-title">PROJECT FOCUS</div>
+      <div style="font-size:0.8rem; font-weight:800; color:#94a3b8; text-transform:uppercase; text-align:center;" id="hud-project-title">PROJECT FOCUS</div>
       <div class="hud-clock" id="hud-clock-text">00:00:00</div>
     </div>
-
     <div class="hud-scroll-body" id="hud-scroll-body"></div>
-
     <div class="hud-footer-fixed">
       <button class="btn btn-secondary" style="background:#1e293b; color:#fff; border-color:#334155; padding:10px 20px;" onclick="toggleGlobalTracking()"><span id="hud-pause-text">▶ Start Focus</span></button>
       <button class="btn btn-secondary" style="background:#1e293b; color:#fff; border-color:#334155; padding:10px 20px;" onclick="addFiveMinsToTracking()">+5 Mins</button>
@@ -314,37 +319,13 @@
     </div>
   </div>
 
-  <!-- MODAL: COLUMN CONFIGURATION PER PROJECT -->
-  <div class="modal-overlay" id="project-columns-modal">
-    <div class="modal">
-      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 6px;" id="col-modal-proj-title">Column Settings</h2>
-      <p style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px;">Select which status columns should be synced when clicking Sync on this project:</p>
-      <div class="modal-body-scroll">
-        <div id="col-modal-options-wrapper" class="space-y"></div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeModal('project-columns-modal')">Cancel</button>
-        <button class="btn" onclick="saveProjectColumnSettings()">Save Columns</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- PROFILE MODAL -->
+  <!-- PROFILE / SETTINGS MODAL -->
   <div class="modal-overlay" id="profile-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Profile & Settings</h2>
+      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Workspace Settings</h2>
       <div class="modal-body-scroll">
         <div class="space-y">
-          <div>
-            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">GLOBAL GITHUB ACCESS TOKEN:</label>
-            <input type="password" id="global-gh-token" placeholder="ghp_xxxxxxxxxxxx" onchange="saveGlobalToken()">
-          </div>
-          <div>
-            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">ORGANIZATION / USER:</label>
-            <input type="text" id="global-gh-org" placeholder="e.g. LearnXBuild" onchange="saveGlobalOrg()">
-          </div>
-          <hr style="border: 0; border-top: 1px solid var(--border); margin: 4px 0;">
-          <label class="toggle-label" style="justify-content: space-between; padding: 4px 0;">
+          <label class="toggle-label" style="justify-content: space-between; padding: 6px 0;">
             <span>HIDE COMPLETED TASKS</span>
             <input type="checkbox" id="hide-completed-toggle" onchange="toggleHideCompleted()">
           </label>
@@ -363,29 +344,19 @@
   <!-- MANAGE PROJECTS MODAL -->
   <div class="modal-overlay" id="project-mgr-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Manage & Add Projects</h2>
+      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Manage Projects</h2>
       <div class="modal-body-scroll">
         <div class="space-y" style="margin-bottom: 18px;">
-          <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">+ CREATE LOCAL PROJECT</div>
+          <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">+ CREATE NEW PROJECT</div>
           <div class="flex-gap">
             <input type="text" id="new-local-proj-name" placeholder="Project Name">
-            <input type="color" id="new-local-proj-color" value="#e2e8f0" style="width: 44px; padding: 2px; height: 38px; cursor: pointer; border-radius:var(--radius-sm);">
+            <input type="color" id="new-local-proj-color" value="#6366f1" style="width: 44px; padding: 2px; height: 38px; cursor: pointer; border-radius:var(--radius-sm);">
             <button class="btn btn-sm" onclick="createLocalProject()">Add</button>
           </div>
         </div>
-
-        <div class="space-y" style="margin-bottom: 18px;">
-          <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">+ ADD & SYNC GITHUB PROJECT BOARD</div>
-          <div class="space-y">
-            <input type="text" id="new-gh-proj-title" placeholder="GitHub Project Board Title">
-            <button class="btn btn-sm btn-secondary" onclick="addAndSyncNewGithubProject()">Sync & Add Project</button>
-          </div>
-        </div>
-
         <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-bottom: 8px;">EXISTING PROJECTS</div>
         <div class="space-y" id="project-list-wrapper"></div>
       </div>
-
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('project-mgr-modal')">Done</button>
       </div>
@@ -400,8 +371,7 @@
       <div class="modal-body-scroll">
         <div class="space-y">
           <input type="text" id="t-title" placeholder="Task Title">
-          <textarea id="t-desc" placeholder="Description (optional)" rows="2"></textarea>
-          
+          <textarea id="t-desc" placeholder="Description / notes (optional)" rows="2"></textarea>
           <div>
             <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">PROJECT:</label>
             <div class="flex-gap">
@@ -409,19 +379,20 @@
               <input type="color" id="t-project-color" value="#e2e8f0" style="width: 44px; padding: 2px; height: 38px; cursor: pointer; border-radius:var(--radius-sm);">
             </div>
           </div>
-
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">STATUS LIST:</label>
+            <select id="t-status">
+              <option value="todo">📋 To Do</option>
+              <option value="in_progress">⚡ In Progress</option>
+              <option value="done">✅ Done</option>
+            </select>
+          </div>
           <div>
             <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">TAGS (comma separated):</label>
-            <input type="text" id="t-tags" placeholder="urgent, bug">
-          </div>
-
-          <div>
-            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">DEPENDS ON:</label>
-            <select id="t-dep"><option value="">None</option></select>
+            <input type="text" id="t-tags" placeholder="urgent, review">
           </div>
         </div>
       </div>
-      
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
         <button class="btn" onclick="saveTask()">Save Task</button>
@@ -441,15 +412,10 @@
           <textarea id="sub-desc" placeholder="Description (optional)" rows="2"></textarea>
           <div>
             <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">TAGS:</label>
-            <input type="text" id="sub-tags" placeholder="review, fix">
-          </div>
-          <div>
-            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">CUSTOM LINK URL (OPTIONAL):</label>
-            <input type="url" id="sub-custom-url" placeholder="https://...">
+            <input type="text" id="sub-tags" placeholder="sub-tag">
           </div>
         </div>
       </div>
-      
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeModal('subtask-modal')">Cancel</button>
         <button class="btn" onclick="saveSubtask()">Save Subtask</button>
@@ -457,7 +423,7 @@
     </div>
   </div>
 
-  <!-- CALENDAR EVENT MODAL (DUAL-MODE SCHEDULING: TIME OR BUCKET) -->
+  <!-- CALENDAR EVENT MODAL -->
   <div class="modal-overlay" id="calendar-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="cal-modal-title">Event Block</h2>
@@ -465,11 +431,10 @@
       <div class="modal-body-scroll">
         <div class="space-y">
           <input type="text" id="cal-title" placeholder="Event Title">
-          <textarea id="cal-desc" placeholder="Description / Event Notes (optional)" rows="2"></textarea>
+          <textarea id="cal-desc" placeholder="Description (optional)" rows="2"></textarea>
           <input type="date" id="cal-date">
-          
           <div>
-            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">SCHEDULE BLOCK / BUCKET:</label>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">TIME BUCKET:</label>
             <select id="cal-bucket-select">
               <option value="auto">⏱️ Auto-deduce from Start Time</option>
               <option value="morning">🌅 Morning (till 12 PM)</option>
@@ -478,43 +443,26 @@
               <option value="others">🌙 Others / Night (8 PM onwards)</option>
             </select>
           </div>
-
           <div class="flex-gap">
             <div style="flex:1;">
-              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">START TIME (OPTIONAL):</label>
+              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">START TIME:</label>
               <input type="time" id="cal-start-time">
             </div>
             <div style="flex:1;">
-              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">END TIME (OPTIONAL):</label>
+              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">END TIME:</label>
               <input type="time" id="cal-end-time">
             </div>
           </div>
-
           <label class="toggle-label" style="background:var(--bg); padding:8px 12px; border:1px solid var(--border); border-radius:var(--radius-sm);">
             <input type="checkbox" id="cal-starred">
-            <span style="font-weight:700; color:var(--text);">⭐ Mark as Important / Priority Task</span>
+            <span style="font-weight:700; color:var(--text);">⭐ Priority Focus Block</span>
           </label>
-
-          <div id="meeting-recurring-days-box">
-            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">RECURRING DAYS (FOR EVENTS):</label>
-            <div class="days-grid">
-              <label class="day-chip-label" id="day-chip-0"><input type="checkbox" value="0" onchange="toggleDayChip(this)">SUN</label>
-              <label class="day-chip-label" id="day-chip-1"><input type="checkbox" value="1" onchange="toggleDayChip(this)">MON</label>
-              <label class="day-chip-label" id="day-chip-2"><input type="checkbox" value="2" onchange="toggleDayChip(this)">TUE</label>
-              <label class="day-chip-label" id="day-chip-3"><input type="checkbox" value="3" onchange="toggleDayChip(this)">WED</label>
-              <label class="day-chip-label" id="day-chip-4"><input type="checkbox" value="4" onchange="toggleDayChip(this)">THU</label>
-              <label class="day-chip-label" id="day-chip-5"><input type="checkbox" value="5" onchange="toggleDayChip(this)">FRI</label>
-              <label class="day-chip-label" id="day-chip-6"><input type="checkbox" value="6" onchange="toggleDayChip(this)">SAT</label>
-            </div>
-          </div>
-
           <div>
             <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">ASSIGN PROJECT:</label>
             <select id="cal-project-select"></select>
           </div>
         </div>
       </div>
-
       <div class="modal-actions">
         <button class="btn btn-danger btn-sm" id="cal-delete-btn" style="display:none; margin-right:auto;" onclick="deleteCalendarEvent()">Delete</button>
         <button class="btn btn-secondary" onclick="closeModal('calendar-modal')">Cancel</button>
@@ -523,10 +471,10 @@
     </div>
   </div>
 
-  <!-- MANUAL TIME ENTRY MODAL -->
+  <!-- MANUAL TIME MODAL -->
   <div class="modal-overlay" id="manual-time-modal">
     <div class="modal">
-      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="time-modal-title">Log / Edit Project Time</h2>
+      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Log Project Time</h2>
       <div class="modal-body-scroll">
         <div class="space-y">
           <div>
@@ -567,14 +515,19 @@
   </div>
 
   <script>
+    /* SUPABASE CONFIGURATION */
+    const SUPABASE_URL = 'https://srfhubczkyqgryphkpfb.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_WNpgnNEFi329sp-lnqRPdg_huw4yojT';
+    const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const TRACKS = ["All", "Engineering", "Finance", "AI", "Trends", "Opportunities"];
+    let ALL_ARTICLES = [];
+    let activeSignalTrack = "All";
+    let isReaderMode = false;
+
     function escapeHtml(str) {
       if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
     function formatDateLocal(dateObj) {
@@ -593,11 +546,8 @@
       return `${date.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
     }
 
-    /* BUCKET CALCULATION & DEDUCTION HELPERS */
     function getEventBucket(evt) {
-      if (evt.bucket && evt.bucket !== 'auto') {
-        return evt.bucket.toLowerCase();
-      }
+      if (evt.bucket && evt.bucket !== 'auto') return evt.bucket.toLowerCase();
       if (evt.startTime) {
         const startH = parseInt(evt.startTime.split(':')[0], 10);
         if (startH < 12) return 'morning';
@@ -616,593 +566,460 @@
       return 'others';
     }
 
-    function loadAndMigrateData() {
-      const MASTER_KEY = 'claude_pwa_todo_master';
-      const keysToSearch = [MASTER_KEY, 'todo-pwa-v53', 'todo-pwa-v52'];
-
-      let mergedTasks = [];
-      let mergedLimits = {};
-      let mergedProjectColors = {};
-      let mergedTagColors = {};
-      let mergedManualTimes = {};
-      let mergedCollapsed = {};
-      let mergedCalendarEvents = [];
-      let mergedWeeklySummaries = {};
-      let mergedProjectSyncColumns = {};
-      let hideCompleted = false;
-      let isSplitView = false;
-      let ghToken = '';
-      let ghOrg = '';
-
-      keysToSearch.forEach(key => {
-        const item = localStorage.getItem(key);
-        if (item) {
-          try {
-            const parsed = JSON.parse(item);
-            if (parsed.tasks) {
-              parsed.tasks.forEach(t => {
-                if (!mergedTasks.some(existing => existing.id === t.id)) mergedTasks.push(t);
-              });
-            }
-            if (parsed.projectLimits) Object.assign(mergedLimits, parsed.projectLimits);
-            if (parsed.projectColors) Object.assign(mergedProjectColors, parsed.projectColors);
-            if (parsed.tagColors) Object.assign(mergedTagColors, parsed.tagColors);
-            if (parsed.manualProjectTimes) Object.assign(mergedManualTimes, parsed.manualProjectTimes);
-            if (parsed.collapsedTasks) Object.assign(mergedCollapsed, parsed.collapsedTasks);
-            if (parsed.weeklySummaries) Object.assign(mergedWeeklySummaries, parsed.weeklySummaries);
-            if (parsed.projectSyncColumns) Object.assign(mergedProjectSyncColumns, parsed.projectSyncColumns);
-            
-            if (parsed.calendarEvents) {
-              parsed.calendarEvents.forEach(evt => {
-                const sanitizedEvt = {
-                  ...evt,
-                  type: evt.type || 'meeting',
-                  date: evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date()),
-                  description: evt.description || '',
-                  bucket: evt.bucket || getEventBucket(evt),
-                  starred: !!evt.starred
-                };
-                if (!mergedCalendarEvents.some(e => e.id === sanitizedEvt.id)) {
-                  mergedCalendarEvents.push(sanitizedEvt);
-                }
-              });
-            }
-
-            if (parsed.hideCompleted !== undefined) hideCompleted = parsed.hideCompleted;
-            if (parsed.isSplitView !== undefined) isSplitView = parsed.isSplitView;
-            if (parsed.ghToken) ghToken = parsed.ghToken;
-            if (parsed.ghOrg) ghOrg = parsed.ghOrg;
-          } catch(e) {}
-        }
-      });
-
+    /* STORAGE DATA & LOCAL STATE */
+    function loadData() {
+      const saved = localStorage.getItem('onespace_master_data');
+      if (saved) {
+        try { return JSON.parse(saved); } catch(e) {}
+      }
       return {
-        tasks: mergedTasks,
-        projectLimits: mergedLimits,
-        projectColors: mergedProjectColors,
-        tagColors: mergedTagColors,
-        manualProjectTimes: mergedManualTimes,
-        collapsedTasks: mergedCollapsed,
-        calendarEvents: mergedCalendarEvents,
-        weeklySummaries: mergedWeeklySummaries,
-        projectSyncColumns: mergedProjectSyncColumns,
-        hideCompleted,
-        isSplitView,
-        ghToken,
-        ghOrg
+        tasks: [],
+        projectLimits: {},
+        projectColors: { 'General': '#6366f1' },
+        tagColors: {},
+        manualProjectTimes: {},
+        calendarEvents: [],
+        weeklySummaries: {},
+        hideCompleted: false,
+        isSplitView: false
       };
     }
 
-    let appData = loadAndMigrateData();
+    let appData = loadData();
     let selectedFilterTags = new Set();
-    
+
     let trackingState = {
       isRunning: false,
       isPaused: false,
       startTime: null,
       accumulatedSec: 0,
       targetProj: 'Unscheduled',
-      blockTitle: 'General Work',
+      blockTitle: 'General Focus',
       timerId: null,
-      lastTickTime: Date.now(),
-      lastInteraction: Date.now()
+      lastTickTime: Date.now()
     };
 
-    let wakeLock = null;
-
     function saveData() {
-      compactOldWeeklyLogs();
-      localStorage.setItem('claude_pwa_todo_master', JSON.stringify(appData));
-    }
-
-    function compactOldWeeklyLogs() {
       const currentWeekKey = getISOWeekKey(new Date());
       if (!appData.weeklySummaries) appData.weeklySummaries = {};
-
-      if (!appData.weeklySummaries[currentWeekKey]) {
-        appData.weeklySummaries[currentWeekKey] = {};
-      }
-
-      Object.entries(appData.manualProjectTimes || {}).forEach(([proj, sec]) => {
-        appData.weeklySummaries[currentWeekKey][proj] = sec;
+      if (!appData.weeklySummaries[currentWeekKey]) appData.weeklySummaries[currentWeekKey] = {};
+      Object.entries(appData.manualProjectTimes || {}).forEach(([p, s]) => {
+        appData.weeklySummaries[currentWeekKey][p] = s;
       });
+      localStorage.setItem('onespace_master_data', JSON.stringify(appData));
     }
 
-    function setupActivityListeners() {
-      const resetActivity = () => {
-        if (trackingState.isRunning && !trackingState.isPaused) {
-          const now = Date.now();
-          const idleSec = Math.floor((now - trackingState.lastInteraction) / 1000);
-          if (idleSec > 900) {
-            triggerIdlePrompt(idleSec);
-          }
-          trackingState.lastInteraction = now;
-        }
-      };
-      window.addEventListener('mousemove', resetActivity);
-      window.addEventListener('keydown', resetActivity);
-      window.addEventListener('touchstart', resetActivity);
-      window.addEventListener('click', resetActivity);
-    }
-    setupActivityListeners();
+    function switchTab(tab, element) {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+      const targets = document.querySelectorAll(`[onclick*="'${tab}'"]`);
+      targets.forEach(t => t.classList.add('active'));
+      document.getElementById(`sec-${tab}`).classList.add('active');
 
-    function triggerIdlePrompt(idleSec) {
-      trackingState.isPaused = true;
-      const mins = Math.floor(idleSec / 60);
-      document.getElementById('idle-msg-text').innerText = `You were away from the workspace for ~${mins} minutes. How would you like to log this time?`;
-      document.getElementById('idle-modal').style.display = 'flex';
+      const mainContainer = document.getElementById('main-scroll-container');
+      if (mainContainer) mainContainer.scrollTop = 0;
+
+      if (tab === 'calendar') renderScheduleCalendar();
+      if (tab === 'tasks') renderRemindersBoard();
+      if (tab === 'signals') renderSignalsFeed();
+      if (tab === 'reports') renderReports();
     }
 
-    function resolveIdleChoice(choice) {
-      document.getElementById('idle-modal').style.display = 'none';
-      if (choice === 'break') {
-        if (!appData.manualProjectTimes['Break']) appData.manualProjectTimes['Break'] = 0;
-        appData.manualProjectTimes['Break'] += 900;
-      } else if (choice === 'discard') {
-        trackingState.accumulatedSec = Math.max(0, trackingState.accumulatedSec - 900);
-      }
-      trackingState.isPaused = false;
-      trackingState.lastTickTime = Date.now();
-      trackingState.lastInteraction = Date.now();
-      saveData();
-    }
-
-    /* AUTO-DETECT CURRENT SCHEDULE SLOT (BUCKET & STAR AWARE) */
-    function autoDetectCurrentScheduleSlot() {
-      const now = new Date();
-      const todayStr = formatDateLocal(now);
-      const dayOfWeek = now.getDay();
-      const currentBucket = getCurrentSystemBucket();
-
-      const todayEvents = (appData.calendarEvents || []).filter(e => {
-        const isToday = (e.recurringDays && e.recurringDays.includes(dayOfWeek)) || (e.date && e.date.split('T')[0] === todayStr);
-        return isToday;
-      });
-
-      // Priority 1: Starred event in the current time bucket
-      const starredInBucket = todayEvents.find(e => getEventBucket(e) === currentBucket && e.starred);
-      if (starredInBucket) {
-        return { proj: starredInBucket.project || 'General', title: starredInBucket.title };
-      }
-
-      // Priority 2: Any event in the current time bucket
-      const anyInBucket = todayEvents.find(e => getEventBucket(e) === currentBucket);
-      if (anyInBucket) {
-        return { proj: anyInBucket.project || 'General', title: anyInBucket.title };
-      }
-
-      // Priority 3: First starred event today
-      const anyStarredToday = todayEvents.find(e => e.starred);
-      if (anyStarredToday) {
-        return { proj: anyStarredToday.project || 'General', title: anyStarredToday.title };
-      }
-
-      return null;
-    }
-
-    function manualChangeTrackingTargetInHud() {
-      const select = document.getElementById('hud-target-select');
-      if (!select) return;
-
-      if (trackingState.isRunning && trackingState.accumulatedSec > 0) {
-        const prevProj = trackingState.targetProj || 'Unscheduled';
-        if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
-        appData.manualProjectTimes[prevProj] = (appData.manualProjectTimes[prevProj] || 0) + trackingState.accumulatedSec;
-        saveData();
-        renderReports();
-      }
-
-      trackingState.accumulatedSec = 0;
-      trackingState.startTime = Date.now();
-      trackingState.lastTickTime = Date.now();
-
-      const rawVal = select.value;
-      if (rawVal === "DETECTED") {
-        const detected = autoDetectCurrentScheduleSlot();
-        if (detected) {
-          trackingState.targetProj = detected.proj;
-          trackingState.blockTitle = detected.title;
-        } else {
-          trackingState.targetProj = "Unscheduled";
-          trackingState.blockTitle = "Ad-hoc Tracking";
-        }
-      } else if (rawVal.startsWith("PROJ::")) {
-        const pName = rawVal.replace("PROJ::", "");
-        trackingState.targetProj = pName;
-        trackingState.blockTitle = `Focus: ${pName}`;
-      } else {
-        trackingState.targetProj = "Unscheduled";
-        trackingState.blockTitle = "Ad-hoc Tracking";
-      }
-
-      document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
-      document.getElementById('hud-clock-text').innerText = '00:00:00';
-      renderHeroDeskHudContent();
-    }
-
-    async function toggleGlobalTracking() {
-      const hudPauseBtn = document.getElementById('hud-pause-text');
-
-      if (!trackingState.isRunning) {
-        const select = document.getElementById('hud-target-select');
-        if (!select || select.value === "DETECTED") {
-          const detected = autoDetectCurrentScheduleSlot();
-          if (detected) {
-            trackingState.targetProj = detected.proj;
-            trackingState.blockTitle = detected.title;
-          } else {
-            trackingState.targetProj = "Unscheduled";
-            trackingState.blockTitle = "Ad-hoc Tracking";
-          }
-        }
-
-        trackingState.isRunning = true;
-        trackingState.isPaused = false;
-        trackingState.startTime = Date.now();
-        trackingState.lastTickTime = Date.now();
-        trackingState.lastInteraction = Date.now();
-
-        trackingState.timerId = setInterval(trackingTick, 1000);
-
-        if (hudPauseBtn) hudPauseBtn.innerText = '⏸ Pause';
-
-        try {
-          if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen');
-        } catch(e) {}
-
-      } else if (trackingState.isRunning && !trackingState.isPaused) {
-        trackingState.isPaused = true;
-        if (hudPauseBtn) hudPauseBtn.innerText = '▶ Resume';
-      } else {
-        trackingState.isPaused = false;
-        trackingState.lastTickTime = Date.now();
-        if (hudPauseBtn) hudPauseBtn.innerText = '⏸ Pause';
-      }
-    }
-
-    function trackingTick() {
-      if (!trackingState.isRunning || trackingState.isPaused) return;
-
-      const now = Date.now();
-      const deltaSec = Math.floor((now - trackingState.lastTickTime) / 1000);
-      if (deltaSec > 0) {
-        trackingState.accumulatedSec += deltaSec;
-        trackingState.lastTickTime = now;
-      }
-
-      const formatted = formatTime(trackingState.accumulatedSec);
-      const clockElem = document.getElementById('hud-clock-text');
-      if (clockElem) clockElem.innerText = formatted;
-    }
-
-    function addFiveMinsToTracking() {
-      trackingState.accumulatedSec += 300;
-      trackingState.lastTickTime = Date.now();
-      const clockElem = document.getElementById('hud-clock-text');
-      if (clockElem) clockElem.innerText = formatTime(trackingState.accumulatedSec);
-    }
-
-    function stopAndSaveTracking() {
-      if (!trackingState.isRunning && trackingState.accumulatedSec === 0) return;
-
-      clearInterval(trackingState.timerId);
-
-      const select = document.getElementById('hud-target-select');
-      let projToSave = trackingState.targetProj || 'Unscheduled';
-
-      if (select) {
-        const val = select.value;
-        if (val === "ADHOC::Unscheduled") {
-          projToSave = "Unscheduled";
-        } else if (val.startsWith("PROJ::")) {
-          projToSave = val.replace("PROJ::", "");
-        } else if (val === "DETECTED") {
-          const detected = autoDetectCurrentScheduleSlot();
-          projToSave = detected ? detected.proj : "Unscheduled";
-        }
-      }
-
-      if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
-      appData.manualProjectTimes[projToSave] = (appData.manualProjectTimes[projToSave] || 0) + trackingState.accumulatedSec;
-
-      const savedSec = trackingState.accumulatedSec;
-
-      trackingState.isRunning = false;
-      trackingState.isPaused = false;
-      trackingState.accumulatedSec = 0;
-      trackingState.timerId = null;
-
-      const hudPauseBtn = document.getElementById('hud-pause-text');
-      if (hudPauseBtn) hudPauseBtn.innerText = '▶ Start Focus';
-
-      const clockElem = document.getElementById('hud-clock-text');
-      if (clockElem) clockElem.innerText = '00:00:00';
-
-      if (wakeLock) { wakeLock.release(); wakeLock = null; }
-
-      saveData();
-      closeDeskHud();
-      renderReports();
-      alert(`Saved ${formatTime(savedSec)} to '${projToSave}'!`);
-    }
-
-    function openDeskHud() {
-      const detected = autoDetectCurrentScheduleSlot();
-      if (detected) {
-        trackingState.targetProj = detected.proj;
-        trackingState.blockTitle = detected.title;
-      } else {
-        trackingState.targetProj = "Unscheduled";
-        trackingState.blockTitle = "Ad-hoc Tracking";
-      }
-
-      document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
-      document.getElementById('hud-clock-text').innerText = formatTime(trackingState.accumulatedSec);
-      
-      const hudPauseBtn = document.getElementById('hud-pause-text');
-      if (hudPauseBtn) {
-        if (!trackingState.isRunning) hudPauseBtn.innerText = '▶ Start Focus';
-        else if (trackingState.isPaused) hudPauseBtn.innerText = '▶ Resume';
-        else hudPauseBtn.innerText = '⏸ Pause';
-      }
-
-      renderHeroDeskHudContent();
-      document.getElementById('desk-hud').style.display = 'flex';
-    }
-
-    function closeDeskHud() {
-      document.getElementById('desk-hud').style.display = 'none';
-    }
-
-    /* FOCUS HUD (STARRED & CURRENT BUCKET GREEN BORDER HIGHLIGHT) */
-    function renderHeroDeskHudContent() {
-      const container = document.getElementById('hud-scroll-body');
+    /* ==========================================================================
+       TASKS: APPLE REMINDERS-STYLE KANBAN LIST ENGINE
+       ========================================================================== */
+    function renderRemindersBoard() {
+      const container = document.getElementById('reminders-board-container');
       container.innerHTML = '';
 
-      const detected = autoDetectCurrentScheduleSlot();
-      const currentBucket = getCurrentSystemBucket();
-      const allProjects = Array.from(new Set([
-        ...Object.keys(appData.projectColors || {}),
-        ...appData.tasks.map(t => t.project).filter(Boolean),
-        ...Object.keys(appData.manualProjectTimes || {})
-      ])).filter(p => p !== 'Unscheduled');
+      const searchQuery = document.getElementById('search-input').value.toLowerCase();
+      const selectedProject = document.getElementById('task-project-filter').value;
+      const isAll = !selectedProject || selectedProject === 'ALL';
 
-      const selectorBox = document.createElement('div');
-      selectorBox.style.marginBottom = '12px';
-      
-      let htmlOptions = `<option value="DETECTED" ${trackingState.targetProj === (detected ? detected.proj : 'Unscheduled') ? 'selected' : ''}>📋 Current Block Focus: ${detected ? detected.title + ' (' + detected.proj + ')' : 'None (Unscheduled)'}</option>`;
-      allProjects.forEach(p => {
-        htmlOptions += `<option value="PROJ::${escapeHtml(p)}" ${trackingState.targetProj === p ? 'selected' : ''}>📂 Project: ${escapeHtml(p)}</option>`;
-      });
-      htmlOptions += `<option value="ADHOC::Unscheduled" ${trackingState.targetProj === 'Unscheduled' ? 'selected' : ''}>⚡ Unscheduled / Ad-hoc Work</option>`;
+      const columns = [
+        { id: 'todo', title: '📋 To Do' },
+        { id: 'in_progress', title: '⚡ In Progress' },
+        { id: 'done', title: '✅ Completed' }
+      ];
 
-      selectorBox.innerHTML = `
-        <label style="font-size:0.72rem; color:#94a3b8; font-weight:700; display:block; margin-bottom:6px;">CHANGE FOCUS TARGET:</label>
-        <select id="hud-target-select" onchange="manualChangeTrackingTargetInHud()" style="background:#1e293b; color:#fff; border:1px solid #334155; padding:10px 14px; border-radius:var(--radius); font-size:0.85rem; width:100%;">
-          ${htmlOptions}
-        </select>
-      `;
-      container.appendChild(selectorBox);
+      columns.forEach(col => {
+        const colTasks = appData.tasks.filter(t => {
+          const taskStatus = t.status || (t.completed ? 'done' : 'todo');
+          if (taskStatus !== col.id) return false;
+          if (appData.hideCompleted && taskStatus === 'done') return false;
+          if (!isAll && t.project !== selectedProject) return false;
 
-      const isUnscheduled = trackingState.targetProj === 'Unscheduled';
-      const isManualProject = selectorBox.querySelector('select').value.startsWith("PROJ::");
+          const matchesSearch = t.title.toLowerCase().includes(searchQuery) ||
+            (t.tags || []).some(tg => tg.toLowerCase().includes(searchQuery));
+          const matchesTags = selectedFilterTags.size === 0 ||
+            Array.from(selectedFilterTags).every(st => (t.tags || []).includes(st));
 
-      const todayStr = formatDateLocal(new Date());
-      const dayOfWeek = new Date().getDay();
+          return matchesSearch && matchesTags;
+        });
 
-      const todayEvents = (appData.calendarEvents || []).filter(e => {
-        const isToday = (e.recurringDays && e.recurringDays.includes(dayOfWeek)) || (e.date && e.date.split('T')[0] === todayStr);
-        return isToday;
-      });
-
-      if (isManualProject) {
-        const targetProj = trackingState.targetProj;
-        const projectEvents = todayEvents.filter(e => e.project && e.project.trim().toLowerCase() === targetProj.trim().toLowerCase());
-
-        const projBox = document.createElement('div');
-        projBox.style.cssText = "display:flex; flex-direction:column; gap:12px;";
-        projBox.innerHTML = `
-          <div style="font-size:0.75rem; color:#38bdf8; font-weight:800; text-transform:uppercase;">📂 PROJECT: ${escapeHtml(targetProj)}</div>
+        const colDiv = document.createElement('div');
+        colDiv.className = 'reminder-column';
+        colDiv.innerHTML = `
+          <div class="reminder-col-header">
+            <div class="reminder-col-title">${col.title}</div>
+            <div class="reminder-col-badge">${colTasks.length}</div>
+          </div>
+          <div class="reminder-items-list" id="col-list-${col.id}"></div>
+          <button class="btn btn-secondary btn-sm" style="margin-top:12px; width:100%; justify-content:center;" onclick="openTaskModal(null, '${col.id}')">+ Add to ${col.title}</button>
         `;
 
-        if (projectEvents.length === 0) {
-          projBox.innerHTML += `<div style="color:#64748b; font-size:0.85rem; padding:12px;">No scheduled calendar blocks for this project today.</div>`;
-        } else {
-          projectEvents.forEach(evt => {
-            const evtBucket = getEventBucket(evt);
-            // Highlight with green border if event is Starred and belongs to Current Time Bucket
-            const isPriorityNow = evt.starred && (evtBucket === currentBucket);
+        const listContainer = colDiv.querySelector(`#col-list-${col.id}`);
 
-            const matchedTask = appData.tasks.find(t => 
-              t.title.trim().toLowerCase() === evt.title.trim().toLowerCase()
-            );
+        if (colTasks.length === 0) {
+          listContainer.innerHTML = `<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:18px 0;">Empty list</div>`;
+        } else {
+          colTasks.forEach(task => {
+            const isCompleted = (task.status === 'done') || task.completed;
+            const projColor = appData.projectColors[task.project] || '#e2e8f0';
 
             const card = document.createElement('div');
-            card.className = `hud-hero-card ${isPriorityNow ? 'is-active-now' : ''}`;
+            card.className = `reminder-card ${isCompleted ? 'completed' : ''}`;
             card.innerHTML = `
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-                <div style="font-weight:800; font-size:1.1rem; color:#fff; display:flex; align-items:center; gap:6px;">
-                  ${evt.starred ? '⭐ ' : ''}${escapeHtml(evt.title)}
+              <div class="reminder-row">
+                <div class="reminder-circle" onclick="toggleTaskStatus('${task.id}')"></div>
+                <div class="reminder-title-text">${escapeHtml(task.title)}</div>
+                <div class="reminder-actions">
+                  <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" onclick="openTaskModal('${task.id}')">✏️</button>
+                  <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" onclick="deleteTask('${task.id}')">✕</button>
                 </div>
-                ${isPriorityNow ? '<span style="font-size:0.68rem; background:#22c55e; color:#000; padding:3px 8px; border-radius:99px; font-weight:800;">PRIORITY BLOCK</span>' : ''}
-              </div>
-              <div style="font-size:0.75rem; color:#94a3b8; font-family:var(--font-mono); margin-bottom:10px;">
-                ${evt.startTime ? `${evt.startTime} ${evt.endTime ? '- ' + evt.endTime : ''} | ` : ''}${evtBucket.toUpperCase()}
               </div>
 
-              ${(evt.description || (matchedTask && matchedTask.description)) ? `
-                <div style="font-size:0.85rem; color:#cbd5e1; background:#0f172a; padding:10px; border-radius:var(--radius-sm); border:1px solid #334155; margin-bottom:12px;">
-                  ${escapeHtml(evt.description || matchedTask.description)}
-                </div>
-              ` : ''}
+              <div class="reminder-meta">
+                ${task.project ? `<span class="pill" style="background:${projColor}; color:var(--text);">${escapeHtml(task.project)}</span>` : ''}
+                ${(task.tags || []).map(tg => `<span class="pill pill-tag" style="background:${appData.tagColors[tg] || '#f1f5f9'};">#${escapeHtml(tg)}</span>`).join('')}
+              </div>
 
-              ${(matchedTask && matchedTask.subtasks && matchedTask.subtasks.length > 0) ? `
-                <div style="font-size:0.75rem; color:#94a3b8; font-weight:700; margin-bottom:6px;">SUBTASKS:</div>
-                <div>
-                  ${matchedTask.subtasks.map(sub => `
-                    <div class="hud-subtask-item">
-                      <div style="display:flex; align-items:center; gap:8px;">
-                        <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${matchedTask.id}', '${sub.id}'); renderHeroDeskHudContent();" style="width:18px; height:18px; cursor:pointer; accent-color:#38bdf8;">
-                        <span style="${sub.completed ? 'text-decoration:line-through; color:#64748b;' : 'color:#f1f5f9;'}">${escapeHtml(sub.title)}</span>
-                        ${sub.customUrl ? `<a href="${escapeHtml(sub.customUrl)}" target="_blank" style="text-decoration:none;" title="Open Link">🔗</a>` : ''}
-                      </div>
-                      ${(sub.tags && sub.tags.length > 0) ? `
-                        <div style="display:flex; gap:4px; margin-left:26px; flex-wrap:wrap;">
-                          ${sub.tags.map(st => `<span style="background:${appData.tagColors[st] || '#334155'}; color:#fff; font-size:0.62rem; padding:1px 6px; border-radius:99px; font-weight:700;">#${escapeHtml(st)}</span>`).join('')}
-                        </div>
-                      ` : ''}
-                      ${sub.description ? `
-                        <details style="margin-left:26px; font-size:0.78rem; color:#94a3b8; margin-top:2px;">
-                          <summary style="cursor:pointer; color:#38bdf8;">Description</summary>
-                          <div style="background:#0f172a; padding:6px 8px; border-radius:6px; border:1px solid #334155; margin-top:4px; white-space:pre-wrap;">${escapeHtml(sub.description)}</div>
-                        </details>
-                      ` : ''}
+              ${(task.subtasks && task.subtasks.length > 0) ? `
+                <div class="reminder-subtasks">
+                  ${task.subtasks.map(s => `
+                    <div class="sub-item ${s.completed ? 'done' : ''}">
+                      <input type="checkbox" ${s.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${s.id}')" style="cursor:pointer;">
+                      <span>${escapeHtml(s.title)}</span>
                     </div>
                   `).join('')}
                 </div>
               ` : ''}
+              
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+                <button style="background:none; border:none; font-size:0.7rem; color:var(--text-muted); cursor:pointer; font-weight:700;" onclick="openSubtaskModal('${task.id}')">+ Subtask</button>
+                <div style="display:flex; gap:4px;">
+                  ${col.id !== 'todo' ? `<button style="background:none; border:none; font-size:0.68rem; color:var(--accent-primary); cursor:pointer;" onclick="moveTask('${task.id}', 'todo')">← Todo</button>` : ''}
+                  ${col.id !== 'in_progress' ? `<button style="background:none; border:none; font-size:0.68rem; color:var(--accent-primary); cursor:pointer;" onclick="moveTask('${task.id}', 'in_progress')">⚡ Focus</button>` : ''}
+                  ${col.id !== 'done' ? `<button style="background:none; border:none; font-size:0.68rem; color:var(--accent-primary); cursor:pointer;" onclick="moveTask('${task.id}', 'done')">Done →</button>` : ''}
+                </div>
+              </div>
             `;
-            projBox.appendChild(card);
+            listContainer.appendChild(card);
           });
         }
-        container.appendChild(projBox);
-      } else if (!isUnscheduled && detected) {
-        const activeEvent = todayEvents.find(e => e.title.toLowerCase() === detected.title.toLowerCase() || e.project === detected.proj) || todayEvents[0];
-        const matchedTask = appData.tasks.find(t => 
-          activeEvent && t.title.trim().toLowerCase() === activeEvent.title.trim().toLowerCase()
-        );
+        container.appendChild(colDiv);
+      });
+    }
 
-        const isPriorityNow = activeEvent && activeEvent.starred;
-        const displayTitle = activeEvent ? (activeEvent.starred ? '⭐ ' : '') + activeEvent.title : detected.title;
-        const displayDesc = activeEvent ? activeEvent.description : (matchedTask ? matchedTask.description : '');
+    function toggleTaskStatus(taskId) {
+      const task = appData.tasks.find(t => t.id === taskId);
+      if (task) {
+        if (task.status === 'done' || task.completed) {
+          task.status = 'todo';
+          task.completed = false;
+        } else {
+          task.status = 'done';
+          task.completed = true;
+        }
+        saveData();
+        renderRemindersBoard();
+      }
+    }
 
-        const heroCard = document.createElement('div');
-        heroCard.className = `hud-hero-card ${isPriorityNow ? 'is-active-now' : ''}`;
-        heroCard.innerHTML = `
-          <div style="font-size:0.75rem; color:${isPriorityNow ? '#22c55e' : '#38bdf8'}; font-weight:800; margin-bottom:6px; text-transform:uppercase;">
-            ${isPriorityNow ? '⭐ PRIORITY FOCUS BLOCK' : '🎯 ACTIVE BLOCK FOCUS'}
-          </div>
-          <div style="font-size:1.25rem; font-weight:800; color:#ffffff; line-height:1.3; margin-bottom:10px;">${escapeHtml(displayTitle)}</div>
-          
-          ${displayDesc ? `
-            <div style="font-size:0.85rem; color:#cbd5e1; background:#0f172a; padding:12px; border-radius:var(--radius-sm); border:1px solid #334155; margin-bottom:14px;">
-              ${escapeHtml(displayDesc)}
-            </div>
-          ` : ''}
+    function moveTask(taskId, newStatus) {
+      const task = appData.tasks.find(t => t.id === taskId);
+      if (task) {
+        task.status = newStatus;
+        task.completed = (newStatus === 'done');
+        saveData();
+        renderRemindersBoard();
+      }
+    }
 
-          ${(matchedTask && matchedTask.subtasks && matchedTask.subtasks.length > 0) ? `
-            <div style="font-size:0.75rem; color:#94a3b8; font-weight:700; margin-bottom:8px;">SUBTASKS (Tap to complete):</div>
-            <div>
-              ${matchedTask.subtasks.map(sub => `
-                <div class="hud-subtask-item">
-                  <div style="display:flex; align-items:center; gap:8px;">
-                    <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${matchedTask.id}', '${sub.id}'); renderHeroDeskHudContent();" style="width:18px; height:18px; cursor:pointer; accent-color:#38bdf8;">
-                    <span style="${sub.completed ? 'text-decoration:line-through; color:#64748b;' : 'color:#f1f5f9;'}">${escapeHtml(sub.title)}</span>
-                    ${sub.customUrl ? `<a href="${escapeHtml(sub.customUrl)}" target="_blank" style="text-decoration:none;" title="Open Link">🔗</a>` : ''}
-                  </div>
-                  ${(sub.tags && sub.tags.length > 0) ? `
-                    <div style="display:flex; gap:4px; margin-left:26px; flex-wrap:wrap;">
-                      ${sub.tags.map(st => `<span style="background:${appData.tagColors[st] || '#334155'}; color:#fff; font-size:0.62rem; padding:1px 6px; border-radius:99px; font-weight:700;">#${escapeHtml(st)}</span>`).join('')}
-                    </div>
-                  ` : ''}
-                  ${sub.description ? `
-                    <details style="margin-left:26px; font-size:0.78rem; color:#94a3b8; margin-top:2px;">
-                      <summary style="cursor:pointer; color:#38bdf8;">Description</summary>
-                      <div style="background:#0f172a; padding:6px 8px; border-radius:6px; border:1px solid #334155; margin-top:4px; white-space:pre-wrap;">${escapeHtml(sub.description)}</div>
-                    </details>
-                  ` : ''}
-                </div>
-              `).join('')}
-            </div>
-          ` : ''}
-        `;
-        container.appendChild(heroCard);
+    function openTaskModal(taskId = null, defaultStatus = 'todo') {
+      if (taskId) {
+        const task = appData.tasks.find(t => t.id === taskId);
+        document.getElementById('modal-title').innerText = 'Edit Task';
+        document.getElementById('edit-task-id').value = task.id;
+        document.getElementById('t-title').value = task.title;
+        document.getElementById('t-desc').value = task.description || '';
+        document.getElementById('t-project').value = task.project || '';
+        document.getElementById('t-project-color').value = appData.projectColors[task.project] || '#e2e8f0';
+        document.getElementById('t-status').value = task.status || (task.completed ? 'done' : 'todo');
+        document.getElementById('t-tags').value = (task.tags || []).join(', ');
+      } else {
+        document.getElementById('modal-title').innerText = 'Create Task';
+        document.getElementById('edit-task-id').value = '';
+        document.getElementById('t-title').value = '';
+        document.getElementById('t-desc').value = '';
+        document.getElementById('t-project').value = document.getElementById('task-project-filter').value === 'ALL' ? '' : document.getElementById('task-project-filter').value;
+        document.getElementById('t-status').value = defaultStatus;
+        document.getElementById('t-tags').value = '';
+      }
+      document.getElementById('task-modal').style.display = 'flex';
+    }
 
-        const projectEvents = todayEvents.filter(e => e.project && e.project.trim().toLowerCase() === detected.proj.trim().toLowerCase());
-        if (projectEvents.length > 0) {
-          const upNextBox = document.createElement('div');
-          upNextBox.style.cssText = "background:#0f172a; border:1px solid #334155; border-radius:var(--radius); padding:14px; margin-top:8px;";
-          upNextBox.innerHTML = `
-            <div style="font-size:0.75rem; color:#94a3b8; font-weight:800; margin-bottom:10px;">⏭️ OTHER ITEMS FOR '${escapeHtml(detected.proj)}' TODAY</div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-              ${projectEvents.map(evt => `
-                <div style="font-size:0.85rem; color:#f1f5f9; display:flex; justify-content:space-between; align-items:center;">
-                  <span>${evt.starred ? '⭐ ' : ''}• ${escapeHtml(evt.title)}</span>
-                  <span style="font-family:var(--font-mono); color:#94a3b8; font-size:0.78rem;">${evt.startTime || getEventBucket(evt).toUpperCase()}</span>
-                </div>
-              `).join('')}
-            </div>
-          `;
-          container.appendChild(upNextBox);
+    function saveTask() {
+      const title = document.getElementById('t-title').value.trim();
+      if (!title) return;
+      const editId = document.getElementById('edit-task-id').value;
+      const project = document.getElementById('t-project').value.trim();
+      const projColor = document.getElementById('t-project-color').value;
+      const status = document.getElementById('t-status').value;
+      const tags = document.getElementById('t-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+
+      if (project) appData.projectColors[project] = projColor;
+
+      if (editId) {
+        const task = appData.tasks.find(t => t.id === editId);
+        if (task) {
+          task.title = title;
+          task.description = document.getElementById('t-desc').value;
+          task.project = project;
+          task.status = status;
+          task.completed = (status === 'done');
+          task.tags = tags;
         }
       } else {
-        const adhocNotice = document.createElement('div');
-        adhocNotice.style.cssText = "background:#1e293b; border:1px solid #334155; border-radius:var(--radius-lg); padding:24px; text-align:center; color:#cbd5e1; font-size:0.9rem; line-height:1.5;";
-        adhocNotice.innerHTML = `⚡ Tracking Ad-hoc / Unscheduled Time.<br>Hit 'Start Focus' to log random time.`;
-        container.appendChild(adhocNotice);
+        appData.tasks.push({
+          id: 'task_' + Date.now(),
+          title,
+          description: document.getElementById('t-desc').value,
+          project,
+          status,
+          completed: (status === 'done'),
+          tags,
+          subtasks: []
+        });
       }
-    }
-
-    function openProfileModal() { 
-      document.getElementById('global-gh-token').value = appData.ghToken || '';
-      document.getElementById('global-gh-org').value = appData.ghOrg || '';
-      document.getElementById('hide-completed-toggle').checked = !!appData.hideCompleted;
-      document.getElementById('profile-modal').style.display = 'flex'; 
-    }
-
-    function saveGlobalToken() {
-      appData.ghToken = document.getElementById('global-gh-token').value.trim();
       saveData();
+      closeModal('task-modal');
+      updateProjectDropdowns();
+      renderTagFilters();
+      renderRemindersBoard();
     }
 
-    function saveGlobalOrg() {
-      appData.ghOrg = document.getElementById('global-gh-org').value.trim();
+    function deleteTask(id) {
+      appData.tasks = appData.tasks.filter(t => t.id !== id);
       saveData();
+      renderRemindersBoard();
     }
 
-    function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", `workspace_backup_${Date.now()}.json`);
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
+    function openSubtaskModal(parentTaskId) {
+      document.getElementById('sub-parent-task-id').value = parentTaskId;
+      document.getElementById('sub-title').value = '';
+      document.getElementById('sub-desc').value = '';
+      document.getElementById('sub-tags').value = '';
+      document.getElementById('subtask-modal').style.display = 'flex';
     }
 
-    function clearCompletedTasks() {
-      if (confirm("Are you sure you want to clear all completed tasks?")) {
-        appData.tasks = appData.tasks.filter(t => !t.completed);
+    function saveSubtask() {
+      const parentId = document.getElementById('sub-parent-task-id').value;
+      const title = document.getElementById('sub-title').value.trim();
+      if (!title) return;
+      const task = appData.tasks.find(t => t.id === parentId);
+      if (task) {
+        if (!task.subtasks) task.subtasks = [];
+        task.subtasks.push({ id: 'sub_' + Date.now(), title, completed: false });
         saveData();
-        closeModal('profile-modal');
-        renderTasks();
+        closeModal('subtask-modal');
+        renderRemindersBoard();
       }
     }
 
-    function toggleHideCompleted() {
-      appData.hideCompleted = document.getElementById('hide-completed-toggle').checked;
+    function toggleSubtask(taskId, subId) {
+      const task = appData.tasks.find(t => t.id === taskId);
+      if (task && task.subtasks) {
+        const sub = task.subtasks.find(s => s.id === subId);
+        if (sub) sub.completed = !sub.completed;
+        saveData();
+        renderRemindersBoard();
+      }
+    }
+
+    /* ==========================================================================
+       SIGNALS FEED & DUAL READER MODE ENGINE
+       ========================================================================== */
+    function signalMeter(score) {
+      let bars = '';
+      for (let i = 1; i <= 5; i++) {
+        bars += `<span class="bar ${i <= score ? 'on' : ''}"></span>`;
+      }
+      return `<span class="signal-meter" aria-label="Signal ${score}/5">${bars}</span>`;
+    }
+
+    async function fetchSupabaseSignals() {
+      const loader = document.getElementById('signals-loading');
+      loader.style.display = 'block';
+      loader.textContent = 'Connecting to Supabase signals stream…';
+      try {
+        const { data, error } = await db.from('articles').select('*').order('id', { ascending: false });
+        if (error) throw error;
+        ALL_ARTICLES = data || [];
+        loader.style.display = 'none';
+        renderSignalTrackPills();
+        renderSignalsFeed();
+      } catch (err) {
+        loader.textContent = 'Error connecting to Supabase: ' + err.message;
+        console.error(err);
+      }
+    }
+
+    function renderSignalTrackPills() {
+      const pillBox = document.getElementById('signal-track-pills');
+      pillBox.innerHTML = '';
+      TRACKS.forEach(track => {
+        const count = track === 'All' ? ALL_ARTICLES.length : ALL_ARTICLES.filter(a => a.track === track).length;
+        const chip = document.createElement('span');
+        chip.className = `filter-chip ${activeSignalTrack === track ? 'active' : ''}`;
+        chip.innerText = `${track} (${count})`;
+        chip.onclick = () => {
+          activeSignalTrack = track;
+          renderSignalTrackPills();
+          renderSignalsFeed();
+        };
+        pillBox.appendChild(chip);
+      });
+    }
+
+    function toggleReaderMode() {
+      isReaderMode = !isReaderMode;
+      const btn = document.getElementById('reader-mode-btn');
+      const sec = document.getElementById('sec-signals');
+      if (isReaderMode) {
+        sec.classList.add('newspaper-mode');
+        btn.innerText = '💻 Bento Mode';
+      } else {
+        sec.classList.remove('newspaper-mode');
+        btn.innerText = '📰 Reader Mode';
+      }
+      renderSignalsFeed();
+    }
+
+    function renderSignalsFeed() {
+      const container = document.getElementById('signals-container');
+      container.innerHTML = '';
+
+      const filtered = activeSignalTrack === 'All'
+        ? ALL_ARTICLES
+        : ALL_ARTICLES.filter(a => a.track === activeSignalTrack);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem;">No signals found for this track.</div>`;
+        return;
+      }
+
+      // Flat, uniform list with no grouping subheadings
+      filtered.forEach(article => {
+        const tagsList = Array.isArray(article.tags) ? article.tags : (typeof article.tags === 'string' ? JSON.parse(article.tags || '[]') : []);
+        const card = document.createElement('div');
+        card.className = 'signal-card';
+
+        card.innerHTML = `
+          <div class="signal-meta-bar">
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${signalMeter(article.relevance || 3)}
+              <span><strong>${escapeHtml(article.source || 'Signal')}</strong></span>
+              <span>·</span>
+              <span>${article.date || ''}</span>
+            </div>
+            <span class="pill" style="background:var(--bg); border:1px solid var(--border); font-size:0.65rem;">${escapeHtml(article.track || 'General')}</span>
+          </div>
+
+          <a href="${article.url || '#'}" target="_blank" rel="noopener" class="signal-headline">${escapeHtml(article.headline)}</a>
+
+          <p class="signal-body">${escapeHtml(article.body)}</p>
+
+          ${article.deep_dive ? `<div class="signal-deep-dive"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
+
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:6px;">
+            <div style="display:flex; gap:4px; flex-wrap:wrap;">
+              ${tagsList.map(t => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.65rem;">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+            <div class="flex-gap">
+              <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('${escapeHtml(article.headline).replace(/'/g, "\\'")}', '${escapeHtml(article.track)}')">+ Add as Task</button>
+              ${article.url ? `<a class="btn btn-secondary btn-sm" href="${article.url}" target="_blank" rel="noopener">Read Source ↗</a>` : ''}
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function convertSignalToTask(headline, track) {
+      appData.tasks.push({
+        id: 'task_' + Date.now(),
+        title: headline,
+        project: track || 'General',
+        status: 'todo',
+        completed: false,
+        tags: ['signal', track.toLowerCase()]
+      });
       saveData();
-      renderTasks();
+      alert(`Added "${headline}" to your To Do list!`);
+    }
+
+    /* ==========================================================================
+       SCHEDULE CALENDAR & FOCUS DESK HUD
+       ========================================================================== */
+    function renderScheduleCalendar() {
+      const viewInput = document.getElementById('cal-view-date');
+      if (!viewInput.value) viewInput.value = formatDateLocal(new Date());
+      document.getElementById('cal-split-toggle').checked = !!appData.isSplitView;
+
+      const dateStr = viewInput.value.split('T')[0];
+      const dateObj = new Date(dateStr + 'T00:00:00');
+      document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+      const area = document.getElementById('calendar-render-area');
+      area.innerHTML = '';
+
+      const buckets = [
+        { id: 'morning', title: '🌅 Morning', subtitle: 'Till 12 PM' },
+        { id: 'afternoon', title: '☀️ Afternoon', subtitle: '12 PM - 4 PM' },
+        { id: 'evening', title: '🌆 Evening', subtitle: '4 PM - 8 PM' },
+        { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards' }
+      ];
+
+      const dayEvents = (appData.calendarEvents || []).filter(e => (e.date ? e.date.split('T')[0] : '') === dateStr);
+
+      let html = '<div class="schedule-bucket-grid">';
+      buckets.forEach(b => {
+        const bucketEvents = dayEvents.filter(e => getEventBucket(e) === b.id);
+        html += `
+          <div class="schedule-bucket-card">
+            <div class="schedule-bucket-header">
+              <div class="schedule-bucket-title">${b.title}</div>
+              <div class="schedule-bucket-subtitle">${b.subtitle} (${bucketEvents.length})</div>
+            </div>
+            <div class="schedule-bucket-items">
+              ${bucketEvents.length === 0 ? `<div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No blocks scheduled.</div>` : bucketEvents.map(evt => `
+                <div class="time-block-card ${evt.starred ? 'is-starred' : ''}">
+                  <div style="flex:1;">
+                    <div style="font-weight:700; font-size:0.85rem;">${evt.starred ? '⭐ ' : ''}${escapeHtml(evt.title)}</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
+                      ${evt.startTime ? `${evt.startTime} ${evt.endTime ? '- ' + evt.endTime : ''} | ` : ''}${evt.project || 'General'}
+                    </div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem;" onclick="openCalendarEventModal('${evt.id}')">Edit</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      area.innerHTML = html;
     }
 
     function toggleCalendarSplitView() {
@@ -1211,35 +1028,174 @@
       renderScheduleCalendar();
     }
 
-    const PRESET_COLORS = ['#e8f5e9', '#f3e8ff', '#fff3e0', '#e0f7fa', '#ffebee', '#f1f5f9'];
-    function getRandomColor() { return PRESET_COLORS[Math.floor(Math.random() * PRESET_COLORS.length)]; }
-
-    function switchTab(tab, element) {
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-      
-      const targets = document.querySelectorAll(`[onclick*="'${tab}'"]`);
-      targets.forEach(t => t.classList.add('active'));
-
-      document.getElementById(`sec-${tab}`).classList.add('active');
-
-      const mainContainer = document.getElementById('main-scroll-container');
-      if (mainContainer) mainContainer.scrollTop = 0;
-
-      if (tab === 'calendar') renderScheduleCalendar();
-      if (tab === 'reports') renderReports();
+    function openCalendarEventModal(eventId = null) {
+      updateProjectDropdowns();
+      const delBtn = document.getElementById('cal-delete-btn');
+      if (eventId) {
+        const evt = (appData.calendarEvents || []).find(e => e.id === eventId);
+        if (evt) {
+          document.getElementById('cal-edit-id').value = evt.id;
+          document.getElementById('cal-title').value = evt.title;
+          document.getElementById('cal-desc').value = evt.description || '';
+          document.getElementById('cal-date').value = evt.date;
+          document.getElementById('cal-bucket-select').value = evt.bucket || 'auto';
+          document.getElementById('cal-start-time').value = evt.startTime || '';
+          document.getElementById('cal-end-time').value = evt.endTime || '';
+          document.getElementById('cal-project-select').value = evt.project || '';
+          document.getElementById('cal-starred').checked = !!evt.starred;
+          delBtn.style.display = 'inline-flex';
+        }
+      } else {
+        document.getElementById('cal-edit-id').value = '';
+        document.getElementById('cal-title').value = '';
+        document.getElementById('cal-desc').value = '';
+        document.getElementById('cal-date').value = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
+        document.getElementById('cal-bucket-select').value = 'auto';
+        document.getElementById('cal-start-time').value = '';
+        document.getElementById('cal-end-time').value = '';
+        document.getElementById('cal-starred').checked = false;
+        delBtn.style.display = 'none';
+      }
+      document.getElementById('calendar-modal').style.display = 'flex';
     }
 
-    function handleSearchInput() {
-      const val = document.getElementById('search-input').value;
-      document.getElementById('clear-search-btn').style.display = val ? 'block' : 'none';
-      renderTasks();
+    function saveCalendarEvent() {
+      const editId = document.getElementById('cal-edit-id').value;
+      const title = document.getElementById('cal-title').value.trim();
+      if (!title) return;
+
+      const date = document.getElementById('cal-date').value || formatDateLocal(new Date());
+      const bucket = document.getElementById('cal-bucket-select').value;
+      const startTime = document.getElementById('cal-start-time').value;
+      const endTime = document.getElementById('cal-end-time').value;
+      const project = document.getElementById('cal-project-select').value;
+      const starred = document.getElementById('cal-starred').checked;
+
+      if (!appData.calendarEvents) appData.calendarEvents = [];
+
+      if (editId) {
+        const evt = appData.calendarEvents.find(e => e.id === editId);
+        if (evt) {
+          evt.title = title;
+          evt.description = document.getElementById('cal-desc').value;
+          evt.date = date;
+          evt.bucket = bucket;
+          evt.startTime = startTime;
+          evt.endTime = endTime;
+          evt.project = project;
+          evt.starred = starred;
+        }
+      } else {
+        appData.calendarEvents.push({ id: 'cal_' + Date.now(), title, description: document.getElementById('cal-desc').value, date, bucket, startTime, endTime, project, starred });
+      }
+
+      saveData();
+      closeModal('calendar-modal');
+      renderScheduleCalendar();
     }
 
-    function clearSearch() {
-      document.getElementById('search-input').value = '';
-      document.getElementById('clear-search-btn').style.display = 'none';
-      renderTasks();
+    function deleteCalendarEvent() {
+      const editId = document.getElementById('cal-edit-id').value;
+      if (editId && confirm("Delete this scheduled block?")) {
+        appData.calendarEvents = (appData.calendarEvents || []).filter(e => e.id !== editId);
+        saveData();
+        closeModal('calendar-modal');
+        renderScheduleCalendar();
+      }
+    }
+
+    /* FOCUS DESK HUD ENGINE */
+    function openDeskHud() {
+      document.getElementById('hud-project-title').innerText = trackingState.targetProj.toUpperCase();
+      document.getElementById('hud-clock-text').innerText = formatTime(trackingState.accumulatedSec);
+      document.getElementById('desk-hud').style.display = 'flex';
+    }
+    function closeDeskHud() { document.getElementById('desk-hud').style.display = 'none'; }
+
+    function toggleGlobalTracking() {
+      const btn = document.getElementById('hud-pause-text');
+      if (!trackingState.isRunning) {
+        trackingState.isRunning = true;
+        trackingState.isPaused = false;
+        trackingState.lastTickTime = Date.now();
+        trackingState.timerId = setInterval(() => {
+          if (!trackingState.isRunning || trackingState.isPaused) return;
+          const now = Date.now();
+          const delta = Math.floor((now - trackingState.lastTickTime) / 1000);
+          if (delta > 0) {
+            trackingState.accumulatedSec += delta;
+            trackingState.lastTickTime = now;
+          }
+          document.getElementById('hud-clock-text').innerText = formatTime(trackingState.accumulatedSec);
+        }, 1000);
+        btn.innerText = '⏸ Pause';
+      } else if (trackingState.isRunning && !trackingState.isPaused) {
+        trackingState.isPaused = true;
+        btn.innerText = '▶ Resume';
+      } else {
+        trackingState.isPaused = false;
+        trackingState.lastTickTime = Date.now();
+        btn.innerText = '⏸ Pause';
+      }
+    }
+
+    function addFiveMinsToTracking() {
+      trackingState.accumulatedSec += 300;
+      document.getElementById('hud-clock-text').innerText = formatTime(trackingState.accumulatedSec);
+    }
+
+    function stopAndSaveTracking() {
+      if (!trackingState.isRunning && trackingState.accumulatedSec === 0) return;
+      clearInterval(trackingState.timerId);
+      const proj = trackingState.targetProj || 'General';
+      if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
+      appData.manualProjectTimes[proj] = (appData.manualProjectTimes[proj] || 0) + trackingState.accumulatedSec;
+
+      const savedSec = trackingState.accumulatedSec;
+      trackingState.isRunning = false;
+      trackingState.isPaused = false;
+      trackingState.accumulatedSec = 0;
+      trackingState.timerId = null;
+
+      document.getElementById('hud-pause-text').innerText = '▶ Start Focus';
+      document.getElementById('hud-clock-text').innerText = '00:00:00';
+      saveData();
+      closeDeskHud();
+      renderReports();
+      alert(`Saved ${formatTime(savedSec)} to ${proj}!`);
+    }
+
+    /* ==========================================================================
+       PROJECT MANAGER, REPORTS & HELPERS
+       ========================================================================== */
+    function openProfileModal() {
+      document.getElementById('hide-completed-toggle').checked = !!appData.hideCompleted;
+      document.getElementById('profile-modal').style.display = 'flex';
+    }
+
+    function toggleHideCompleted() {
+      appData.hideCompleted = document.getElementById('hide-completed-toggle').checked;
+      saveData();
+      renderRemindersBoard();
+    }
+
+    function clearCompletedTasks() {
+      if (confirm("Delete all completed tasks?")) {
+        appData.tasks = appData.tasks.filter(t => !t.completed && t.status !== 'done');
+        saveData();
+        closeModal('profile-modal');
+        renderRemindersBoard();
+      }
+    }
+
+    function exportData() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", `onespace_backup_${Date.now()}.json`);
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     }
 
     function openProjectManagerModal() {
@@ -1250,1150 +1206,123 @@
     function createLocalProject() {
       const name = document.getElementById('new-local-proj-name').value.trim();
       const color = document.getElementById('new-local-proj-color').value;
-
       if (name) {
         appData.projectColors[name] = color;
         saveData();
         document.getElementById('new-local-proj-name').value = '';
         renderProjectManagerList();
         updateProjectDropdowns();
-        renderTagFilters();
-        renderTasks();
+        renderRemindersBoard();
       }
-    }
-
-    async function addAndSyncNewGithubProject() {
-      const projTitle = document.getElementById('new-gh-proj-title').value.trim();
-      if (!projTitle) return;
-
-      if (!appData.ghToken || !appData.ghOrg) {
-        alert("Please configure your GitHub Access Token and Org Name in Profile Settings (👤) first.");
-        openProfileModal();
-        return;
-      }
-
-      await syncGithubProjectByName(projTitle);
-      document.getElementById('new-gh-proj-title').value = '';
-      renderProjectManagerList();
     }
 
     function deleteProject(projName) {
-      if (confirm(`Are you sure you want to delete project '${projName}' and remove its associated tasks?`)) {
+      if (confirm(`Delete project "${projName}"? Associated tasks will be removed.`)) {
         appData.tasks = appData.tasks.filter(t => t.project !== projName);
         delete appData.projectColors[projName];
         delete appData.projectLimits[projName];
         delete appData.manualProjectTimes[projName];
-        if (appData.projectSyncColumns) delete appData.projectSyncColumns[projName];
-
         saveData();
         renderProjectManagerList();
         updateProjectDropdowns();
-        renderTagFilters();
-        renderTasks();
+        renderRemindersBoard();
         renderReports();
       }
-    }
-
-    /* PERSISTENT COLUMN CONFIGURATION PER PROJECT */
-    let currentConfiguringProj = null;
-
-    async function openProjectColumnConfig(projName) {
-      currentConfiguringProj = projName;
-      document.getElementById('col-modal-proj-title').innerText = `Columns: ${projName}`;
-
-      const container = document.getElementById('col-modal-options-wrapper');
-      container.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">Fetching available columns from GitHub...</div>`;
-      document.getElementById('project-columns-modal').style.display = 'flex';
-
-      try {
-        const graphqlQuery = {
-          query: `
-            query($org: String!, $searchTitle: String!) {
-              organization(login: $org) {
-                projectsV2(first: 10, query: $searchTitle) {
-                  nodes {
-                    title
-                    fields(first: 20) {
-                      nodes {
-                        ... on ProjectV2SingleSelectField {
-                          name
-                          options { name }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          `,
-          variables: { org: appData.ghOrg, searchTitle: projName }
-        };
-
-        const res = await fetch('https://api.github.com/graphql', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${appData.ghToken}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(graphqlQuery)
-        });
-
-        const json = await res.json();
-        const projects = json.data?.organization?.projectsV2?.nodes || [];
-        const foundBoard = projects.find(p => p.title.toLowerCase().includes(projName.toLowerCase()));
-
-        const statusField = (foundBoard?.fields?.nodes || []).find(f => f.name && f.name.toLowerCase() === 'status');
-        const availableOptions = statusField?.options?.map(o => o.name) || ['In Progress', 'Todo', 'Leads', 'Done'];
-
-        const savedCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress'];
-
-        container.innerHTML = '';
-        availableOptions.forEach(opt => {
-          const normOpt = opt.toLowerCase().replace(/[\s_-]+/g, '');
-          const isChecked = savedCols.some(sc => sc.toLowerCase().replace(/[\s_-]+/g, '') === normOpt);
-
-          const label = document.createElement('label');
-          label.className = 'toggle-label';
-          label.style.cssText = "display:flex; align-items:center; gap:10px; padding:8px 12px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); cursor:pointer;";
-          label.innerHTML = `
-            <input type="checkbox" class="proj-col-chk" value="${escapeHtml(opt)}" ${isChecked ? 'checked' : ''}>
-            <span style="font-weight:700; font-size:0.85rem;">${escapeHtml(opt)}</span>
-          `;
-          container.appendChild(label);
-        });
-
-      } catch(err) {
-        container.innerHTML = `<div style="font-size:0.8rem; color:#ef4444;">Error loading columns: ${escapeHtml(err.message)}</div>`;
-      }
-    }
-
-    function saveProjectColumnSettings() {
-      if (!currentConfiguringProj) return;
-
-      const checkedCols = Array.from(document.querySelectorAll('.proj-col-chk:checked')).map(c => c.value);
-      if (!appData.projectSyncColumns) appData.projectSyncColumns = {};
-      appData.projectSyncColumns[currentConfiguringProj] = checkedCols;
-
-      saveData();
-      closeModal('project-columns-modal');
-      alert(`Updated sync columns for '${currentConfiguringProj}'!`);
     }
 
     function renderProjectManagerList() {
       const wrapper = document.getElementById('project-list-wrapper');
       wrapper.innerHTML = '';
-
-      const allProjects = Array.from(new Set([
-        ...Object.keys(appData.projectColors || {}),
-        ...appData.tasks.map(t => t.project).filter(Boolean)
-      ])).filter(p => p !== 'Unscheduled');
-
+      const allProjects = Object.keys(appData.projectColors || {});
       if (allProjects.length === 0) {
         wrapper.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">No projects added yet.</div>`;
         return;
       }
-
       allProjects.forEach(proj => {
         const color = appData.projectColors[proj] || '#e2e8f0';
         const taskCount = appData.tasks.filter(t => t.project === proj).length;
-
         const item = document.createElement('div');
-        item.className = 'project-mgr-item';
+        item.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm);";
         item.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span style="width:12px; height:12px; border-radius:50%; background:${color}; display:inline-block;"></span>
-              <span style="font-weight:700; font-size:0.88rem;">${escapeHtml(proj)}</span>
-              <span style="font-size:0.72rem; color:var(--text-muted);">(${taskCount} tasks)</span>
-            </div>
-            <div class="flex-gap">
-              <button class="btn btn-secondary btn-sm" onclick="openProjectColumnConfig('${escapeHtml(proj)}')">⚙️ Columns</button>
-              <button class="btn btn-secondary btn-sm" onclick="syncGithubProjectByName('${escapeHtml(proj)}')">↻ Sync</button>
-              <button class="btn btn-danger btn-sm" onclick="deleteProject('${escapeHtml(proj)}')">Delete</button>
-            </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="width:12px; height:12px; border-radius:50%; background:${color};"></span>
+            <span style="font-weight:700; font-size:0.85rem;">${escapeHtml(proj)}</span>
+            <span style="font-size:0.7rem; color:var(--text-muted);">(${taskCount} tasks)</span>
           </div>
+          <button class="btn btn-danger btn-sm" onclick="deleteProject('${escapeHtml(proj)}')">Delete</button>
         `;
         wrapper.appendChild(item);
       });
     }
 
-    /* GITHUB SYNC ENGINE WITH subIssues(first: 100) */
-    async function resyncSelectedProject() {
-      const targetProj = document.getElementById('task-project-filter').value;
-      const isAll = !targetProj || targetProj === 'ALL' || targetProj.toUpperCase() === 'ALL PROJECTS';
-      if (isAll) {
-        alert("Please tap the project title to select a project to sync.");
-        return;
-      }
-      await syncGithubProjectByName(targetProj);
+    function updateProjectDropdowns() {
+      const taskProj = document.getElementById('task-project-filter');
+      const calProj = document.getElementById('cal-project-select');
+      const mProj = document.getElementById('m-project-select');
+      const lProj = document.getElementById('p-limit-project-select');
+
+      const allProjects = Object.keys(appData.projectColors || {});
+      const curr = taskProj.value || 'ALL';
+
+      let taskOpts = '<option value="ALL">ALL PROJECTS</option>';
+      let genericOpts = '';
+
+      allProjects.forEach(p => {
+        taskOpts += `<option value="${escapeHtml(p)}">${escapeHtml(p.toUpperCase())}</option>`;
+        genericOpts += `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`;
+      });
+
+      taskProj.innerHTML = taskOpts;
+      taskProj.value = curr;
+      if (calProj) calProj.innerHTML = '<option value="">None</option>' + genericOpts;
+      if (mProj) mProj.innerHTML = genericOpts;
+      if (lProj) lProj.innerHTML = genericOpts;
     }
 
-    async function syncGithubProjectByName(projName) {
-      if (!appData.ghToken || !appData.ghOrg) {
-        openProfileModal();
-        alert("Please configure your GitHub Access Token and Org Name in Profile Settings (👤) first.");
-        return;
-      }
-
-      const resyncBtn = document.getElementById('resync-btn');
-      if (resyncBtn) resyncBtn.innerText = '↻ Syncing...';
-
-      const configuredCols = (appData.projectSyncColumns && appData.projectSyncColumns[projName]) || ['in progress', 'in_progress'];
-      const normalizedTargetCols = configuredCols.map(c => c.toLowerCase().replace(/[\s_-]+/g, ''));
-
-      let allBoardItems = [];
-      let hasNextPage = true;
-      let endCursor = null;
-
-      try {
-        while (hasNextPage) {
-          const graphqlQuery = {
-            query: `
-              query($org: String!, $searchTitle: String!, $afterCursor: String) {
-                organization(login: $org) {
-                  projectsV2(first: 10, query: $searchTitle) {
-                    nodes {
-                      id
-                      title
-                      items(first: 100, after: $afterCursor) {
-                        pageInfo {
-                          hasNextPage
-                          endCursor
-                        }
-                        nodes {
-                          id
-                          fieldValues(first: 20) {
-                            nodes {
-                              ... on ProjectV2ItemFieldSingleSelectValue {
-                                name
-                                optionId
-                                field { ... on ProjectV2SingleSelectField { name } }
-                              }
-                              ... on ProjectV2ItemFieldTextValue {
-                                text
-                                field { ... on ProjectV2Field { name } }
-                              }
-                            }
-                          }
-                          content {
-                            ... on Issue {
-                              id
-                              title
-                              body
-                              url
-                              state
-                              labels(first: 10) { nodes { name } }
-                              subIssues(first: 100) {
-                                nodes {
-                                  id
-                                  title
-                                  body
-                                  state
-                                }
-                              }
-                            }
-                            ... on DraftIssue {
-                              id
-                              title
-                              body
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            `,
-            variables: { org: appData.ghOrg, searchTitle: projName, afterCursor: endCursor }
-          };
-
-          const res = await fetch('https://api.github.com/graphql', {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${appData.ghToken}`,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(graphqlQuery)
-          });
-
-          const json = await res.json();
-          if (json.errors) throw new Error(json.errors[0].message);
-
-          const projects = json.data?.organization?.projectsV2?.nodes || [];
-          const foundBoard = projects.find(p => p.title.toLowerCase().includes(projName.toLowerCase()));
-
-          if (!foundBoard) throw new Error(`Project board matching '${projName}' not found on GitHub.`);
-
-          const itemsData = foundBoard.items;
-          const pageNodes = itemsData.nodes || [];
-          allBoardItems.push(...pageNodes);
-
-          hasNextPage = itemsData.pageInfo?.hasNextPage || false;
-          endCursor = itemsData.pageInfo?.endCursor || null;
-        }
-
-        if (!appData.projectColors[projName]) {
-          appData.projectColors[projName] = getRandomColor();
-        }
-
-        const itemCardMetaMap = {};
-
-        allBoardItems.forEach(item => {
-          if (!item.content || !item.content.title) return;
-          const cardTitleNorm = item.content.title.trim().toLowerCase();
-
-          let cardTags = [];
-          let cardLink = null;
-
-          (item.fieldValues?.nodes || []).forEach(fv => {
-            const fieldName = fv.field?.name?.toLowerCase() || '';
-
-            if (fieldName === 'tags') {
-              const rawVal = fv.name || fv.text || '';
-              if (rawVal) {
-                cardTags = rawVal.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
-              }
-            }
-            if (fieldName === 'link') {
-              cardLink = fv.text || fv.name || null;
-            }
-          });
-
-          itemCardMetaMap[cardTitleNorm] = { tags: cardTags, link: cardLink };
-        });
-
-        let count = 0;
-
-        allBoardItems.forEach(item => {
-          if (!item.content || !item.content.title) return;
-
-          let itemStatus = '';
-          let customTags = [];
-          let customLink = null;
-
-          (item.fieldValues?.nodes || []).forEach(fv => {
-            const fieldName = fv.field?.name?.toLowerCase() || '';
-
-            if (fieldName === 'status' && fv.name) {
-              itemStatus = fv.name.toLowerCase().replace(/[\s_-]+/g, '');
-            }
-            if (fieldName === 'tags') {
-              const rawVal = fv.name || fv.text || '';
-              if (rawVal) {
-                customTags = rawVal.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
-              }
-            }
-            if (fieldName === 'link') {
-              customLink = fv.text || fv.name || null;
-            }
-          });
-
-          if (normalizedTargetCols.includes(itemStatus)) {
-            const title = item.content.title;
-            const bodyText = item.content.body || '';
-            const githubUrl = item.content.url || null;
-
-            const subtasks = [];
-
-            if (item.content.subIssues && item.content.subIssues.nodes) {
-              item.content.subIssues.nodes.forEach(sub => {
-                const subTitleNorm = sub.title.trim().toLowerCase();
-                const subMeta = itemCardMetaMap[subTitleNorm] || {};
-
-                const resolvedSubTags = (subMeta.tags && subMeta.tags.length > 0) ? subMeta.tags : customTags;
-                const resolvedSubLink = subMeta.link || customLink;
-
-                resolvedSubTags.forEach(st => { if (!appData.tagColors[st]) appData.tagColors[st] = getRandomColor(); });
-
-                subtasks.push({
-                  id: 'sub_' + Date.now() + Math.random(),
-                  title: sub.title,
-                  description: sub.body || '',
-                  tags: resolvedSubTags,
-                  customUrl: resolvedSubLink,
-                  completed: sub.state === 'CLOSED'
-                });
-              });
-            }
-
-            const checklistRegex = /- \[(x| )\] (.*)/g;
-            let match;
-            while ((match = checklistRegex.exec(bodyText)) !== null) {
-              subtasks.push({
-                id: 'sub_' + Date.now() + Math.random(),
-                title: match[2].trim(),
-                description: '',
-                tags: customTags,
-                customUrl: customLink,
-                completed: match[1] === 'x'
-              });
-            }
-
-            const rawLabels = (item.content.labels?.nodes || []).map(l => l.name.toLowerCase());
-            const combinedTaskTags = Array.from(new Set([...rawLabels, ...customTags]));
-
-            combinedTaskTags.forEach(t => { if (!appData.tagColors[t]) appData.tagColors[t] = getRandomColor(); });
-
-            let existingTask = appData.tasks.find(t => t.title === title && t.project && t.project.trim().toLowerCase() === projName.trim().toLowerCase());
-            if (!existingTask) {
-              appData.tasks.push({
-                id: 'task_' + Date.now() + Math.random(),
-                title,
-                description: bodyText ? bodyText.slice(0, 250) + '...' : '',
-                project: projName,
-                tags: combinedTaskTags,
-                githubUrl: githubUrl,
-                customUrl: customLink,
-                dependsOn: null,
-                completed: false,
-                subtasks,
-                timeSpent: 0
-              });
-              count++;
-            } else {
-              existingTask.subtasks = subtasks;
-              existingTask.githubUrl = githubUrl;
-              existingTask.customUrl = customLink;
-              existingTask.tags = combinedTaskTags;
-            }
-          }
-        });
-
-        saveData();
-        updateProjectDropdowns();
-        renderTagFilters();
-        renderTasks();
-        alert(`Synced '${projName}'! Fetched ${count} target items.`);
-
-      } catch(err) {
-        alert("Sync Error: " + err.message);
-      } finally {
-        if (resyncBtn) resyncBtn.innerText = '↻ Sync';
-      }
-    }
-
-    function filterTasksByProjectSelect() { 
+    function filterTasksByProjectSelect() {
       selectedFilterTags.clear();
       renderTagFilters();
-      renderTasks(); 
+      renderRemindersBoard();
     }
 
-    function toggleTaskMenu(menuId, e) {
-      e.stopPropagation();
-      
-      document.querySelectorAll('.task-menu-dropdown').forEach(m => {
-        if (m.id !== menuId) {
-          m.style.display = 'none';
-          const parentCard = m.closest('.task-card');
-          if (parentCard) parentCard.classList.remove('has-open-menu');
-        }
-      });
-
-      const m = document.getElementById(menuId);
-      if (m) {
-        const isOpening = m.style.display !== 'flex';
-        m.style.display = isOpening ? 'flex' : 'none';
-        
-        const parentCard = m.closest('.task-card');
-        if (parentCard) {
-          if (isOpening) parentCard.classList.add('has-open-menu');
-          else parentCard.classList.remove('has-open-menu');
-        }
-      }
-    }
-
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.task-menu-dropdown').forEach(m => m.style.display = 'none');
-      document.querySelectorAll('.task-card').forEach(card => card.classList.remove('has-open-menu'));
-    });
-
-    function toggleCollapseTask(taskId) {
-      if (!appData.collapsedTasks) appData.collapsedTasks = {};
-      appData.collapsedTasks[taskId] = !appData.collapsedTasks[taskId];
-      saveData();
-      renderTasks();
-    }
-
-    function openTaskModal(taskId = null) {
-      const depSelect = document.getElementById('t-dep');
-      depSelect.innerHTML = '<option value="">None</option>';
-      
-      appData.tasks.forEach(t => {
-        if (t.id !== taskId) depSelect.innerHTML += `<option value="${t.id}">${escapeHtml(t.title)}</option>`;
-      });
-
-      const selectedProjFilter = document.getElementById('task-project-filter').value;
-      const isAll = !selectedProjFilter || selectedProjFilter === 'ALL' || selectedProjFilter.toUpperCase() === 'ALL PROJECTS';
-
-      if (taskId) {
-        const task = appData.tasks.find(t => t.id === taskId);
-        document.getElementById('modal-title').innerText = 'Edit Task';
-        document.getElementById('edit-task-id').value = task.id;
-        document.getElementById('t-title').value = task.title;
-        document.getElementById('t-desc').value = task.description || '';
-        document.getElementById('t-project').value = task.project || '';
-        document.getElementById('t-project-color').value = appData.projectColors[task.project] || '#e2e8f0';
-        document.getElementById('t-tags').value = task.tags ? task.tags.join(', ') : '';
-        document.getElementById('t-dep').value = task.dependsOn || '';
-      } else {
-        document.getElementById('modal-title').innerText = 'Create Task';
-        document.getElementById('edit-task-id').value = '';
-        document.getElementById('t-title').value = '';
-        document.getElementById('t-desc').value = '';
-        
-        if (!isAll) {
-          document.getElementById('t-project').value = selectedProjFilter;
-          document.getElementById('t-project-color').value = appData.projectColors[selectedProjFilter] || '#e2e8f0';
-        } else {
-          document.getElementById('t-project').value = '';
-        }
-
-        document.getElementById('t-tags').value = '';
-        document.getElementById('t-dep').value = '';
-      }
-
-      document.getElementById('task-modal').style.display = 'flex';
-    }
-
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-    function saveTask() {
-      const title = document.getElementById('t-title').value.trim();
-      if (!title) return;
-
-      const editId = document.getElementById('edit-task-id').value;
-      const project = document.getElementById('t-project').value.trim();
-      const projColor = document.getElementById('t-project-color').value;
-      const tags = document.getElementById('t-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
-      const dependsOn = document.getElementById('t-dep').value;
-
-      if (project) appData.projectColors[project] = projColor;
-      tags.forEach(tag => { if (!appData.tagColors[tag]) appData.tagColors[tag] = getRandomColor(); });
-
-      if (editId) {
-        const task = appData.tasks.find(t => t.id === editId);
-        if (task) {
-          task.title = title;
-          task.description = document.getElementById('t-desc').value;
-          task.project = project;
-          task.tags = tags;
-          task.dependsOn = dependsOn || null;
-        }
-      } else {
-        appData.tasks.push({
-          id: 'task_' + Date.now(),
-          title,
-          description: document.getElementById('t-desc').value,
-          project,
-          tags,
-          dependsOn: dependsOn || null,
-          completed: false,
-          subtasks: [],
-          timeSpent: 0
-        });
-      }
-
-      saveData();
-      closeModal('task-modal');
-      updateProjectDropdowns();
-      renderTagFilters();
-      renderTasks();
-    }
-
-    function toggleTaskComplete(taskId) {
-      const task = appData.tasks.find(t => t.id === taskId);
-      if (task) {
-        task.completed = !task.completed;
-        saveData();
-        renderTasks();
-      }
-    }
-
-    function deleteTask(id) {
-      appData.tasks = appData.tasks.filter(t => t.id !== id);
-      saveData();
-      updateProjectDropdowns();
-      renderTagFilters();
-      renderTasks();
-    }
-
-    function openSubtaskModal(parentTaskId, subId = null) {
-      document.getElementById('sub-parent-task-id').value = parentTaskId;
-      document.getElementById('sub-edit-id').value = subId || '';
-
-      if (subId) {
-        const task = appData.tasks.find(t => t.id === parentTaskId);
-        const sub = task ? task.subtasks.find(s => s.id === subId) : null;
-        if (sub) {
-          document.getElementById('submodal-title').innerText = 'Edit Subtask';
-          document.getElementById('sub-title').value = sub.title;
-          document.getElementById('sub-desc').value = sub.description || '';
-          document.getElementById('sub-tags').value = sub.tags ? sub.tags.join(', ') : '';
-          document.getElementById('sub-custom-url').value = sub.customUrl || '';
-        }
-      } else {
-        document.getElementById('submodal-title').innerText = 'Add Subtask';
-        document.getElementById('sub-title').value = '';
-        document.getElementById('sub-desc').value = '';
-        document.getElementById('sub-tags').value = '';
-        document.getElementById('sub-custom-url').value = '';
-      }
-
-      document.getElementById('subtask-modal').style.display = 'flex';
-    }
-
-    function saveSubtask() {
-      const parentTaskId = document.getElementById('sub-parent-task-id').value;
-      const subId = document.getElementById('sub-edit-id').value;
-      const title = document.getElementById('sub-title').value.trim();
-      if (!title) return;
-
-      const desc = document.getElementById('sub-desc').value;
-      const customUrl = document.getElementById('sub-custom-url').value.trim();
-      const tags = document.getElementById('sub-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
-      tags.forEach(tag => { if (!appData.tagColors[tag]) appData.tagColors[tag] = getRandomColor(); });
-
-      const task = appData.tasks.find(t => t.id === parentTaskId);
-      if (task) {
-        if (subId) {
-          const sub = task.subtasks.find(s => s.id === subId);
-          if (sub) { 
-            sub.title = title; 
-            sub.description = desc; 
-            sub.tags = tags; 
-            sub.customUrl = customUrl || null;
-          }
-        } else {
-          task.subtasks.push({ id: 'sub_' + Date.now(), title, description: desc, tags, customUrl: customUrl || null, completed: false });
-        }
-        saveData();
-        closeModal('subtask-modal');
-        renderTagFilters();
-        renderTasks();
-      }
-    }
-
-    function toggleSubtask(taskId, subId) {
-      const task = appData.tasks.find(t => t.id === taskId);
-      if (task) {
-        const sub = task.subtasks.find(s => s.id === subId);
-        if (sub) sub.completed = !sub.completed;
-        saveData();
-        renderTasks();
-      }
-    }
-
-    function deleteSubtask(taskId, subId) {
-      const task = appData.tasks.find(t => t.id === taskId);
-      if (task) {
-        task.subtasks = task.subtasks.filter(s => s.id !== subId);
-        saveData();
-        renderTagFilters();
-        renderTasks();
-      }
-    }
-
-    function scheduleTaskToCalendar(taskTitle, taskProject, taskDesc = '') {
-      openCalendarEventModal(null, 'meeting');
-      document.getElementById('cal-title').value = taskTitle;
-      document.getElementById('cal-desc').value = taskDesc || '';
-      document.getElementById('cal-project-select').value = taskProject || '';
-      const activeCalDate = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
-      document.getElementById('cal-date').value = activeCalDate;
-    }
-
-    function toggleDayChip(checkboxElem) {
-      const chip = checkboxElem.closest('.day-chip-label');
-      if (checkboxElem.checked) chip.classList.add('selected');
-      else chip.classList.remove('selected');
-    }
-
-    function openCalendarEventModal(eventId = null, blockType = 'meeting') {
-      updateProjectDropdowns();
-      const delBtn = document.getElementById('cal-delete-btn');
-      
-      document.querySelectorAll('.day-chip-label').forEach(lbl => {
-        lbl.classList.remove('selected');
-        lbl.querySelector('input').checked = false;
-      });
-
-      document.getElementById('cal-modal-title').innerText = eventId ? 'Edit Event' : 'Add Event';
-
-      if (eventId) {
-        const evt = (appData.calendarEvents || []).find(e => e.id === eventId);
-        if (evt) {
-          document.getElementById('cal-edit-id').value = evt.id;
-          document.getElementById('cal-title').value = evt.title;
-          document.getElementById('cal-desc').value = evt.description || '';
-          document.getElementById('cal-date').value = evt.date ? evt.date.split('T')[0] : formatDateLocal(new Date());
-          document.getElementById('cal-bucket-select').value = evt.bucket || getEventBucket(evt);
-          document.getElementById('cal-start-time').value = evt.startTime || '';
-          document.getElementById('cal-end-time').value = evt.endTime || '';
-          document.getElementById('cal-project-select').value = evt.project || '';
-          document.getElementById('cal-starred').checked = !!evt.starred;
-
-          if (evt.recurringDays) {
-            evt.recurringDays.forEach(dNum => {
-              const chip = document.getElementById(`day-chip-${dNum}`);
-              if (chip) {
-                chip.classList.add('selected');
-                chip.querySelector('input').checked = true;
-              }
-            });
-          }
-          delBtn.style.display = 'inline-flex';
-        }
-      } else {
-        document.getElementById('cal-edit-id').value = '';
-        document.getElementById('cal-title').value = '';
-        document.getElementById('cal-desc').value = '';
-        const dateVal = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
-        document.getElementById('cal-date').value = dateVal;
-        document.getElementById('cal-bucket-select').value = 'auto';
-        document.getElementById('cal-start-time').value = '';
-        document.getElementById('cal-end-time').value = '';
-        document.getElementById('cal-starred').checked = false;
-        delBtn.style.display = 'none';
-      }
-
-      document.getElementById('calendar-modal').style.display = 'flex';
-    }
-
-    function saveCalendarEvent() {
-      const editId = document.getElementById('cal-edit-id').value;
-      const title = document.getElementById('cal-title').value.trim();
-      const desc = document.getElementById('cal-desc').value.trim();
-      const rawDate = document.getElementById('cal-date').value;
-      const date = rawDate ? rawDate.split('T')[0] : formatDateLocal(new Date());
-      const rawBucket = document.getElementById('cal-bucket-select').value;
-      const startTime = document.getElementById('cal-start-time').value.trim();
-      const endTime = document.getElementById('cal-end-time').value.trim();
-      const project = document.getElementById('cal-project-select').value;
-      const starred = document.getElementById('cal-starred').checked;
-
-      let bucket = rawBucket;
-      if (bucket === 'auto') {
-        if (startTime) {
-          const startH = parseInt(startTime.split(':')[0], 10);
-          if (startH < 12) bucket = 'morning';
-          else if (startH < 16) bucket = 'afternoon';
-          else if (startH < 20) bucket = 'evening';
-          else bucket = 'others';
-        } else {
-          bucket = 'morning';
-        }
-      }
-
-      const selectedDays = [];
-      document.querySelectorAll('#meeting-recurring-days-box input:checked').forEach(chk => {
-        selectedDays.push(parseInt(chk.value, 10));
-      });
-
-      if (title) {
-        if (!appData.calendarEvents) appData.calendarEvents = [];
-
-        if (editId) {
-          const evt = appData.calendarEvents.find(e => e.id === editId);
-          if (evt) {
-            evt.title = title;
-            evt.description = desc;
-            evt.date = date;
-            evt.bucket = bucket;
-            evt.startTime = startTime;
-            evt.endTime = endTime;
-            evt.project = project;
-            evt.starred = starred;
-            evt.recurringDays = selectedDays;
-          }
-        } else {
-          appData.calendarEvents.push({ 
-            id: 'cal_' + Date.now(), 
-            title, 
-            description: desc, 
-            date, 
-            bucket,
-            startTime, 
-            endTime, 
-            project, 
-            starred,
-            recurringDays: selectedDays 
-          });
-        }
-
-        saveData();
-        closeModal('calendar-modal');
-        renderScheduleCalendar();
-      }
-    }
-
-    function deleteCalendarEvent() {
-      const editId = document.getElementById('cal-edit-id').value;
-      if (editId && confirm("Delete this scheduled event?")) {
-        appData.calendarEvents = (appData.calendarEvents || []).filter(e => e.id !== editId);
-        saveData();
-        closeModal('calendar-modal');
-        renderScheduleCalendar();
-      }
-    }
-
-    function jumpToSpecificTask(taskTitle, projName) {
-      const tasksBtn = document.querySelectorAll('.nav-btn')[1];
-      switchTab('tasks', tasksBtn);
-      
-      document.getElementById('task-project-filter').value = 'ALL';
-      
-      if (taskTitle) {
-        const searchInput = document.getElementById('search-input');
-        searchInput.value = taskTitle;
-        document.getElementById('clear-search-btn').style.display = 'block';
-      }
-
-      renderTagFilters();
-      renderTasks();
-    }
-
-    /* RENDER 4-BLOCK SCHEDULE BENTO GRID */
-    function renderSingleDayBuckets(targetDateStr) {
-      const cleanTargetDate = targetDateStr.split('T')[0];
-      const dateObj = new Date(cleanTargetDate + 'T00:00:00');
-      const dayOfWeek = dateObj.getDay();
-
-      const dayEvents = (appData.calendarEvents || []).filter(e => {
-        if (e.recurringDays && e.recurringDays.length > 0) {
-          return e.recurringDays.includes(dayOfWeek);
-        }
-        const eventCleanDate = e.date ? e.date.split('T')[0] : '';
-        return eventCleanDate === cleanTargetDate;
-      });
-
-      const buckets = [
-        { id: 'morning', title: '🌅 Morning', subtitle: 'Till 12 PM' },
-        { id: 'afternoon', title: '☀️ Afternoon', subtitle: '12 PM - 4 PM' },
-        { id: 'evening', title: '🌆 Evening', subtitle: '4 PM - 8 PM' },
-        { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards (Open)' }
-      ];
-
-      let html = '<div class="schedule-bucket-grid">';
-
-      buckets.forEach(b => {
-        const bucketEvents = dayEvents.filter(e => getEventBucket(e) === b.id);
-
-        html += `
-          <div class="schedule-bucket-card">
-            <div class="schedule-bucket-header">
-              <div class="schedule-bucket-title">${b.title}</div>
-              <div class="schedule-bucket-subtitle">${b.subtitle} (${bucketEvents.length})</div>
-            </div>
-            <div class="schedule-bucket-items">
-              ${bucketEvents.length === 0 ? `
-                <div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No items scheduled.</div>
-              ` : bucketEvents.map(evt => `
-                <div class="time-block-card ${evt.starred ? 'is-starred' : ''}">
-                  <div onclick="jumpToSpecificTask('${evt.title.replace(/'/g, "\\'")}', '${evt.project}')" style="flex:1;">
-                    <div style="font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:6px;">
-                      ${evt.starred ? '⭐ ' : ''}${escapeHtml(evt.title)}
-                    </div>
-                    ${evt.description ? `<div style="font-size:0.75rem; color:var(--text); margin-top:2px; font-style:italic;">${escapeHtml(evt.description)}</div>` : ''}
-                    <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:4px;">
-                      ${evt.startTime ? `${evt.startTime} ${evt.endTime ? '- ' + evt.endTime : ''} | ` : ''}${evt.project ? escapeHtml(evt.project) : 'General'}
-                    </div>
-                  </div>
-                  <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem; align-self:flex-start;" onclick="event.stopPropagation(); openCalendarEventModal('${evt.id}', '${evt.type || 'meeting'}')">Edit</button>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        `;
-      });
-
-      html += '</div>';
-      return html;
-    }
-
-    function renderScheduleCalendar() {
-      const viewInput = document.getElementById('cal-view-date');
-      if (!viewInput.value) {
-        viewInput.value = formatDateLocal(new Date());
-      }
-
-      document.getElementById('cal-split-toggle').checked = !!appData.isSplitView;
-
-      const dateStr = viewInput.value.split('T')[0];
-      const dateObj = new Date(dateStr + 'T00:00:00');
-      document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-
-      const area = document.getElementById('calendar-render-area');
-      area.innerHTML = '';
-
-      if (appData.isSplitView) {
-        const nextDayObj = new Date(dateObj);
-        nextDayObj.setDate(nextDayObj.getDate() + 1);
-        const nextDateStr = formatDateLocal(nextDayObj);
-
-        area.innerHTML = `
-          <div class="split-calendar-grid">
-            <div>
-              <div style="font-size:0.82rem; font-weight:800; margin-bottom:8px;">
-                ${dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-              </div>
-              <div>${renderSingleDayBuckets(dateStr)}</div>
-            </div>
-            <div>
-              <div style="font-size:0.82rem; font-weight:800; margin-bottom:8px;">
-                ${nextDayObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
-              </div>
-              <div>${renderSingleDayBuckets(nextDateStr)}</div>
-            </div>
-          </div>
-        `;
-      } else {
-        area.innerHTML = renderSingleDayBuckets(dateStr);
-      }
-    }
+    function handleSearchInput() { renderRemindersBoard(); }
 
     function renderTagFilters() {
       const container = document.getElementById('tag-filters');
       container.innerHTML = '';
-      
-      const selectedProject = document.getElementById('task-project-filter').value;
-      const isAllProjects = !selectedProject || selectedProject === 'ALL' || selectedProject.toUpperCase() === 'ALL PROJECTS';
-      const projectScopedTags = new Set();
-
-      appData.tasks.forEach(t => {
-        if (isAllProjects || (t.project && t.project.trim().toLowerCase() === selectedProject.trim().toLowerCase())) {
-          (t.tags || []).forEach(tag => projectScopedTags.add(tag));
-          (t.subtasks || []).forEach(sub => (sub.tags || []).forEach(tag => projectScopedTags.add(tag)));
-        }
-      });
-
-      if (projectScopedTags.size === 0) {
-        container.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted);">No tags for this project</span>`;
+      const tags = new Set();
+      appData.tasks.forEach(t => (t.tags || []).forEach(tg => tags.add(tg)));
+      if (tags.size === 0) {
+        container.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted);">No tags available</span>`;
         return;
       }
-
-      projectScopedTags.forEach(tag => {
+      tags.forEach(tg => {
         const chip = document.createElement('span');
-        chip.className = `filter-chip ${selectedFilterTags.has(tag) ? 'active' : ''}`;
-        chip.innerText = `#${tag}`;
+        chip.className = `filter-chip ${selectedFilterTags.has(tg) ? 'active' : ''}`;
+        chip.innerText = `#${tg}`;
         chip.onclick = () => {
-          if (selectedFilterTags.has(tag)) selectedFilterTags.delete(tag);
-          else selectedFilterTags.add(tag);
+          if (selectedFilterTags.has(tg)) selectedFilterTags.delete(tg);
+          else selectedFilterTags.add(tg);
           renderTagFilters();
-          renderTasks();
+          renderRemindersBoard();
         };
         container.appendChild(chip);
       });
     }
 
-    function renderTasks() {
-      const container = document.getElementById('task-container');
-      const searchQuery = document.getElementById('search-input').value.toLowerCase();
-      const selectedProjectFilter = document.getElementById('task-project-filter').value;
-      const isAllProjects = !selectedProjectFilter || selectedProjectFilter === 'ALL' || selectedProjectFilter.toUpperCase() === 'ALL PROJECTS';
-      
-      container.innerHTML = '';
-
-      let filtered = appData.tasks.filter(task => {
-        if (appData.hideCompleted && task.completed) return false;
-        
-        if (!isAllProjects) {
-          if (!task.project || task.project.trim().toLowerCase() !== selectedProjectFilter.trim().toLowerCase()) {
-            return false;
-          }
-        }
-
-        const matchesSearch = task.title.toLowerCase().includes(searchQuery) || 
-          (task.project && task.project.toLowerCase().includes(searchQuery)) ||
-          task.subtasks.some(s => s.title.toLowerCase().includes(searchQuery));
-
-        const taskTags = task.tags || [];
-        const subtaskTags = (task.subtasks || []).flatMap(s => s.tags || []);
-        const combinedTags = [...taskTags, ...subtaskTags];
-
-        const matchesTags = selectedFilterTags.size === 0 || 
-          Array.from(selectedFilterTags).every(t => combinedTags.includes(t));
-
-        return matchesSearch && matchesTags;
-      });
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<div style="text-align: center; color: var(--text-muted); padding: 30px 0; font-size: 0.88rem; font-weight:600;">No tasks found.</div>`;
-        return;
-      }
-
-      filtered.forEach(task => {
-        const totalSub = task.subtasks.length;
-        const doneSub = task.subtasks.filter(s => s.completed).length;
-        const progressPct = totalSub === 0 ? 0 : Math.round((doneSub / totalSub) * 100);
-        const projColor = appData.projectColors[task.project] || '#e8f5e9';
-        const isCollapsed = appData.collapsedTasks && appData.collapsedTasks[task.id];
-
-        const radius = 13;
-        const circumference = 2 * Math.PI * radius;
-        const strokeDashoffset = circumference - (progressPct / 100) * circumference;
-
-        const subtasksToDisplay = task.subtasks.filter(sub => {
-          if (selectedFilterTags.size === 0) return true;
-          const taskHasFilter = Array.from(selectedFilterTags).every(t => (task.tags || []).includes(t));
-          if (taskHasFilter) return true;
-          return Array.from(selectedFilterTags).every(t => (sub.tags || []).includes(t));
-        });
-
-        const escapedTitle = task.title.replace(/'/g, "\\'");
-        const escapedDesc = (task.description || '').replace(/'/g, "\\'").replace(/\n/g, ' ');
-
-        const card = document.createElement('div');
-        card.className = `task-card ${task.completed ? 'completed' : ''} ${isCollapsed ? 'collapsed' : ''}`;
-
-        card.innerHTML = `
-          <div class="task-header">
-            <button class="collapse-btn" onclick="toggleCollapseTask('${task.id}')">▼</button>
-
-            <div class="task-title">
-              <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTaskComplete('${task.id}')" style="width: 16px; height: 16px; cursor: pointer; flex-shrink: 0; margin-top: 2px; accent-color: var(--accent-primary);">
-              <span>
-                ${escapeHtml(task.title)}
-                ${task.customUrl ? `<a href="${escapeHtml(task.customUrl)}" target="_blank" style="text-decoration:none; margin-left:6px;" title="Apply / View Link">🔗</a>` : ''}
-              </span>
-            </div>
-            
-            <div style="display:flex; align-items:center; gap:8px; flex-shrink:0; position:relative;">
-              <div class="circular-progress-wrap" title="${doneSub}/${totalSub} subtasks completed (${progressPct}%)">
-                <svg viewBox="0 0 36 36">
-                  <circle class="circular-progress-bg" cx="18" cy="18" r="${radius}"></circle>
-                  <circle class="circular-progress-fill" cx="18" cy="18" r="${radius}" 
-                    stroke-dasharray="${circumference}" 
-                    stroke-dashoffset="${strokeDashoffset}"></circle>
-                </svg>
-                <span class="circular-progress-text">${progressPct}%</span>
-              </div>
-
-              <button class="btn btn-secondary btn-sm" onclick="toggleTaskMenu('menu-${task.id}', event)">⋮</button>
-              <div id="menu-${task.id}" class="task-menu-dropdown">
-                <button class="menu-item-btn" onclick="openTaskModal('${task.id}')">✏️ Edit</button>
-                <button class="menu-item-btn" onclick="scheduleTaskToCalendar('${escapedTitle}', '${task.project}', '${escapedDesc}')">📅 Schedule</button>
-                ${task.customUrl ? `<a href="${escapeHtml(task.customUrl)}" target="_blank" class="menu-item-btn">🔗 Open Job Link</a>` : ''}
-                ${task.githubUrl ? `<a href="${escapeHtml(task.githubUrl)}" target="_blank" class="menu-item-btn">🐙 Open GitHub</a>` : ''}
-                <button class="menu-item-btn danger" onclick="deleteTask('${task.id}')">🗑️ Delete</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="task-meta" style="margin-left: 26px;">
-            ${(isAllProjects && task.project) ? `<span class="pill" style="background:${projColor}; color:var(--text);">${escapeHtml(task.project)}</span>` : ''}
-            ${(task.tags || []).map(t => `<span class="pill pill-tag" style="background:${appData.tagColors[t] || '#f1f5f9'};">#${escapeHtml(t)}</span>`).join('')}
-          </div>
-
-          <div class="task-body" style="margin-top: 8px;">
-            ${task.description ? `<div style="font-size: 0.82rem; color: var(--text-muted); margin: 6px 0; line-height:1.4;">${escapeHtml(task.description)}</div>` : ''}
-
-            <div class="subtask-tree">
-              ${subtasksToDisplay.map(sub => `
-                <div class="subtask-card ${sub.completed ? 'completed' : ''}">
-                  <div class="subtask-grid">
-                    <input type="checkbox" ${sub.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${sub.id}')" style="cursor: pointer; margin-top: 2px; accent-color: var(--accent-primary);">
-                    
-                    <div class="sub-title-line">
-                      <span class="sub-title-text">${escapeHtml(sub.title)}</span>
-                      ${(sub.tags && sub.tags.length > 0) ? sub.tags.map(st => `<span class="pill pill-tag" style="background:${appData.tagColors[st] || '#f1f5f9'}; font-size: 0.65rem; padding: 1px 6px;">#${escapeHtml(st)}</span>`).join('') : ''}
-                      ${sub.customUrl ? `<a href="${escapeHtml(sub.customUrl)}" target="_blank" style="text-decoration:none;" title="Open Link">🔗</a>` : ''}
-                    </div>
-
-                    <div class="flex-gap">
-                      <button class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="openSubtaskModal('${task.id}', '${sub.id}')">Edit</button>
-                      <button class="btn btn-secondary btn-sm" style="padding: 2px 6px; font-size: 0.7rem;" onclick="deleteSubtask('${task.id}', '${sub.id}')">✕</button>
-                    </div>
-                  </div>
-
-                  ${sub.description ? `
-                    <details class="sub-accordion">
-                      <summary>Description</summary>
-                      <div class="sub-accordion-content">${escapeHtml(sub.description)}</div>
-                    </details>
-                  ` : ''}
-                </div>
-              `).join('')}
-              
-              <button class="btn btn-secondary btn-sm" style="align-self: flex-start; margin-top: 4px;" onclick="openSubtaskModal('${task.id}')">
-                + Add Subtask
-              </button>
-            </div>
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function updateProjectDropdowns() {
-      const taskProjSelect = document.getElementById('task-project-filter');
-      const manualSelect = document.getElementById('m-project-select');
-      const calSelect = document.getElementById('cal-project-select');
-      const limitProjSelect = document.getElementById('p-limit-project-select');
-
-      const allProjects = Array.from(new Set([
-        ...Object.keys(appData.projectColors || {}),
-        ...appData.tasks.map(t => t.project).filter(Boolean),
-        ...Object.keys(appData.manualProjectTimes || {})
-      ])).filter(p => p !== 'Unscheduled');
-
-      const currTaskVal = taskProjSelect.value || 'ALL';
-
-      let taskOptions = '<option value="ALL">ALL PROJECTS</option>';
-      let manualOptions = '';
-      let calOptions = '<option value="">None</option>';
-      let limitOptions = '';
-
-      allProjects.forEach(proj => {
-        const safeProj = proj.trim();
-        if (safeProj) {
-          taskOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj.toUpperCase())}</option>`;
-          manualOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
-          calOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
-          limitOptions += `<option value="${escapeHtml(safeProj)}">${escapeHtml(safeProj)}</option>`;
-        }
-      });
-
-      taskProjSelect.innerHTML = taskOptions;
-      manualSelect.innerHTML = manualOptions;
-      if (calSelect) calSelect.innerHTML = calOptions;
-      if (limitProjSelect) limitProjSelect.innerHTML = limitOptions;
-
-      taskProjSelect.value = currTaskVal;
-      if (!taskProjSelect.value) {
-        taskProjSelect.value = 'ALL';
-      }
-    }
-
-    function openManualTimeModal(targetProject = null) {
+    function openManualTimeModal() {
       updateProjectDropdowns();
-      if (targetProject) {
-        document.getElementById('m-project-select').value = targetProject;
-        let currentSec = (appData.manualProjectTimes || {})[targetProject] || 0;
-        document.getElementById('m-hours').value = (currentSec / 3600).toFixed(1);
-        document.getElementById('m-minutes').value = '0';
-      } else {
-        document.getElementById('m-hours').value = '';
-        document.getElementById('m-minutes').value = '';
-      }
       document.getElementById('manual-time-modal').style.display = 'flex';
     }
 
     function saveManualTime() {
-      const project = document.getElementById('m-project-select').value;
+      const proj = document.getElementById('m-project-select').value;
       const hrs = parseFloat(document.getElementById('m-hours').value) || 0;
       const mins = parseFloat(document.getElementById('m-minutes').value) || 0;
-
       const totalSec = (hrs * 3600) + (mins * 60);
-      if (project) {
+      if (proj) {
         if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
-        
-        let matchedKey = project;
-        Object.keys(appData.manualProjectTimes).forEach(k => {
-          if (k.trim().toLowerCase() === project.trim().toLowerCase()) matchedKey = k;
-        });
-        appData.manualProjectTimes[matchedKey] = totalSec;
-
+        appData.manualProjectTimes[proj] = (appData.manualProjectTimes[proj] || 0) + totalSec;
         saveData();
         closeModal('manual-time-modal');
         renderReports();
@@ -2402,15 +1331,15 @@
 
     function openProjectLimitModal() {
       updateProjectDropdowns();
-      document.getElementById('p-limit').value = '';
       document.getElementById('limit-modal').style.display = 'flex';
     }
 
     function saveProjectLimit() {
-      const name = document.getElementById('p-limit-project-select').value;
+      const proj = document.getElementById('p-limit-project-select').value;
       const limit = parseFloat(document.getElementById('p-limit').value);
-      if (name && !isNaN(limit)) {
-        appData.projectLimits[name] = limit;
+      if (proj && !isNaN(limit)) {
+        if (!appData.projectLimits) appData.projectLimits = {};
+        appData.projectLimits[proj] = limit;
         saveData();
         closeModal('limit-modal');
         renderReports();
@@ -2420,99 +1349,36 @@
     function renderReports() {
       const container = document.getElementById('report-container');
       container.innerHTML = '';
-
       const currentWeekKey = getISOWeekKey(new Date());
       const currentWeekTimes = (appData.weeklySummaries && appData.weeklySummaries[currentWeekKey]) || appData.manualProjectTimes || {};
-
-      const allProjects = Array.from(new Set([
-        ...Object.keys(currentWeekTimes),
-        ...Object.keys(appData.projectLimits || {})
-      ])).filter(p => p !== 'Unscheduled');
+      const allProjects = Object.keys(appData.projectColors || {});
 
       let html = `
         <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; background:var(--surface); box-shadow:var(--shadow-bento);">
           <div style="font-weight:800; font-size:0.9rem; margin-bottom:12px;">📊 CURRENT WEEK ALLOCATION (${currentWeekKey})</div>
           <div class="report-table-wrapper">
             <table class="report-table">
-              <thead>
-                <tr>
-                  <th>Project</th>
-                  <th>Tracked Time</th>
-                  <th>Weekly Limit</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
+              <thead><tr><th>Project</th><th>Tracked Time</th><th>Weekly Limit</th><th>Status</th></tr></thead>
               <tbody>
       `;
 
       if (allProjects.length === 0) {
-        html += `<tr><td colspan="4" style="color:var(--text-muted); text-align:center;">No time logged for this week yet.</td></tr>`;
+        html += `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No projects logged this week.</td></tr>`;
       } else {
         allProjects.forEach(proj => {
-          const spentSec = currentWeekTimes[proj] || 0;
-          const limitHrs = appData.projectLimits[proj] || null;
-          const spentFormatted = formatTime(spentSec);
-
-          let statusTag = `<span style="color:var(--text-muted);">Tracked</span>`;
-          if (limitHrs) {
-            const spentHrs = spentSec / 3600;
-            const pct = Math.round((spentHrs / limitHrs) * 100);
-            statusTag = `<span style="color:${pct >= 100 ? '#ef4444' : '#22c55e'}; font-weight:700;">${pct}% (${spentHrs.toFixed(1)}h / ${limitHrs}h)</span>`;
-          }
-
+          const sec = currentWeekTimes[proj] || 0;
+          const limit = appData.projectLimits ? appData.projectLimits[proj] : null;
           html += `
             <tr>
               <td style="font-weight:700;">${escapeHtml(proj)}</td>
-              <td style="font-family:var(--font-mono);">${spentFormatted}</td>
-              <td style="font-family:var(--font-mono);">${limitHrs ? limitHrs + ' hrs' : '—'}</td>
-              <td>${statusTag}</td>
+              <td style="font-family:var(--font-mono);">${formatTime(sec)}</td>
+              <td style="font-family:var(--font-mono);">${limit ? limit + 'h' : '—'}</td>
+              <td>${limit ? (sec/3600 >= limit ? '<span style="color:#ef4444; font-weight:700;">Limit Reached</span>' : '<span style="color:#22c55e; font-weight:700;">On Track</span>') : '<span style="color:var(--text-muted);">Logged</span>'}</td>
             </tr>
           `;
         });
       }
-
       html += `</tbody></table></div></div>`;
-
-      const pastWeeks = Object.keys(appData.weeklySummaries || {}).filter(w => w !== currentWeekKey);
-      if (pastWeeks.length > 0) {
-        html += `
-          <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; background:var(--surface); box-shadow:var(--shadow-bento); margin-top:16px;">
-            <div style="font-weight:800; font-size:0.9rem; margin-bottom:12px;">📈 HISTORICAL SUMMARIES</div>
-            <div class="report-table-wrapper">
-              <table class="report-table">
-                <thead>
-                  <tr>
-                    <th>Week Period</th>
-                    <th>Top Focus Project</th>
-                    <th>Total Time</th>
-                  </tr>
-                </thead>
-                <tbody>
-        `;
-
-        pastWeeks.forEach(wKey => {
-          const weekData = appData.weeklySummaries[wKey];
-          let totalSec = 0;
-          let topProj = 'None';
-          let maxSec = 0;
-
-          Object.entries(weekData).forEach(([p, s]) => {
-            totalSec += s;
-            if (s > maxSec) { maxSec = s; topProj = p; }
-          });
-
-          html += `
-            <tr>
-              <td style="font-family:var(--font-mono); font-weight:700;">${wKey}</td>
-              <td>${escapeHtml(topProj)} (${formatTime(maxSec)})</td>
-              <td style="font-family:var(--font-mono);">${formatTime(totalSec)}</td>
-            </tr>
-          `;
-        });
-
-        html += `</tbody></table></div></div>`;
-      }
-
       container.innerHTML = html;
     }
 
@@ -2523,37 +1389,14 @@
       return `${h > 0 ? h + 'h ' : ''}${m}m ${s}s`;
     }
 
-    /* PWA REGISTRATION */
-    const manifestBlob = new Blob([JSON.stringify({
-      name: "Minimal Task Workspace",
-      short_name: "Tasks",
-      start_url: "./",
-      display: "standalone",
-      background_color: "#f4f6f8",
-      theme_color: "#f4f6f8",
-      icons: [{ src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%236366f1'/></svg>", sizes: "192x192 512x512", type: "image/svg+xml" }]
-    })], { type: 'application/json' });
-    document.getElementById('pwa-manifest').href = URL.createObjectURL(manifestBlob);
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    if ('serviceWorker' in navigator) {
-      const swCode = `
-        const CACHE_NAME = 'todo-pwa-v56';
-        self.addEventListener('install', e => {
-          e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(['./'])));
-        });
-        self.addEventListener('fetch', e => {
-          e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
-        });
-      `;
-      const swBlob = new Blob([swCode], { type: 'application/javascript' });
-      navigator.serviceWorker.register(URL.createObjectURL(swBlob)).catch(() => {});
-    }
-
-    // INITIALIZATION RENDER SEQUENCE
+    // INITIALIZATION
     updateProjectDropdowns();
     renderTagFilters();
-    renderTasks();
+    renderRemindersBoard();
     renderScheduleCalendar();
+    fetchSupabaseSignals();
   </script>
 </body>
 </html>
