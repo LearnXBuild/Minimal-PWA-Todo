@@ -116,14 +116,120 @@
     .sub-item { font-size: 0.78rem; display: flex; align-items: center; gap: 6px; color: var(--text); }
     .sub-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
-    /* Signals Feed Styles */
-    .signals-feed-container { display: flex; flex-direction: column; gap: 14px; width: 100%; }
-    .signal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px; box-shadow: var(--shadow-bento); display: flex; flex-direction: column; gap: 10px; transition: transform 0.2s ease; }
-    .signal-card:hover { transform: translateY(-2px); }
-    .signal-meta-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono); flex-wrap: wrap; gap: 8px; }
-    .signal-headline { font-size: 1.05rem; font-weight: 800; line-height: 1.35; color: var(--text); text-decoration: none; }
-    .signal-body { font-size: 0.88rem; line-height: 1.6; color: var(--text-muted); }
-    .signal-deep-dive { background: #f0fdf4; border-left: 3px solid #22c55e; padding: 8px 12px; border-radius: 4px; font-size: 0.8rem; color: #166534; font-family: var(--font-mono); line-height: 1.4; }
+    /* ==========================================================================
+       SIGNALS FEED & POLISHED READER DESIGN
+       ========================================================================== */
+    .filter-bar.signals-filter-bar {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 4px 0 14px 0;
+      margin-bottom: 10px;
+    }
+    .signals-pill-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .signals-pill-scroll::-webkit-scrollbar { display: none; }
+
+    .signals-feed-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
+    }
+
+    .signal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.2s ease, transform 0.15s ease;
+    }
+    .signal-card:hover {
+      border-color: var(--border-dark);
+    }
+
+    .signal-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      letter-spacing: 0.02em;
+    }
+
+    .signal-headline {
+      font-size: 1.12rem;
+      font-weight: 800;
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .signal-headline:hover {
+      color: var(--accent-primary);
+    }
+
+    .signal-body-wrap {
+      position: relative;
+    }
+    .signal-body {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: #334155;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      transition: all 0.25s ease;
+    }
+    .signal-card.expanded .signal-body {
+      display: block;
+      -webkit-line-clamp: unset;
+    }
+
+    .signal-expand-btn {
+      background: none;
+      border: none;
+      color: var(--accent-primary);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 0 0;
+      display: inline-block;
+    }
+
+    .signal-deep-dive {
+      background: #f8fafc;
+      border-left: 3px solid #0ea5e9;
+      padding: 10px 14px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.8rem;
+      color: #0369a1;
+      line-height: 1.5;
+      margin-top: 4px;
+    }
+
+    .signal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
 
     .signal-meter { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; vertical-align: middle; }
     .signal-meter .bar { width: 3px; background: var(--signal-bar); border-radius: 1px; }
@@ -134,7 +240,7 @@
     .signal-meter .bar:nth-child(5) { height: 12px; }
     .signal-meter .bar.on { background: var(--signal); }
 
-    /* Newspaper / Editorial Mode */
+    /* Newspaper / Editorial Mode Overrides */
     .newspaper-mode { background: var(--paper); color: var(--paper-ink); }
     .newspaper-mode .signal-card { background: var(--paper-card); border-color: var(--paper-border); border-radius: 4px; box-shadow: none; border-bottom: 2px solid var(--paper-border); }
     .newspaper-mode .signal-headline { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--paper-ink); }
@@ -325,8 +431,8 @@
         </div>
       </header>
 
-      <div class="filter-bar">
-        <div class="filter-pills" id="signal-track-pills"></div>
+      <div class="filter-bar signals-filter-bar">
+        <div class="signals-pill-scroll" id="signal-track-pills"></div>
       </div>
 
       <div id="signals-loading" style="text-align:center; padding: 40px; color: var(--text-muted); font-size:0.85rem; font-family:var(--font-mono);">Connecting to Supabase signals stream…</div>
@@ -1042,8 +1148,11 @@
       filtered.forEach(article => {
         const isArchived = appData.archivedSignals.includes(article.id);
         const tagsList = Array.isArray(article.tags) ? article.tags : (typeof article.tags === 'string' ? JSON.parse(article.tags || '[]') : []);
+        const isLongBody = (article.body || '').length > 240;
+
         const card = document.createElement('div');
         card.className = 'signal-card';
+        card.id = `signal-card-${article.id}`;
 
         card.innerHTML = `
           <div class="signal-meta-bar">
@@ -1063,22 +1172,33 @@
 
           <a href="${article.url || '#'}" target="_blank" rel="noopener" class="signal-headline">${escapeHtml(article.headline)}</a>
 
-          <p class="signal-body">${escapeHtml(article.body)}</p>
+          <div class="signal-body-wrap">
+            <p class="signal-body">${escapeHtml(article.body)}</p>
+            ${isLongBody ? `<button class="signal-expand-btn" onclick="toggleExpandArticle(${article.id}, this)">Read full summary ↓</button>` : ''}
+          </div>
 
           ${article.deep_dive ? `<div class="signal-deep-dive"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
 
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-top:6px;">
+          <div class="signal-footer">
             <div style="display:flex; gap:4px; flex-wrap:wrap;">
               ${tagsList.map(t => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.65rem;">#${escapeHtml(t)}</span>`).join('')}
             </div>
             <div class="flex-gap">
               <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('${escapeHtml(article.headline).replace(/'/g, "\\'")}', '${escapeHtml(article.track)}')">+ Add as Task</button>
-              ${article.url ? `<a class="btn btn-secondary btn-sm" href="${article.url}" target="_blank" rel="noopener">Read Source ↗</a>` : ''}
+              ${article.url ? `<a class="btn btn-secondary btn-sm" href="${article.url}" target="_blank" rel="noopener">Source ↗</a>` : ''}
             </div>
           </div>
         `;
         container.appendChild(card);
       });
+    }
+
+    function toggleExpandArticle(id, btn) {
+      const card = document.getElementById(`signal-card-${id}`);
+      if (card) {
+        const isExp = card.classList.toggle('expanded');
+        btn.innerText = isExp ? 'Show less ↑' : 'Read full summary ↓';
+      }
     }
 
     function convertSignalToTask(headline, track) {
@@ -1223,7 +1343,7 @@
     }
 
     /* ==========================================================================
-       FOCUS DESK HUD (SEAMLESS TITLE DROPDOWN & SLOT DETECTION)
+       FOCUS DESK HUD
        ========================================================================== */
     function autoDetectCurrentScheduleSlot() {
       const todayStr = formatDateLocal(new Date());
