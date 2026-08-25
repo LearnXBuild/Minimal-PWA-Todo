@@ -1449,7 +1449,7 @@
       renderLearningHub();
     }
 
-    async function renderLearningHub() {
+   async function renderLearningHub() {
   const container = document.getElementById('learning-bento-container');
   if (!container) return;
 
@@ -1511,13 +1511,19 @@
         </div>
 
         <!-- Top Right: Java Boilerplate (Span 7) -->
-        <div class="bento-span-7" style="display:flex; flex-direction:column;">
-          <div class="code-box" style="height:100%; display:flex; flex-direction:column;">
+        <div class="bento-span-7" style="display:flex; flex-direction:column; gap:14px;">
+          <div class="code-box" style="display:flex; flex-direction:column;">
             <div class="code-box-header">
               <span>☕ Java Speed Skeleton</span>
               <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.65rem;" onclick="copyJavaTemplate()">Copy</button>
             </div>
-            <pre style="flex:1; margin:0;"><code id="java-code-content">${escapeHtml(drill.template_code)}</code></pre>
+            <pre style="margin:0;"><code id="java-code-content">${escapeHtml(drill.template_code)}</code></pre>
+          </div>
+
+          <!-- Intuitive Code Explanation Box -->
+          <div class="bento-card" style="background:#f8fafc; border-color:var(--border);">
+            <div style="font-size:0.7rem; font-weight:800; font-family:var(--font-mono); color:var(--accent-primary); text-transform:uppercase; margin-bottom:4px;">💡 Intuitive Approach & Breakdown</div>
+            <p style="font-size:0.8rem; line-height:1.6; color:var(--text);">${escapeHtml(drill.approach_explanation || 'Step-by-step logic map for fast interview execution.')}</p>
           </div>
         </div>
 
