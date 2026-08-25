@@ -28,10 +28,11 @@
       --font-mono: 'IBM Plex Mono', monospace;
       --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
       --accent-primary: #6366f1;
+      --signal: #d97706;
+      --signal-bar: #cbd5e1;
 
-      /* Editorial Newspaper Variables */
+      /* Newspaper Variables */
       --paper: #E8E5D9;
-      --paper-raised: #F1EEE3;
       --ink: #22261F;
       --ink-soft: #52564C;
       --ink-faint: #8B8C7F;
@@ -41,8 +42,6 @@
       --signal-dim: #D9C7A0;
       --teal: #2F4F49;
       --teal-bg: #DDE3DE;
-      --font-serif-head: 'Fraunces', Georgia, serif;
-      --font-serif-body: 'Source Serif 4', Georgia, serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-sans); }
@@ -81,7 +80,7 @@
     input, select, textarea { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 0.85rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; transition: border-color 0.2s ease; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent-primary); }
 
-    /* Bento Filter Bar (Tasks) */
+    /* Bento Filter Bar */
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; background: var(--surface); padding: 14px 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-bento); }
     .filter-top-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -123,34 +122,151 @@
     .sub-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
     /* ==========================================================================
-       SIGNALS: EDITORIAL NEWSPAPER MODE (DEFAULT)
+       SIGNALS: BENTO FEED (DEFAULT ONESPACE TAB)
        ========================================================================== */
-    #sec-signals.newspaper-active {
-      max-width: 720px;
-      padding-top: 10px;
-      font-family: var(--font-serif-body);
-      color: var(--ink);
+    .bento-pill-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 4px 0 14px 0;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      width: 100%;
+    }
+    .bento-pill-scroll::-webkit-scrollbar { display: none; }
+
+    .bento-signals-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      width: 100%;
     }
 
-    #sec-signals.newspaper-active .newspaper-view-only { display: block; }
-    #sec-signals.newspaper-active .bento-view-only { display: none !important; }
+    .bento-signal-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: border-color 0.2s ease;
+    }
+    .bento-signal-card:hover { border-color: var(--border-dark); }
 
-    .masthead-top {
+    .bento-meta-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .bento-headline {
+      font-size: 1.15rem;
+      font-weight: 800;
+      line-height: 1.35;
+      letter-spacing: -0.015em;
+      color: var(--text);
+      text-decoration: none;
+    }
+    .bento-headline:hover { color: var(--accent-primary); }
+
+    .bento-body {
+      font-size: 0.92rem;
+      line-height: 1.7;
+      color: #334155;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .bento-signal-card.expanded .bento-body {
+      display: block;
+      -webkit-line-clamp: unset;
+    }
+
+    .bento-expand-btn {
+      background: none;
+      border: none;
+      color: var(--accent-primary);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 4px 0 0;
+      display: inline-block;
+    }
+
+    .bento-deep-dive {
+      background: #f8fafc;
+      border-left: 3px solid #0ea5e9;
+      padding: 10px 14px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.82rem;
+      color: #0369a1;
+      line-height: 1.5;
+    }
+
+    .bento-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 6px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .signal-meter { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; vertical-align: middle; flex-shrink: 0; }
+    .signal-meter .bar { width: 3px; background: var(--signal-bar); border-radius: 1px; }
+    .signal-meter .bar:nth-child(1) { height: 4px; }
+    .signal-meter .bar:nth-child(2) { height: 6px; }
+    .signal-meter .bar:nth-child(3) { height: 8px; }
+    .signal-meter .bar:nth-child(4) { height: 10px; }
+    .signal-meter .bar:nth-child(5) { height: 12px; }
+    .signal-meter .bar.on { background: var(--signal); }
+
+    /* ==========================================================================
+       NEWSPAPER OVERLAY (MATCHES SCREENSHOT 1:1)
+       ========================================================================== */
+    .newspaper-overlay {
+      position: fixed;
+      inset: 0;
+      background: var(--paper);
+      color: var(--ink);
+      z-index: 500;
+      overflow-y: auto;
+      display: none;
+      padding: 1.5rem 1.25rem 6rem;
+      font-family: 'Source Serif 4', Georgia, serif;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .newspaper-wrap {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .news-top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.25rem;
     }
 
-    #signals-issue-date {
-      font-family: var(--font-mono);
+    #news-issue-date {
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--ink-faint);
     }
 
-    .mode-toggle-btn {
+    .news-exit-btn {
       background: transparent;
       border: 1px solid var(--rule);
       font-size: 14px;
@@ -164,9 +280,9 @@
       justify-content: center;
     }
 
-    h1.newspaper-title {
-      font-family: var(--font-serif-head);
-      font-size: clamp(2.8rem, 10vw, 4.4rem);
+    h1.news-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(3rem, 11vw, 4.4rem);
       font-weight: 600;
       letter-spacing: -0.03em;
       text-align: center;
@@ -175,9 +291,9 @@
       margin: 0.5rem 0 0.4rem;
     }
 
-    .tagline {
+    .news-tagline {
       text-align: center;
-      font-family: var(--font-mono);
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10.5px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -185,14 +301,13 @@
       margin-bottom: 1.5rem;
     }
 
-    .rule-thick {
+    .news-rule-thick {
       border: none;
       border-top: 3px solid var(--rule-strong);
       margin: 0 0 0.5rem;
     }
 
-    /* Scoped Horizontal Tabs Bar */
-    div.signals-tabs-bar {
+    div.news-tabs-bar {
       display: flex !important;
       flex-direction: row !important;
       align-items: center;
@@ -204,10 +319,10 @@
       gap: 0;
       width: 100%;
     }
-    div.signals-tabs-bar::-webkit-scrollbar { display: none; }
+    div.news-tabs-bar::-webkit-scrollbar { display: none; }
 
-    div.signals-tabs-bar .tab-btn {
-      font-family: var(--font-mono);
+    div.news-tabs-bar .tab-btn {
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 11px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -224,35 +339,20 @@
       flex-shrink: 0;
       width: auto !important;
     }
-    div.signals-tabs-bar .tab-btn .count {
-      color: var(--ink-faint);
-      margin-left: 5px;
-      font-size: 10px;
-    }
-    div.signals-tabs-bar .tab-btn.active {
-      color: var(--ink) !important;
-      font-weight: 700;
-      border-bottom: 2.5px solid var(--signal-gold) !important;
-    }
+    div.news-tabs-bar .tab-btn .count { color: var(--ink-faint); margin-left: 5px; font-size: 10px; }
+    div.news-tabs-bar .tab-btn.active { color: var(--ink) !important; font-weight: 700; border-bottom: 2.5px solid var(--signal-gold) !important; }
 
-    /* Article Card Item (Newspaper) */
-    #sec-signals.newspaper-active .article-item {
+    .news-article-item {
       padding: 1.75rem 0;
       border-top: 1px solid var(--rule);
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
-      background: transparent;
-      border-radius: 0;
-      box-shadow: none;
     }
-    #sec-signals.newspaper-active .article-item:first-of-type {
-      border-top: none;
-      padding-top: 0;
-    }
+    .news-article-item:first-of-type { border-top: none; padding-top: 0; }
 
-    .article-meta {
-      font-family: var(--font-mono);
+    .news-article-meta {
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 11px;
       letter-spacing: 0.04em;
       color: var(--ink-soft);
@@ -261,21 +361,13 @@
       gap: 10px;
       margin-bottom: 0.2rem;
     }
+    .news-source-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); font-weight: 500; }
+    .news-date-label { color: var(--ink-soft); }
 
-    .source-label {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      color: var(--ink);
-      font-weight: 500;
-    }
-
-    .date-label { color: var(--ink-soft); }
-
-    .mark-read-btn {
+    .news-mark-read-btn {
       background: none;
       border: none;
-      font-family: var(--font-mono);
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -287,10 +379,10 @@
       white-space: nowrap;
       padding: 0;
     }
-    .mark-read-btn:hover { color: var(--ink); }
+    .news-mark-read-btn:hover { color: var(--ink); }
 
-    #sec-signals.newspaper-active .article-headline {
-      font-family: var(--font-serif-head);
+    .news-headline {
+      font-family: 'Fraunces', Georgia, serif;
       font-size: clamp(1.45rem, 5.2vw, 1.95rem);
       font-weight: 600;
       line-height: 1.18;
@@ -298,11 +390,9 @@
       color: var(--ink);
       text-decoration: none;
     }
-    #sec-signals.newspaper-active .article-headline:hover { color: var(--signal-gold); }
+    .news-headline:hover { color: var(--signal-gold); }
 
-    .article-body-wrap { position: relative; }
-    #sec-signals.newspaper-active .article-body {
-      font-family: var(--font-serif-body);
+    .news-body {
       font-size: 1.05rem;
       line-height: 1.7;
       color: var(--ink);
@@ -311,15 +401,15 @@
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
-    .article-item.expanded .article-body {
+    .news-article-item.expanded .news-body {
       display: block;
       -webkit-line-clamp: unset;
     }
 
-    .read-more-btn {
+    .news-read-more-btn {
       background: none;
       border: none;
-      font-family: var(--font-mono);
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 11.5px;
       letter-spacing: 0.04em;
       color: var(--signal-gold);
@@ -330,23 +420,23 @@
       text-underline-offset: 2px;
     }
 
-    .deep-dive-box {
+    .news-deep-dive-box {
       margin-top: 0.4rem;
       padding: 0.85rem 1.1rem;
       background: var(--teal-bg);
       border-left: 3.5px solid var(--teal);
-      font-family: var(--font-mono);
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 12px;
       color: var(--teal);
       line-height: 1.6;
     }
-    .deep-dive-box strong { color: var(--teal); font-weight: 700; }
+    .news-deep-dive-box strong { color: var(--teal); font-weight: 700; }
 
-    .read-source-link {
+    .news-source-link {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      font-family: var(--font-mono);
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 11.5px;
       letter-spacing: 0.04em;
       color: var(--signal-gold);
@@ -356,77 +446,7 @@
       margin-top: 0.4rem;
       width: fit-content;
     }
-    .read-source-link:hover { border-bottom-color: var(--signal-gold); }
-
-    .signal-meter { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; vertical-align: middle; flex-shrink: 0; }
-    .signal-meter .bar { width: 3px; background: var(--rule); border-radius: 1px; }
-    .signal-meter .bar:nth-child(1) { height: 4px; }
-    .signal-meter .bar:nth-child(2) { height: 6px; }
-    .signal-meter .bar:nth-child(3) { height: 8px; }
-    .signal-meter .bar:nth-child(4) { height: 10px; }
-    .signal-meter .bar:nth-child(5) { height: 12px; }
-    .signal-meter .bar.on { background: var(--signal-gold); }
-
-    /* ==========================================================================
-       SIGNALS: BENTO MODE OVERRIDES
-       ========================================================================== */
-    #sec-signals.bento-active {
-      max-width: 860px;
-      padding-top: 24px;
-      font-family: var(--font-sans);
-      color: var(--text);
-    }
-    #sec-signals.bento-active .newspaper-view-only { display: none !important; }
-    #sec-signals.bento-active .bento-view-only { display: flex !important; }
-
-    #sec-signals.bento-active .signals-tabs-bar {
-      border-bottom: 1px solid var(--border);
-      gap: 6px;
-      padding-bottom: 8px;
-      margin-bottom: 18px;
-    }
-    #sec-signals.bento-active .signals-tabs-bar .tab-btn {
-      border: 1px solid var(--border) !important;
-      background: var(--surface) !important;
-      border-radius: 99px !important;
-      padding: 6px 14px;
-      font-size: 11px;
-      color: var(--text-muted);
-      margin-bottom: 0;
-    }
-    #sec-signals.bento-active .signals-tabs-bar .tab-btn.active {
-      background: var(--text) !important;
-      color: #fff !important;
-      border-color: var(--text) !important;
-    }
-    #sec-signals.bento-active .article-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 22px;
-      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
-      margin-bottom: 16px;
-      gap: 10px;
-    }
-    #sec-signals.bento-active .article-headline {
-      font-family: var(--font-sans);
-      font-size: 1.18rem;
-      font-weight: 800;
-      color: var(--text);
-    }
-    #sec-signals.bento-active .article-headline:hover { color: var(--accent-primary); }
-    #sec-signals.bento-active .article-body {
-      font-family: var(--font-sans);
-      font-size: 0.93rem;
-      line-height: 1.65;
-      color: #334155;
-    }
-    #sec-signals.bento-active .deep-dive-box {
-      background: #f8fafc;
-      border-left-color: var(--accent-primary);
-      color: #3730a3;
-      border-radius: 0 8px 8px 0;
-    }
+    .news-source-link:hover { border-bottom-color: var(--signal-gold); }
 
     /* Schedule Bucket Grid */
     .schedule-bucket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -602,36 +622,19 @@
       </div>
     </section>
 
-    <!-- 3. SIGNALS FEED TAB (EDITORIAL NEWSPAPER DEFAULT WITH BENTO SWITCHER) -->
-    <section id="sec-signals" class="content-section newspaper-active">
-      <!-- Newspaper Header View -->
-      <div class="newspaper-view-only">
-        <header class="masthead">
-          <div class="masthead-top">
-            <span id="signals-issue-date">TUESDAY, AUGUST 25, 2026</span>
-            <button class="mode-toggle-btn" onclick="toggleSignalsView()" title="Switch to Bento Mode">💻</button>
-          </div>
-          <h1 class="newspaper-title">The Signal</h1>
-          <div class="tagline">ENGINEERING, FILTERED. NO NOISE, JUST WHAT MOVED.</div>
-        </header>
-        <hr class="rule-thick">
-      </div>
-
-      <!-- Bento Header View -->
-      <div class="bento-view-only workspace-header" style="display:none;">
+    <!-- 3. SIGNALS FEED TAB (BENTO CARDS) -->
+    <section id="sec-signals" class="content-section">
+      <header class="workspace-header">
         <h1 class="section-title">SIGNALS FEED</h1>
         <div class="flex-gap">
-          <button class="btn btn-secondary btn-sm" onclick="toggleSignalsView()">📰 Reader Mode</button>
+          <button class="btn btn-secondary btn-sm" onclick="openNewspaperOverlay()">📰 Reader Mode</button>
           <button class="btn btn-secondary btn-sm" onclick="fetchSupabaseSignals()">↻ Refresh</button>
         </div>
-      </div>
+      </header>
 
-      <div class="signals-tabs-bar" id="signals-tabs-bar"></div>
-
-      <div id="signals-loading" style="text-align:center; padding: 4rem 1rem; color: var(--ink-soft); font-family:var(--font-mono); font-size:12px;">Loading today's issue…</div>
-      <div id="signals-empty" style="display:none; text-align:center; padding: 4rem 1rem; color: var(--ink-soft); font-family:var(--font-mono); font-size:12px;">Nothing cleared the signal threshold in this track.</div>
-
-      <main id="signals-content"></main>
+      <div class="bento-pill-scroll" id="bento-track-pills"></div>
+      <div id="bento-loading" style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem; font-family:var(--font-mono);">Connecting to live signals stream…</div>
+      <div id="bento-signals-container" class="bento-signals-container"></div>
     </section>
 
     <!-- 4. REPORTS TAB -->
@@ -653,6 +656,27 @@
     <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks</button>
     <button class="nav-btn" onclick="switchTab('signals', this)">Signals</button>
     <button class="nav-btn" onclick="switchTab('reports', this)">Reports</button>
+  </div>
+
+  <!-- FULLSCREEN NEWSPAPER READER OVERLAY (SCREENSHOT MATCH) -->
+  <div class="newspaper-overlay" id="newspaper-overlay">
+    <div class="newspaper-wrap">
+      <div class="news-top-bar">
+        <span id="news-issue-date">TUESDAY, AUGUST 25, 2026</span>
+        <button class="news-exit-btn" onclick="closeNewspaperOverlay()" title="Exit Reader View">💻</button>
+      </div>
+      <h1 class="news-title">The Signal</h1>
+      <div class="news-tagline">ENGINEERING, FILTERED. NO NOISE, JUST WHAT MOVED.</div>
+      
+      <hr class="news-rule-thick">
+
+      <div class="news-tabs-bar" id="news-tabs-bar"></div>
+
+      <div id="news-loading" style="text-align:center; padding:4rem 1rem; color:var(--ink-soft); font-family:var(--font-mono); font-size:12px;">Loading today's issue…</div>
+      <div id="news-empty" style="display:none; text-align:center; padding:4rem 1rem; color:var(--ink-soft); font-family:var(--font-mono); font-size:12px;">Nothing cleared the signal threshold in this track today.</div>
+
+      <div id="news-content-list"></div>
+    </div>
   </div>
 
   <!-- FOCUS MODE DESK HUD -->
@@ -873,18 +897,12 @@
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let ALL_ARTICLES = [];
-    let activeSignalTrack = "All";
-    let isSignalsBentoMode = false;
+    let activeTrack = "All";
     let archivedSignals = JSON.parse(localStorage.getItem('the_signal_archived_ids') || '[]');
 
     function escapeHtml(str) {
       if (!str) return '';
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
     function formatDateLocal(dateObj) {
@@ -978,18 +996,9 @@
       const mainContainer = document.getElementById('main-scroll-container');
       if (mainContainer) mainContainer.scrollTop = 0;
 
-      // Ensure seamless edge-to-edge newspaper paper background when on Signals
-      if (tab === 'signals' && !isSignalsBentoMode) {
-        document.body.style.background = '#E8E5D9';
-        mainContainer.style.background = '#E8E5D9';
-      } else {
-        document.body.style.background = 'var(--bg)';
-        mainContainer.style.background = 'var(--bg)';
-      }
-
       if (tab === 'calendar') renderScheduleCalendar();
       if (tab === 'tasks') renderTaskStack();
-      if (tab === 'signals') { renderSignalsTabs(); renderSignalsContent(); }
+      if (tab === 'signals') renderBentoSignals();
       if (tab === 'reports') renderReports();
     }
 
@@ -1006,7 +1015,7 @@
     }
 
     /* ==========================================================================
-       TASKS: COLLAPSIBLE STACK ENGINE
+       TASKS ENGINE
        ========================================================================== */
     function toggleSectionCollapse(sectionId) {
       const card = document.getElementById(`card-section-${sectionId}`);
@@ -1262,7 +1271,7 @@
     }
 
     /* ==========================================================================
-       SIGNALS FEED
+       SIGNALS DATA ENGINE & BENTO VIEW
        ========================================================================== */
     function signalMeter(score) {
       let bars = '';
@@ -1273,41 +1282,23 @@
     }
 
     async function fetchSupabaseSignals() {
-      const loader = document.getElementById('signals-loading');
-      loader.style.display = 'block';
+      const bentoLoader = document.getElementById('bento-loading');
+      bentoLoader.style.display = 'block';
       try {
         const { data, error } = await db.from('articles').select('*').order('id', { ascending: false });
         if (error) throw error;
         ALL_ARTICLES = data || [];
-        loader.style.display = 'none';
+        bentoLoader.style.display = 'none';
 
         if (ALL_ARTICLES.length > 0) {
           const latestDate = ALL_ARTICLES[0].date || new Date().toISOString().split('T')[0];
-          document.getElementById('signals-issue-date').textContent = formatEditorialDate(latestDate);
+          document.getElementById('news-issue-date').textContent = formatEditorialDate(latestDate);
         }
 
-        renderSignalsTabs();
-        renderSignalsContent();
+        renderBentoSignals();
+        renderNewspaperContent();
       } catch (err) {
-        loader.textContent = 'Error connecting to database: ' + err.message;
-      }
-    }
-
-    function toggleSignalsView() {
-      isSignalsBentoMode = !isSignalsBentoMode;
-      const sec = document.getElementById('sec-signals');
-      const mainContainer = document.getElementById('main-scroll-container');
-
-      if (isSignalsBentoMode) {
-        sec.classList.remove('newspaper-active');
-        sec.classList.add('bento-active');
-        document.body.style.background = 'var(--bg)';
-        mainContainer.style.background = 'var(--bg)';
-      } else {
-        sec.classList.remove('bento-active');
-        sec.classList.add('newspaper-active');
-        document.body.style.background = '#E8E5D9';
-        mainContainer.style.background = '#E8E5D9';
+        bentoLoader.textContent = 'Error connecting to database: ' + err.message;
       }
     }
 
@@ -1318,74 +1309,164 @@
         archivedSignals.push(articleId);
       }
       localStorage.setItem('the_signal_archived_ids', JSON.stringify(archivedSignals));
-      renderSignalsTabs();
-      renderSignalsContent();
+      renderBentoSignals();
+      renderNewspaperContent();
     }
 
-    function toggleExpand(id, btn) {
-      const el = document.getElementById(`article-item-${id}`);
+    function renderBentoSignals() {
+      const pillBox = document.getElementById('bento-track-pills');
+      const container = document.getElementById('bento-signals-container');
+      pillBox.innerHTML = '';
+      container.innerHTML = '';
+
+      const discoveredTracks = new Set();
+      ALL_ARTICLES.forEach(a => {
+        if (a.track) a.track.split(',').forEach(t => { const clean = t.trim(); if (clean) discoveredTracks.add(clean); });
+      });
+
+      const dynamicTracks = ["All", ...Array.from(discoveredTracks).sort(), "Archived"];
+
+      dynamicTracks.forEach(track => {
+        let count = (track === 'Archived') ? archivedSignals.length : (track === 'All') 
+          ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)).length 
+          : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id)).length;
+
+        const chip = document.createElement('span');
+        chip.className = `filter-chip ${activeTrack === track ? 'active' : ''}`;
+        chip.innerText = `${track} (${count})`;
+        chip.onclick = () => {
+          activeTrack = track;
+          renderBentoSignals();
+          renderNewspaperContent();
+        };
+        pillBox.appendChild(chip);
+      });
+
+      let filtered = (activeTrack === 'Archived') ? ALL_ARTICLES.filter(a => archivedSignals.includes(a.id)) : (activeTrack === 'All') 
+        ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)) 
+        : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeTrack.toLowerCase()) && !archivedSignals.includes(a.id));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem;">No signals in this view.</div>`;
+        return;
+      }
+
+      filtered.forEach(article => {
+        const isArchived = archivedSignals.includes(article.id);
+        const tagsList = Array.isArray(article.tags) ? article.tags : (typeof article.tags === 'string' ? JSON.parse(article.tags || '[]') : []);
+        const isLong = (article.body || '').length > 220;
+        const targetUrl = article.url || article.link || article.source_url || `https://www.google.com/search?q=${encodeURIComponent(article.headline + ' ' + (article.source || ''))}`;
+
+        const card = document.createElement('div');
+        card.className = 'bento-signal-card';
+        card.id = `bento-card-${article.id}`;
+
+        card.innerHTML = `
+          <div class="bento-meta-bar">
+            <div style="display:flex; align-items:center; gap:8px;">
+              ${signalMeter(article.relevance || 3)}
+              <span><strong>${escapeHtml(article.source || 'Signal')}</strong></span>
+              <span>·</span>
+              <span>${article.date || ''}</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.68rem;" onclick="toggleArchiveArticle(${article.id})">
+              ${isArchived ? '↩ Unarchive' : '✓ Mark Read'}
+            </button>
+          </div>
+
+          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="bento-headline">
+            ${escapeHtml(article.headline)}
+          </a>
+
+          <div>
+            <p class="bento-body">${escapeHtml(article.body)}</p>
+            ${isLong ? `<button class="bento-expand-btn" onclick="toggleBentoExpand(${article.id}, this)">Read full summary ↓</button>` : ''}
+          </div>
+
+          ${article.deep_dive ? `<div class="bento-deep-dive"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
+
+          ${tagsList.length > 0 ? `
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">
+              ${tagsList.map(t => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.65rem;">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+          ` : ''}
+
+          <div class="bento-footer">
+            <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('${escapeHtml(article.headline).replace(/'/g, "\\'")}', '${escapeHtml(article.track)}')">+ Add as Task</button>
+            <a class="btn btn-secondary btn-sm" href="${targetUrl}" target="_blank" rel="noopener noreferrer">Read Source ↗</a>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function toggleBentoExpand(id, btn) {
+      const card = document.getElementById(`bento-card-${id}`);
+      if (card) {
+        const isExp = card.classList.toggle('expanded');
+        btn.innerText = isExp ? 'Show less ↑' : 'Read full summary ↓';
+      }
+    }
+
+    /* ==========================================================================
+       NEWSPAPER OVERLAY ENGINE (SCREENSHOT MATCH)
+       ========================================================================== */
+    function openNewspaperOverlay() {
+      document.getElementById('newspaper-overlay').style.display = 'block';
+      renderNewspaperContent();
+    }
+
+    function closeNewspaperOverlay() {
+      document.getElementById('newspaper-overlay').style.display = 'none';
+      renderBentoSignals();
+    }
+
+    function toggleNewsExpand(id, btn) {
+      const el = document.getElementById(`news-article-${id}`);
       if (el) {
         const isExp = el.classList.toggle('expanded');
         btn.innerText = isExp ? 'Show less ↑' : 'Read full summary ↓';
       }
     }
 
-    function renderSignalsTabs() {
-      const tabsContainer = document.getElementById('signals-tabs-bar');
+    function renderNewspaperContent() {
+      const tabsContainer = document.getElementById('news-tabs-bar');
+      const container = document.getElementById('news-content-list');
       tabsContainer.innerHTML = '';
+      container.innerHTML = '';
 
       const discoveredTracks = new Set();
       ALL_ARTICLES.forEach(a => {
-        if (a.track) {
-          a.track.split(',').forEach(t => {
-            const clean = t.trim();
-            if (clean) discoveredTracks.add(clean);
-          });
-        }
+        if (a.track) a.track.split(',').forEach(t => { const clean = t.trim(); if (clean) discoveredTracks.add(clean); });
       });
 
       const dynamicTracks = ["All", ...Array.from(discoveredTracks).sort(), "Archived"];
 
       dynamicTracks.forEach(track => {
-        let count = 0;
-        if (track === 'Archived') {
-          count = archivedSignals.length;
-        } else if (track === 'All') {
-          count = ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)).length;
-        } else {
-          count = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id)).length;
-        }
+        let count = (track === 'Archived') ? archivedSignals.length : (track === 'All') 
+          ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)).length 
+          : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id)).length;
 
         const btn = document.createElement('button');
-        btn.className = `tab-btn ${activeSignalTrack === track ? 'active' : ''}`;
+        btn.className = `tab-btn ${activeTrack === track ? 'active' : ''}`;
         btn.innerHTML = `${track}<span class="count">${count}</span>`;
         btn.onclick = () => {
-          activeSignalTrack = track;
-          renderSignalsTabs();
-          renderSignalsContent();
+          activeTrack = track;
+          renderNewspaperContent();
+          renderBentoSignals();
         };
         tabsContainer.appendChild(btn);
       });
-    }
 
-    function renderSignalsContent() {
-      const container = document.getElementById('signals-content');
-      container.innerHTML = '';
-
-      let filtered = [];
-      if (activeSignalTrack === 'Archived') {
-        filtered = ALL_ARTICLES.filter(a => archivedSignals.includes(a.id));
-      } else if (activeSignalTrack === 'All') {
-        filtered = ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id));
-      } else {
-        filtered = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeSignalTrack.toLowerCase()) && !archivedSignals.includes(a.id));
-      }
+      let filtered = (activeTrack === 'Archived') ? ALL_ARTICLES.filter(a => archivedSignals.includes(a.id)) : (activeTrack === 'All') 
+        ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)) 
+        : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeTrack.toLowerCase()) && !archivedSignals.includes(a.id));
 
       if (filtered.length === 0) {
-        document.getElementById('signals-empty').style.display = 'block';
+        document.getElementById('news-empty').style.display = 'block';
         return;
       }
-      document.getElementById('signals-empty').style.display = 'none';
+      document.getElementById('news-empty').style.display = 'none';
 
       filtered.forEach(article => {
         const isArchived = archivedSignals.includes(article.id);
@@ -1393,40 +1474,53 @@
         const targetUrl = article.url || article.link || article.source_url || `https://www.google.com/search?q=${encodeURIComponent(article.headline + ' ' + (article.source || ''))}`;
 
         const card = document.createElement('article');
-        card.className = 'article-item';
-        card.id = `article-item-${article.id}`;
+        card.className = 'news-article-item';
+        card.id = `news-article-${article.id}`;
 
         card.innerHTML = `
-          <div class="article-meta">
+          <div class="news-article-meta">
             ${signalMeter(article.relevance || 3)}
-            <span class="source-label">${escapeHtml(article.source || 'Signal')}</span>
-            <span class="date-label">${article.date || ''}</span>
-            <button class="mark-read-btn" onclick="toggleArchiveArticle(${article.id})">
+            <span class="news-source-label">${escapeHtml(article.source || 'Signal')}</span>
+            <span class="news-date-label">${article.date || ''}</span>
+            <button class="news-mark-read-btn" onclick="toggleArchiveArticle(${article.id})">
               ${isArchived ? '✓ Unarchive' : '✓ Mark Read'}
             </button>
           </div>
 
-          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="article-headline">
+          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="news-headline">
             ${escapeHtml(article.headline)}
           </a>
 
-          <div class="article-body-wrap">
-            <p class="article-body">${escapeHtml(article.body)}</p>
-            ${isLong ? `<button class="read-more-btn" onclick="toggleExpand(${article.id}, this)">Read full summary ↓</button>` : ''}
+          <div>
+            <p class="news-body">${escapeHtml(article.body)}</p>
+            ${isLong ? `<button class="news-read-more-btn" onclick="toggleNewsExpand(${article.id}, this)">Read full summary ↓</button>` : ''}
           </div>
 
           ${article.deep_dive ? `
-            <div class="deep-dive-box">
+            <div class="news-deep-dive-box">
               <strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}
             </div>
           ` : ''}
 
-          <a class="read-source-link" href="${targetUrl}" target="_blank" rel="noopener noreferrer">
+          <a class="news-source-link" href="${targetUrl}" target="_blank" rel="noopener noreferrer">
             Read original source →
           </a>
         `;
         container.appendChild(card);
       });
+    }
+
+    function convertSignalToTask(headline, track) {
+      appData.tasks.push({
+        id: 'task_' + Date.now(),
+        title: headline,
+        project: track || 'General',
+        status: 'todo',
+        completed: false,
+        tags: ['signal', (track || 'general').toLowerCase()]
+      });
+      saveData();
+      alert(`Added to Backlog!`);
     }
 
     /* ==========================================================================
