@@ -28,10 +28,8 @@
       --font-mono: 'IBM Plex Mono', monospace;
       --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
       --accent-primary: #6366f1;
-      --signal-gold: #B8842E;
-      --signal-dim: #D9C7A0;
 
-      /* Editorial Newspaper Colors */
+      /* Editorial Newspaper Variables */
       --paper: #E8E5D9;
       --paper-raised: #F1EEE3;
       --ink: #22261F;
@@ -39,8 +37,12 @@
       --ink-faint: #8B8C7F;
       --rule: #B9B6A5;
       --rule-strong: #22261F;
+      --signal-gold: #B8842E;
+      --signal-dim: #D9C7A0;
       --teal: #2F4F49;
       --teal-bg: #DDE3DE;
+      --font-serif-head: 'Fraunces', Georgia, serif;
+      --font-serif-body: 'Source Serif 4', Georgia, serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-sans); }
@@ -121,12 +123,17 @@
     .sub-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
     /* ==========================================================================
-       SIGNALS: EDITORIAL NEWSPAPER FULL PAGE TAB
+       SIGNALS: EDITORIAL NEWSPAPER MODE (DEFAULT)
        ========================================================================== */
-    #sec-signals.content-section {
+    #sec-signals.newspaper-active {
       max-width: 720px;
       padding-top: 10px;
+      font-family: var(--font-serif-body);
+      color: var(--ink);
     }
+
+    #sec-signals.newspaper-active .newspaper-view-only { display: block; }
+    #sec-signals.newspaper-active .bento-view-only { display: none !important; }
 
     .masthead-top {
       display: flex;
@@ -136,7 +143,7 @@
     }
 
     #signals-issue-date {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 11px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -158,7 +165,7 @@
     }
 
     h1.newspaper-title {
-      font-family: 'Fraunces', Georgia, serif;
+      font-family: var(--font-serif-head);
       font-size: clamp(2.8rem, 10vw, 4.4rem);
       font-weight: 600;
       letter-spacing: -0.03em;
@@ -170,7 +177,7 @@
 
     .tagline {
       text-align: center;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 10.5px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
@@ -200,7 +207,7 @@
     div.signals-tabs-bar::-webkit-scrollbar { display: none; }
 
     div.signals-tabs-bar .tab-btn {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 11px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
@@ -228,21 +235,24 @@
       border-bottom: 2.5px solid var(--signal-gold) !important;
     }
 
-    /* Article Card Item */
-    .article-item {
+    /* Article Card Item (Newspaper) */
+    #sec-signals.newspaper-active .article-item {
       padding: 1.75rem 0;
       border-top: 1px solid var(--rule);
       display: flex;
       flex-direction: column;
       gap: 0.75rem;
+      background: transparent;
+      border-radius: 0;
+      box-shadow: none;
     }
-    .article-item:first-of-type {
+    #sec-signals.newspaper-active .article-item:first-of-type {
       border-top: none;
       padding-top: 0;
     }
 
     .article-meta {
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 11px;
       letter-spacing: 0.04em;
       color: var(--ink-soft);
@@ -265,7 +275,7 @@
     .mark-read-btn {
       background: none;
       border: none;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 10px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -279,8 +289,8 @@
     }
     .mark-read-btn:hover { color: var(--ink); }
 
-    .article-headline {
-      font-family: 'Fraunces', Georgia, serif;
+    #sec-signals.newspaper-active .article-headline {
+      font-family: var(--font-serif-head);
       font-size: clamp(1.45rem, 5.2vw, 1.95rem);
       font-weight: 600;
       line-height: 1.18;
@@ -288,11 +298,11 @@
       color: var(--ink);
       text-decoration: none;
     }
-    .article-headline:hover { color: var(--signal-gold); }
+    #sec-signals.newspaper-active .article-headline:hover { color: var(--signal-gold); }
 
     .article-body-wrap { position: relative; }
-    .article-body {
-      font-family: 'Source Serif 4', Georgia, serif;
+    #sec-signals.newspaper-active .article-body {
+      font-family: var(--font-serif-body);
       font-size: 1.05rem;
       line-height: 1.7;
       color: var(--ink);
@@ -309,7 +319,7 @@
     .read-more-btn {
       background: none;
       border: none;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 11.5px;
       letter-spacing: 0.04em;
       color: var(--signal-gold);
@@ -325,7 +335,7 @@
       padding: 0.85rem 1.1rem;
       background: var(--teal-bg);
       border-left: 3.5px solid var(--teal);
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 12px;
       color: var(--teal);
       line-height: 1.6;
@@ -336,7 +346,7 @@
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      font-family: 'IBM Plex Mono', monospace;
+      font-family: var(--font-mono);
       font-size: 11.5px;
       letter-spacing: 0.04em;
       color: var(--signal-gold);
@@ -356,6 +366,67 @@
     .signal-meter .bar:nth-child(4) { height: 10px; }
     .signal-meter .bar:nth-child(5) { height: 12px; }
     .signal-meter .bar.on { background: var(--signal-gold); }
+
+    /* ==========================================================================
+       SIGNALS: BENTO MODE OVERRIDES
+       ========================================================================== */
+    #sec-signals.bento-active {
+      max-width: 860px;
+      padding-top: 24px;
+      font-family: var(--font-sans);
+      color: var(--text);
+    }
+    #sec-signals.bento-active .newspaper-view-only { display: none !important; }
+    #sec-signals.bento-active .bento-view-only { display: flex !important; }
+
+    #sec-signals.bento-active .signals-tabs-bar {
+      border-bottom: 1px solid var(--border);
+      gap: 6px;
+      padding-bottom: 8px;
+      margin-bottom: 18px;
+    }
+    #sec-signals.bento-active .signals-tabs-bar .tab-btn {
+      border: 1px solid var(--border) !important;
+      background: var(--surface) !important;
+      border-radius: 99px !important;
+      padding: 6px 14px;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 0;
+    }
+    #sec-signals.bento-active .signals-tabs-bar .tab-btn.active {
+      background: var(--text) !important;
+      color: #fff !important;
+      border-color: var(--text) !important;
+    }
+    #sec-signals.bento-active .article-item {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.03);
+      margin-bottom: 16px;
+      gap: 10px;
+    }
+    #sec-signals.bento-active .article-headline {
+      font-family: var(--font-sans);
+      font-size: 1.18rem;
+      font-weight: 800;
+      color: var(--text);
+    }
+    #sec-signals.bento-active .article-headline:hover { color: var(--accent-primary); }
+    #sec-signals.bento-active .article-body {
+      font-family: var(--font-sans);
+      font-size: 0.93rem;
+      line-height: 1.65;
+      color: #334155;
+    }
+    #sec-signals.bento-active .deep-dive-box {
+      background: #f8fafc;
+      border-left-color: var(--accent-primary);
+      color: #3730a3;
+      border-radius: 0 8px 8px 0;
+    }
 
     /* Schedule Bucket Grid */
     .schedule-bucket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -531,18 +602,29 @@
       </div>
     </section>
 
-    <!-- 3. SIGNALS FEED TAB -->
-    <section id="sec-signals" class="content-section">
-      <header class="masthead">
-        <div class="masthead-top">
-          <span id="signals-issue-date">TUESDAY, AUGUST 25, 2026</span>
-          <button class="mode-toggle-btn" id="mode-btn" onclick="toggleBento()" title="Toggle View Mode">💻</button>
+    <!-- 3. SIGNALS FEED TAB (EDITORIAL NEWSPAPER DEFAULT WITH BENTO SWITCHER) -->
+    <section id="sec-signals" class="content-section newspaper-active">
+      <!-- Newspaper Header View -->
+      <div class="newspaper-view-only">
+        <header class="masthead">
+          <div class="masthead-top">
+            <span id="signals-issue-date">TUESDAY, AUGUST 25, 2026</span>
+            <button class="mode-toggle-btn" onclick="toggleSignalsView()" title="Switch to Bento Mode">💻</button>
+          </div>
+          <h1 class="newspaper-title">The Signal</h1>
+          <div class="tagline">ENGINEERING, FILTERED. NO NOISE, JUST WHAT MOVED.</div>
+        </header>
+        <hr class="rule-thick">
+      </div>
+
+      <!-- Bento Header View -->
+      <div class="bento-view-only workspace-header" style="display:none;">
+        <h1 class="section-title">SIGNALS FEED</h1>
+        <div class="flex-gap">
+          <button class="btn btn-secondary btn-sm" onclick="toggleSignalsView()">📰 Reader Mode</button>
+          <button class="btn btn-secondary btn-sm" onclick="fetchSupabaseSignals()">↻ Refresh</button>
         </div>
-        <h1 class="newspaper-title">The Signal</h1>
-        <div class="tagline">ENGINEERING, FILTERED. NO NOISE, JUST WHAT MOVED.</div>
-      </header>
-      
-      <hr class="rule-thick">
+      </div>
 
       <div class="signals-tabs-bar" id="signals-tabs-bar"></div>
 
@@ -792,6 +874,7 @@
 
     let ALL_ARTICLES = [];
     let activeSignalTrack = "All";
+    let isSignalsBentoMode = false;
     let archivedSignals = JSON.parse(localStorage.getItem('the_signal_archived_ids') || '[]');
 
     function escapeHtml(str) {
@@ -895,8 +978,8 @@
       const mainContainer = document.getElementById('main-scroll-container');
       if (mainContainer) mainContainer.scrollTop = 0;
 
-      // Ensure full-width layout for signals
-      if (tab === 'signals') {
+      // Ensure seamless edge-to-edge newspaper paper background when on Signals
+      if (tab === 'signals' && !isSignalsBentoMode) {
         document.body.style.background = '#E8E5D9';
         mainContainer.style.background = '#E8E5D9';
       } else {
@@ -1179,7 +1262,7 @@
     }
 
     /* ==========================================================================
-       SIGNALS FEED (NEWSPAPER AS DEFAULT)
+       SIGNALS FEED
        ========================================================================== */
     function signalMeter(score) {
       let bars = '';
@@ -1207,6 +1290,24 @@
         renderSignalsContent();
       } catch (err) {
         loader.textContent = 'Error connecting to database: ' + err.message;
+      }
+    }
+
+    function toggleSignalsView() {
+      isSignalsBentoMode = !isSignalsBentoMode;
+      const sec = document.getElementById('sec-signals');
+      const mainContainer = document.getElementById('main-scroll-container');
+
+      if (isSignalsBentoMode) {
+        sec.classList.remove('newspaper-active');
+        sec.classList.add('bento-active');
+        document.body.style.background = 'var(--bg)';
+        mainContainer.style.background = 'var(--bg)';
+      } else {
+        sec.classList.remove('bento-active');
+        sec.classList.add('newspaper-active');
+        document.body.style.background = '#E8E5D9';
+        mainContainer.style.background = '#E8E5D9';
       }
     }
 
