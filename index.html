@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OneSpace - Interview Prep & Productivity Hub</title>
-  
+  <title>OneSpace</title>
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Lucide Icons CDN -->
@@ -14,13 +14,13 @@
 
   <style>
     :root {
-      --bg: #090a0f;
-      --card-bg: #12141c;
-      --card-border: #1e2230;
-      --accent: #3b82f6;
+      --bg-main: #0c0d12;
+      --card-bg: #13151f;
+      --card-border: #1f2333;
+      --primary: #3b82f6;
     }
     body {
-      background-color: var(--bg);
+      background-color: var(--bg-main);
       color: #f3f4f6;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     }
@@ -29,7 +29,7 @@
       width: 4px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #2d3748;
+      background: #272d40;
       border-radius: 4px;
     }
   </style>
@@ -37,8 +37,8 @@
 <body class="min-h-screen pb-24 text-slate-100 antialiased selection:bg-blue-600 selection:text-white">
 
   <!-- Top App Header -->
-  <header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800/80 bg-[#090a0f]/90 px-4 py-3 backdrop-blur-md">
-    <div class="flex items-center gap-2">
+  <header class="sticky top-0 z-40 flex items-center justify-between border-b border-slate-800/80 bg-[#0c0d12]/90 px-5 py-3.5 backdrop-blur-md">
+    <div class="flex items-center gap-2.5">
       <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 font-bold text-white shadow-lg shadow-blue-500/20">
         ⚡
       </div>
@@ -51,70 +51,72 @@
   </header>
 
   <!-- Main View Router Container -->
-  <main class="mx-auto max-w-2xl px-4 py-4">
+  <main class="mx-auto max-w-6xl px-4 py-4">
 
     <!-- VIEW 1: TODAY (Dashboard) -->
     <section id="view-dashboard" class="app-view space-y-4">
-      <div class="rounded-xl border border-slate-800 bg-[#12141c] p-4 shadow-sm">
+      <div class="rounded-xl border border-slate-800 bg-[#13151f] p-5 shadow-sm">
         <h2 class="text-lg font-bold text-white">Daily Focus</h2>
-        <p class="mt-1 text-sm text-slate-400">Track your SDE-2 preparation sprints, schedules, and active tasks.</p>
+        <p class="mt-1 text-sm text-slate-400">Track your preparation sprints, schedules, and active tasks.</p>
       </div>
     </section>
 
     <!-- VIEW 2: TASKS -->
     <section id="view-tasks" class="app-view hidden space-y-4">
-      <div class="rounded-xl border border-slate-800 bg-[#12141c] p-4 shadow-sm">
-        <h2 class="text-lg font-bold text-white">Task Stack</h2>
-        <p class="mt-1 text-sm text-slate-400">Your prioritized backlog & day plan.</p>
+      <div class="rounded-xl border border-slate-800 bg-[#13151f] p-5 shadow-sm">
+        <h2 class="text-lg font-bold text-white">Tasks</h2>
+        <p class="mt-1 text-sm text-slate-400">Manage daily deliverables and interview preparation checklists.</p>
       </div>
     </section>
 
-    <!-- VIEW 3: SCHEDULE (Calendar) -->
+    <!-- VIEW 3: SCHEDULE -->
     <section id="view-calendar" class="app-view hidden space-y-4">
-      <div class="rounded-xl border border-slate-800 bg-[#12141c] p-4 shadow-sm">
-        <h2 class="text-lg font-bold text-white">Time Blocks</h2>
-        <p class="mt-1 text-sm text-slate-400">Scheduled calendar blocks & routines.</p>
+      <div class="rounded-xl border border-slate-800 bg-[#13151f] p-5 shadow-sm">
+        <h2 class="text-lg font-bold text-white">Schedule</h2>
+        <p class="mt-1 text-sm text-slate-400">Calendar time-blocking and focus sessions.</p>
       </div>
     </section>
 
     <!-- VIEW 4: LEARNING HUB (Second-to-Last Tab) -->
-    <section id="view-learning" class="app-view hidden space-y-4">
+    <section id="view-learning" class="app-view hidden space-y-6">
       
-      <!-- Track Badges / Filter Switcher -->
-      <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
-        <button onclick="setLearningTrack('DSA')" data-track="DSA" class="track-tab flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm transition-all">
-          <span>⚡</span> DSA
-        </button>
-        <button onclick="setLearningTrack('LLD')" data-track="LLD" class="track-tab flex items-center gap-1.5 rounded-lg bg-slate-800/80 px-3.5 py-1.5 text-xs font-semibold text-slate-400 transition-all hover:bg-slate-700 hover:text-white">
-          <span>📐</span> LLD
-        </button>
-        <button onclick="setLearningTrack('HLD')" data-track="HLD" class="track-tab flex items-center gap-1.5 rounded-lg bg-slate-800/80 px-3.5 py-1.5 text-xs font-semibold text-slate-400 transition-all hover:bg-slate-700 hover:text-white">
-          <span>🏗️</span> HLD
-        </button>
+      <!-- Top Track Navigation Bar (Signals Style) -->
+      <div class="border-b border-slate-800 pb-2">
+        <div class="flex items-center gap-6 overflow-x-auto text-xs font-mono tracking-wider uppercase text-slate-400">
+          <button onclick="setLearningTrack('DSA')" data-track="DSA" class="learning-track-tab active border-b-2 border-blue-500 py-1.5 font-bold text-white transition-colors">
+            DSA <span id="count-dsa" class="ml-1 text-[10px] text-slate-500">3</span>
+          </button>
+          <button onclick="setLearningTrack('LLD')" data-track="LLD" class="learning-track-tab border-b-2 border-transparent py-1.5 transition-colors hover:text-white">
+            LLD <span id="count-lld" class="ml-1 text-[10px] text-slate-500">0</span>
+          </button>
+          <button onclick="setLearningTrack('HLD')" data-track="HLD" class="learning-track-tab border-b-2 border-transparent py-1.5 transition-colors hover:text-white">
+            HLD <span id="count-hld" class="ml-1 text-[10px] text-slate-500">0</span>
+          </button>
+        </div>
       </div>
 
-      <!-- Dynamic Learning Hub Content Container -->
-      <div id="learning-content-area" class="space-y-4">
-        <!-- Rendered via renderLearningHub() -->
+      <!-- Bento Grid Content Container for Learning Drills -->
+      <div id="learning-bento-container" class="grid grid-cols-1 gap-4 md:grid-cols-12">
+        <!-- Rendered dynamically via renderLearningHub() -->
       </div>
     </section>
 
     <!-- VIEW 5: SIGNALS (Last Tab) -->
     <section id="view-signals" class="app-view hidden space-y-4">
-      <div class="rounded-xl border border-slate-800 bg-[#12141c] p-4 shadow-sm">
-        <h2 class="text-lg font-bold text-white">Engineering Signals</h2>
-        <p class="mt-1 text-sm text-slate-400">Curated industry updates, papers & systemic trends.</p>
+      <div class="rounded-xl border border-slate-800 bg-[#13151f] p-5 shadow-sm">
+        <h2 class="text-lg font-bold text-white">Signals</h2>
+        <p class="mt-1 text-sm text-slate-400">Curated feeds, insights, and systemic engineering trends.</p>
       </div>
     </section>
 
-    <!-- VIEW 6: REPORTS (Moved to Settings Access) -->
+    <!-- VIEW 6: REPORTS (Accessible from Settings) -->
     <section id="view-reports" class="app-view hidden space-y-4">
-      <div class="flex items-center justify-between rounded-xl border border-slate-800 bg-[#12141c] p-4">
+      <div class="flex items-center justify-between rounded-xl border border-slate-800 bg-[#13151f] p-5">
         <div>
           <h2 class="text-lg font-bold text-white">Performance Reports</h2>
-          <p class="text-sm text-slate-400">Track drill completion velocity & consistency.</p>
+          <p class="text-sm text-slate-400">Analytics, velocity, and solved problem archives.</p>
         </div>
-        <button onclick="switchView('dashboard')" class="rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white">
+        <button onclick="switchView('dashboard')" class="rounded-lg bg-slate-800 px-3.5 py-1.5 text-xs font-medium text-slate-300 hover:text-white">
           Back
         </button>
       </div>
@@ -122,8 +124,8 @@
 
   </main>
 
-  <!-- Bottom Navigation Bar (Fixed Order: Dashboard, Tasks, Schedule, Learning, Signals) -->
-  <nav class="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-slate-800/80 bg-[#090a0f]/95 px-2 py-2 backdrop-blur-md">
+  <!-- Bottom Navigation Bar (Today, Tasks, Schedule, Learning, Signals) -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-around border-t border-slate-800/80 bg-[#0c0d12]/95 px-2 py-2 backdrop-blur-md">
     <button onclick="switchView('dashboard')" class="nav-btn flex flex-1 flex-col items-center gap-1 py-1 text-blue-500" data-view="dashboard">
       <i data-lucide="layout-dashboard" class="h-5 w-5"></i>
       <span class="text-[10px] font-medium tracking-tight">Today</span>
@@ -146,9 +148,9 @@
     </button>
   </nav>
 
-  <!-- Settings Modal with Embedded Reports Link -->
+  <!-- Settings Modal (Contains Performance Reports Link) -->
   <div id="settings-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-    <div class="w-full max-w-md rounded-2xl border border-slate-800 bg-[#12141c] p-5 shadow-2xl">
+    <div class="w-full max-w-md rounded-2xl border border-slate-800 bg-[#13151f] p-5 shadow-2xl">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <h3 class="font-bold text-white">Settings</h3>
         <button onclick="closeSettings()" class="rounded-lg p-1 text-slate-400 hover:text-white">
@@ -157,7 +159,6 @@
       </div>
 
       <div class="mt-4 space-y-2">
-        <!-- Direct Link to Performance Reports View -->
         <button onclick="switchView('reports'); closeSettings();" class="flex w-full items-center justify-between rounded-xl border border-slate-800/80 bg-slate-900/60 p-3.5 text-left transition-colors hover:bg-slate-800/80">
           <div class="flex items-center gap-3">
             <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/10 text-indigo-400">
@@ -189,7 +190,7 @@
       const target = document.getElementById(`view-${viewName}`);
       if (target) target.classList.remove("hidden");
 
-      // Update active state in bottom navigation
+      // Update active states in bottom navigation
       document.querySelectorAll(".nav-btn").forEach(btn => {
         const isActive = btn.dataset.view === viewName;
         btn.classList.toggle("text-blue-500", isActive);
@@ -212,14 +213,15 @@
       document.getElementById("settings-modal").classList.add("hidden");
     }
 
-    // 4. Learning Track Switcher
+    // 4. Learning Track Switcher (Signals Style)
     function setLearningTrack(track) {
       currentLearningTrack = track;
-      document.querySelectorAll(".track-tab").forEach(tab => {
+      document.querySelectorAll(".learning-track-tab").forEach(tab => {
         const isActive = tab.dataset.track === track;
-        tab.classList.toggle("bg-blue-600", isActive);
+        tab.classList.toggle("border-blue-500", isActive);
+        tab.classList.toggle("font-bold", isActive);
         tab.classList.toggle("text-white", isActive);
-        tab.classList.toggle("bg-slate-800/80", !isActive);
+        tab.classList.toggle("border-transparent", !isActive);
         tab.classList.toggle("text-slate-400", !isActive);
       });
       renderLearningHub();
@@ -227,35 +229,32 @@
 
     // 5. Main Learning Hub Renderer
     async function renderLearningHub() {
-      const container = document.getElementById("learning-content-area");
-      
-      if (currentLearningTrack === "DSA") {
-        await renderDsaDailyDrill(container);
-      } else {
+      const container = document.getElementById("learning-bento-container");
+      if (!container) return;
+
+      if (currentLearningTrack !== "DSA") {
         container.innerHTML = `
-          <div class="rounded-xl border border-slate-800 bg-[#12141c] p-8 text-center">
+          <div class="col-span-12 rounded-2xl border border-slate-800 bg-[#13151f] p-8 text-center">
             <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-slate-800/60 text-xl">
               ${currentLearningTrack === "LLD" ? "📐" : "🏗️"}
             </div>
             <h3 class="mt-3 text-base font-semibold text-white">${currentLearningTrack} Mastery Track</h3>
-            <p class="mt-1 text-xs text-slate-400">Structured system design & object-oriented drills coming next.</p>
+            <p class="mt-1 text-xs text-slate-400">Curriculum and architectural drills are being configured.</p>
           </div>
         `;
+        lucide.createIcons();
+        return;
       }
-      lucide.createIcons();
-    }
 
-    // 6. Fetch and Render Today's DSA Pattern Drill
-    async function renderDsaDailyDrill(container) {
       container.innerHTML = `
-        <div class="flex items-center justify-center py-12 text-slate-500">
+        <div class="col-span-12 flex items-center justify-center py-16 text-slate-500">
           <i data-lucide="loader-2" class="h-6 w-6 animate-spin"></i>
         </div>
       `;
       lucide.createIcons();
 
       try {
-        // Fetch latest daily drill record from Supabase
+        // Fetch latest daily drill from dsa_daily_drills
         const { data: drills, error: drillErr } = await db
           .from("dsa_daily_drills")
           .select("*")
@@ -264,8 +263,8 @@
 
         if (drillErr || !drills || drills.length === 0) {
           container.innerHTML = `
-            <div class="rounded-xl border border-slate-800 bg-[#12141c] p-6 text-center text-sm text-slate-400">
-              No algorithm drill available for today. Run your n8n pipeline to generate one!
+            <div class="col-span-12 rounded-2xl border border-slate-800 bg-[#13151f] p-6 text-center text-sm text-slate-400">
+              No algorithm drill available for today.
             </div>
           `;
           return;
@@ -273,123 +272,116 @@
 
         const drill = drills[0];
 
-        // Fetch problems associated with this drill
-        const { data: questions, error: qErr } = await db
+        // Fetch questions mapped in the drill
+        const { data: questions } = await db
           .from("dsa_questions")
           .select("*")
           .in("id", drill.problem_ids);
 
         const problemMap = new Map((questions || []).map(q => [q.id, q]));
 
-        // Render Pattern Card
+        // Render Bento Grid Layout
         container.innerHTML = `
-          <div class="space-y-4 rounded-2xl border border-slate-800/90 bg-[#12141c] p-5 shadow-xl">
-            
-            <!-- Pattern Header -->
-            <div class="flex items-start justify-between">
-              <div>
-                <span class="inline-flex items-center gap-1 rounded-md bg-blue-500/10 px-2 py-0.5 text-[11px] font-semibold text-blue-400 border border-blue-500/20">
-                  ⚡ Algorithm of the Day
-                </span>
-                <h2 class="mt-2 text-xl font-bold tracking-tight text-white">${drill.pattern_name}</h2>
+          <!-- Bento Cell 1: Pattern Overview & Trigger Cues (Span 5) -->
+          <div class="col-span-12 flex flex-col justify-between rounded-2xl border border-slate-800/80 bg-[#13151f] p-5 shadow-xl md:col-span-5 space-y-4">
+            <div>
+              <div class="flex items-center justify-between font-mono text-xs text-slate-400 mb-2">
+                <span class="font-semibold uppercase tracking-wider text-blue-400">⚡ Pattern of the Day</span>
+                <span class="rounded bg-slate-800/80 px-2 py-0.5">${drill.drill_date}</span>
               </div>
-              <span class="rounded bg-slate-800/80 px-2 py-1 font-mono text-[11px] text-slate-400">
-                ${drill.drill_date}
-              </span>
-            </div>
-
-            <!-- Trigger Cues Box -->
-            <div class="rounded-xl border border-slate-800/80 bg-slate-900/50 p-3.5">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">🎯 Pattern Recognition Cues</span>
-              <ul class="mt-2 space-y-1.5 text-xs text-slate-300">
-                ${(drill.trigger_cues || []).map(cue => `
-                  <li class="flex items-start gap-2">
-                    <span class="text-blue-400">•</span>
-                    <span>${cue}</span>
-                  </li>
-                `).join("")}
-              </ul>
-            </div>
-
-            <!-- Java Solution Skeleton -->
-            <div class="overflow-hidden rounded-xl border border-slate-800 bg-black/60 font-mono text-xs">
-              <div class="flex items-center justify-between border-b border-slate-800/80 bg-slate-900/70 px-3.5 py-2 text-slate-400">
-                <span class="flex items-center gap-1.5 text-[11px] font-medium text-slate-300">
-                  <span class="h-2 w-2 rounded-full bg-amber-400"></span> Java Template
-                </span>
-                <button onclick="copyCode(this)" class="flex items-center gap-1 text-[11px] text-slate-400 transition-colors hover:text-white">
-                  <i data-lucide="copy" class="h-3.5 w-3.5"></i>
-                  <span>Copy</span>
-                </button>
-              </div>
-              <pre class="custom-scrollbar overflow-x-auto p-3.5 text-slate-200 leading-relaxed"><code id="java-template-code">${escapeHtml(drill.template_code)}</code></pre>
-            </div>
-
-            <!-- 3-Problem Ladder Section -->
-            <div class="space-y-2.5">
-              <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">🪜 Practice Ladder</span>
+              <h2 class="text-xl font-bold tracking-tight text-white">${drill.pattern_name}</h2>
               
-              <div class="space-y-2">
-                ${drill.problem_ids.map((id, index) => {
-                  const q = problemMap.get(id);
-                  if (!q) return "";
-                  const isSolved = q.status === "solved";
-                  const tierConfig = index === 0 
-                    ? { label: "Foundation", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" }
-                    : index === 1 
-                    ? { label: "Core SDE-2", color: "bg-blue-500/10 text-blue-400 border-blue-500/20" }
-                    : { label: "Variant", color: "bg-purple-500/10 text-purple-400 border-purple-500/20" };
+              <div class="mt-4 rounded-xl border border-slate-800/80 bg-slate-900/50 p-3.5">
+                <span class="block text-[11px] font-bold uppercase tracking-wider text-slate-400">Recognition Triggers</span>
+                <ul class="mt-2 space-y-1.5 text-xs text-slate-300">
+                  ${(drill.trigger_cues || []).map(cue => `
+                    <li class="flex items-start gap-2">
+                      <span class="text-blue-400 font-bold">•</span>
+                      <span>${cue}</span>
+                    </li>
+                  `).join("")}
+                </ul>
+              </div>
+            </div>
 
-                  return `
-                    <div class="flex items-center justify-between rounded-xl border p-3.5 transition-all ${
-                      isSolved 
-                        ? "border-emerald-500/20 bg-emerald-950/10" 
-                        : "border-slate-800/80 bg-slate-900/40 hover:border-slate-700"
-                    }">
-                      <div class="flex items-center gap-3">
-                        <input type="checkbox" ${isSolved ? "checked" : ""} 
-                          onchange="toggleProblemSolved(${q.id}, this.checked)"
-                          class="h-4 w-4 rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer">
-                        <div>
-                          <div class="flex items-center gap-2">
-                            <span class="rounded px-1.5 py-0.5 text-[10px] font-medium border ${tierConfig.color}">
-                              ${tierConfig.label}
-                            </span>
-                            <a href="${q.url}" target="_blank" class="text-sm font-semibold hover:underline ${isSolved ? "line-through text-slate-400" : "text-white"}">
-                              ${q.title}
-                            </a>
-                          </div>
-                          <span class="mt-0.5 block text-[11px] text-slate-400 font-mono">
-                            ${q.platform} • ${q.difficulty}
-                          </span>
-                        </div>
+            <!-- Edge Case / Pitfall Warning -->
+            <div class="flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3.5 text-xs text-rose-300">
+              <i data-lucide="alert-triangle" class="h-4 w-4 shrink-0 text-rose-400 mt-0.5"></i>
+              <div>
+                <strong class="font-semibold text-rose-200">Interview Trap:</strong>
+                <span class="mt-0.5 block text-rose-300/90 leading-relaxed">${drill.common_pitfall}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bento Cell 2: Java Speed Template (Span 7) -->
+          <div class="col-span-12 flex flex-col overflow-hidden rounded-2xl border border-slate-800/80 bg-neutral-950 font-mono text-xs shadow-xl md:col-span-7">
+            <div class="flex items-center justify-between border-b border-neutral-800 bg-neutral-900/70 px-4 py-2.5 text-neutral-400">
+              <span class="flex items-center gap-1.5 text-[11px] font-medium text-slate-300">
+                <span class="h-2 w-2 rounded-full bg-amber-400"></span> Java Speed Template
+              </span>
+              <button onclick="copyCode(this)" class="flex items-center gap-1 text-[11px] text-slate-400 transition-colors hover:text-white">
+                <i data-lucide="copy" class="h-3.5 w-3.5"></i>
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="custom-scrollbar flex-1 overflow-x-auto p-4 leading-relaxed text-slate-200"><code id="java-template-code">${escapeHtml(drill.template_code)}</code></pre>
+          </div>
+
+          <!-- Bento Cell 3: 3-Problem Ladder (Span 12) -->
+          <div class="col-span-12 rounded-2xl border border-slate-800/80 bg-[#13151f] p-5 shadow-xl space-y-3">
+            <span class="block text-[11px] font-bold uppercase tracking-wider text-slate-400 font-mono">🪜 Problem Ladder</span>
+            
+            <div class="grid grid-cols-1 gap-3 md:grid-cols-3">
+              ${drill.problem_ids.map((id, index) => {
+                const q = problemMap.get(id);
+                if (!q) return "";
+                const isSolved = q.status === "solved";
+                const tierBadge = index === 0 
+                  ? { label: "Foundation", color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" }
+                  : index === 1 
+                  ? { label: "Core SDE-2", color: "bg-blue-500/10 text-blue-400 border-blue-500/20" }
+                  : { label: "Variant", color: "bg-purple-500/10 text-purple-400 border-purple-500/20" };
+
+                return `
+                  <div class="flex flex-col justify-between rounded-xl border p-3.5 transition-all ${
+                    isSolved 
+                      ? "border-emerald-500/20 bg-emerald-950/10" 
+                      : "border-slate-800/80 bg-slate-900/40 hover:border-slate-700"
+                  }">
+                    <div class="flex items-start gap-2.5">
+                      <input type="checkbox" ${isSolved ? "checked" : ""} 
+                        onchange="toggleProblemSolved(${q.id}, this.checked)"
+                        class="mt-1 h-4 w-4 rounded border-slate-700 bg-slate-900 text-blue-600 focus:ring-0 focus:ring-offset-0 cursor-pointer">
+                      <div>
+                        <span class="inline-block rounded px-1.5 py-0.5 text-[10px] font-medium border ${tierBadge.color}">
+                          ${tierBadge.label}
+                        </span>
+                        <a href="${q.url}" target="_blank" class="mt-1 block text-sm font-semibold hover:underline ${isSolved ? "line-through text-slate-500" : "text-white"}">
+                          ${q.title}
+                        </a>
+                        <span class="mt-0.5 block font-mono text-[11px] text-slate-400">
+                          ${q.platform} • ${q.difficulty}
+                        </span>
                       </div>
-                      
-                      <a href="${q.url}" target="_blank" class="flex items-center gap-1 rounded-lg bg-slate-800/80 px-2.5 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:bg-slate-700 hover:text-white">
+                    </div>
+                    
+                    <div class="mt-3 flex justify-end">
+                      <a href="${q.url}" target="_blank" class="flex items-center gap-1 text-xs font-medium text-blue-400 hover:text-blue-300">
                         <span>Solve</span>
                         <i data-lucide="external-link" class="h-3 w-3"></i>
                       </a>
                     </div>
-                  `;
-                }).join("")}
-              </div>
+                  </div>
+                `;
+              }).join("")}
             </div>
-
-            <!-- Common Pitfall Warning -->
-            <div class="flex items-start gap-2.5 rounded-xl border border-rose-500/20 bg-rose-500/10 p-3.5 text-xs text-rose-300">
-              <i data-lucide="alert-triangle" class="h-4 w-4 shrink-0 text-rose-400"></i>
-              <div>
-                <strong class="font-semibold text-rose-200">Common Interview Trap:</strong>
-                <span class="mt-0.5 block text-rose-300/90 leading-normal">${drill.common_pitfall}</span>
-              </div>
-            </div>
-
           </div>
         `;
       } catch (err) {
-        console.error("Error loading daily drill:", err);
+        console.error("Error loading drill:", err);
         container.innerHTML = `
-          <div class="rounded-xl border border-rose-900/50 bg-rose-950/20 p-4 text-center text-xs text-rose-400">
+          <div class="col-span-12 rounded-xl border border-rose-900/50 bg-rose-950/20 p-4 text-center text-xs text-rose-400">
             Failed to load drill data from Supabase.
           </div>
         `;
@@ -397,7 +389,7 @@
       lucide.createIcons();
     }
 
-    // 7. Toggle Solved State Directly Back to Supabase
+    // 6. Toggle Problem Completion in Supabase
     async function toggleProblemSolved(problemId, isCompleted) {
       const newStatus = isCompleted ? "solved" : "todo";
       
@@ -417,7 +409,7 @@
       }
     }
 
-    // 8. Clipboard Copy Helper
+    // 7. Clipboard Copy Helper
     function copyCode(button) {
       const code = document.getElementById("java-template-code").innerText;
       navigator.clipboard.writeText(code).then(() => {
@@ -431,14 +423,14 @@
       });
     }
 
-    // Helper: HTML sanitization
+    // 8. Helper: HTML Escaping
     function escapeHtml(string) {
       return String(string).replace(/[&<>"']/g, function (m) {
         return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" }[m];
       });
     }
 
-    // Initial Icon Render & Mount
+    // Initial Mount
     document.addEventListener("DOMContentLoaded", () => {
       lucide.createIcons();
     });
