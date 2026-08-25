@@ -777,7 +777,7 @@
       <div id="learning-bento-container"></div>
     </section>
 
-    <!-- 4. SIGNALS FEED TAB (BENTO CARDS) -->
+    <!-- 4. SIGNALS FEED TAB (BENTO CARDS & IPO HUB) -->
     <section id="sec-signals" class="content-section">
       <header class="workspace-header">
         <h1 class="section-title">SIGNALS FEED</h1>
@@ -1053,6 +1053,7 @@
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     let ALL_ARTICLES = [];
+    let ALL_IPOS = [];
     let activeTrack = "All";
     let activeLearningTrack = "DSA";
     let activeHldCategory = "All";
@@ -1525,8 +1526,7 @@
 
           container.innerHTML = `
             <div class="bento-grid">
-              
-              <!-- HLD Header & Aligned Full-Width Progress Banner (Span 12) -->
+              <!-- HLD Header & Progress Banner (Span 12) -->
               <div class="bento-card bento-span-12" style="display:flex; flex-direction:column; gap:14px; background:var(--surface);">
                 <div>
                   <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--accent-primary); font-weight:700; margin-bottom:4px; text-transform:uppercase;">
@@ -1540,7 +1540,7 @@
                   </p>
                 </div>
 
-                <!-- Aligned Progress Meter -->
+                <!-- Aligned Progress Bar -->
                 <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px;">
                   <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.72rem; margin-bottom:6px;">
                     <span style="font-weight:700; color:var(--text-muted); text-transform:uppercase;">Curriculum Progress</span>
@@ -1567,7 +1567,7 @@
                 </div>
               </div>
 
-              <!-- Grouped Checklists with Clean Two-Row Layout (Span 12) -->
+              <!-- Grouped Checklists (Span 12) -->
               <div class="bento-span-12" style="display:flex; flex-direction:column; gap:14px;">
                 ${Object.entries(grouped).map(([categoryName, items]) => {
                   const catCompleted = items.filter(i => i.status === 'completed' || i.status === 'mastered').length;
@@ -1595,8 +1595,6 @@
 
                           return `
                             <div class="ladder-card-clean ${isDone ? 'solved' : ''}">
-                              
-                              <!-- Top Row: Checkbox + Difficulty Badge + Full Title (Wraps naturally) -->
                               <div class="ladder-top-row">
                                 <input type="checkbox" 
                                   ${isDone ? 'checked' : ''} 
@@ -1618,7 +1616,6 @@
                                 </div>
                               </div>
 
-                              <!-- Bottom Bar: Code + Action Button on bottom right -->
                               <div class="ladder-bottom-bar">
                                 <span class="ladder-subtext">
                                   Code: ${escapeHtml(item.module_code)}
@@ -1633,7 +1630,6 @@
                                   </a>
                                 ` : ''}
                               </div>
-
                             </div>
                           `;
                         }).join('')}
@@ -1642,7 +1638,6 @@
                   `;
                 }).join('')}
               </div>
-
             </div>
           `;
         } catch (err) {
@@ -1721,7 +1716,6 @@
                 <pre style="margin:0;"><code id="java-code-content">${escapeHtml(drill.template_code)}</code></pre>
               </div>
 
-              <!-- Intuitive Code Explanation Box -->
               <div class="bento-card" style="background:#f8fafc; border-color:var(--border);">
                 <div style="font-size:0.7rem; font-weight:800; font-family:var(--font-mono); color:var(--accent-primary); text-transform:uppercase; margin-bottom:4px;">💡 Intuitive Approach & Breakdown</div>
                 <p style="font-size:0.8rem; line-height:1.6; color:var(--text);">${escapeHtml(drill.approach_explanation || 'Step-by-step logic map for fast interview execution.')}</p>
@@ -1775,7 +1769,7 @@
     }
 
     /* ==========================================================================
-       SIGNALS DATA ENGINE & BENTO VIEW
+       SIGNALS DATA ENGINE & BENTO VIEW (INCL. IPO TAB)
        ========================================================================== */
     function signalMeter(score) {
       let bars = '';
@@ -1787,12 +1781,18 @@
 
     async function fetchSupabaseSignals() {
       const bentoLoader = document.getElementById('bento-loading');
-      bentoLoader.style.display = 'block';
+      if (bentoLoader) bentoLoader.style.display = 'block';
+
       try {
-        const { data, error } = await db.from('articles').select('*').order('id', { ascending: false });
-        if (error) throw error;
-        ALL_ARTICLES = data || [];
-        bentoLoader.style.display = 'none';
+        const [articlesRes, iposRes] = await Promise.all([
+          db.from('articles').select('*').order('id', { ascending: false }),
+          db.from('ipo_evaluations').select('*').order('score', { ascending: false })
+        ]);
+
+        ALL_ARTICLES = articlesRes.data || [];
+        ALL_IPOS = iposRes.data || [];
+
+        if (bentoLoader) bentoLoader.style.display = 'none';
 
         if (ALL_ARTICLES.length > 0) {
           const latestDate = ALL_ARTICLES[0].date || new Date().toISOString().split('T')[0];
@@ -1802,7 +1802,7 @@
         renderBentoSignals();
         renderNewspaperContent();
       } catch (err) {
-        bentoLoader.textContent = 'Error connecting to database: ' + err.message;
+        if (bentoLoader) bentoLoader.textContent = 'Error connecting to database: ' + err.message;
       }
     }
 
@@ -1820,32 +1820,132 @@
     function renderBentoSignals() {
       const pillBox = document.getElementById('bento-track-pills');
       const container = document.getElementById('bento-signals-container');
+      if (!pillBox || !container) return;
+
       pillBox.innerHTML = '';
       container.innerHTML = '';
 
       const discoveredTracks = new Set();
       ALL_ARTICLES.forEach(a => {
-        if (a.track) a.track.split(',').forEach(t => { const clean = t.trim(); if (clean) discoveredTracks.add(clean); });
+        if (a.track) a.track.split(',').forEach(t => { 
+          const clean = t.trim(); 
+          if (clean) discoveredTracks.add(clean); 
+        });
       });
 
-      const dynamicTracks = ["All", ...Array.from(discoveredTracks).sort(), "Archived"];
+      const dynamicTracks = ["All", "IPOs", ...Array.from(discoveredTracks).sort(), "Archived"];
 
       dynamicTracks.forEach(track => {
-        let count = (track === 'Archived') ? archivedSignals.length : (track === 'All') 
-          ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)).length 
-          : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id)).length;
+        let count = 0;
+        if (track === 'IPOs') {
+          count = ALL_IPOS.length;
+        } else if (track === 'Archived') {
+          count = archivedSignals.length;
+        } else if (track === 'All') {
+          count = ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)).length;
+        } else {
+          count = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id)).length;
+        }
 
         const chip = document.createElement('span');
         chip.className = `filter-chip ${activeTrack === track ? 'active' : ''}`;
-        chip.innerText = `${track} (${count})`;
+        chip.innerText = track === 'IPOs' ? `📈 IPOs (${count})` : `${track} (${count})`;
         chip.onclick = () => {
           activeTrack = track;
           renderBentoSignals();
-          renderNewspaperContent();
         };
         pillBox.appendChild(chip);
       });
 
+      // VIEW A: DEDICATED IPO EVALUATIONS VIEW
+      if (activeTrack === 'IPOs') {
+        if (ALL_IPOS.length === 0) {
+          container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem;">No evaluated IPOs found in database.</div>`;
+          return;
+        }
+
+        ALL_IPOS.forEach(ipo => {
+          const gmpColor = (ipo.gmp_percent || 0) >= 30 ? '#16a34a' : (ipo.gmp_percent || 0) >= 15 ? '#d97706' : '#64748b';
+          const verdictBg = (ipo.score || 0) >= 75 ? 'background:#dcfce7; color:#166534;' : (ipo.score || 0) >= 50 ? 'background:#fef3c7; color:#92400e;' : 'background:#fee2e2; color:#991b1b;';
+          const reasonsList = Array.isArray(ipo.reasons) ? ipo.reasons : [];
+
+          const card = document.createElement('div');
+          card.className = 'bento-signal-card';
+          card.style.borderLeft = `4px solid ${(ipo.score || 0) >= 75 ? '#22c55e' : (ipo.score || 0) >= 50 ? '#f59e0b' : '#ef4444'}`;
+
+          card.innerHTML = `
+            <div class="bento-meta-bar">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="pill" style="${verdictBg} font-weight:800; font-size:0.7rem;">
+                  ${escapeHtml(ipo.verdict || 'EVALUATED')}
+                </span>
+                <span><strong>Score: ${ipo.score || 0}/100</strong></span>
+              </div>
+              <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">
+                ${ipo.evaluated_at ? new Date(ipo.evaluated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
+              </span>
+            </div>
+
+            <div>
+              <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:4px; color:var(--text);">
+                ${escapeHtml(ipo.company_name)}
+              </h3>
+              <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.78rem; font-family:var(--font-mono); margin-top:6px;">
+                <span style="background:var(--bg); padding:3px 8px; border-radius:4px; border:1px solid var(--border);">
+                  Band: <strong>₹${ipo.issue_price || 0}</strong>
+                </span>
+                <span style="background:var(--bg); padding:3px 8px; border-radius:4px; border:1px solid var(--border); color:${gmpColor};">
+                  GMP: <strong>₹${ipo.gmp || 0} (+${ipo.gmp_percent || 0}%)</strong>
+                </span>
+                ${ipo.anchor_quality ? `
+                  <span style="background:var(--bg); padding:3px 8px; border-radius:4px; border:1px solid var(--border);">
+                    ${escapeHtml(ipo.anchor_quality)}
+                  </span>
+                ` : ''}
+              </div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:8px; font-size:0.84rem; line-height:1.5;">
+              ${ipo.sector_analysis ? `
+                <div style="background:#f8fafc; border-left:3px solid var(--accent-primary); padding:8px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
+                  <strong>Sector & Model:</strong> ${escapeHtml(ipo.sector_analysis)}
+                </div>
+              ` : ''}
+
+              ${ipo.governance_risks ? `
+                <div style="background:#fef2f2; border-left:3px solid #ef4444; padding:8px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; color:#991b1b;">
+                  <strong>Risks & Governance:</strong> ${escapeHtml(ipo.governance_risks)}
+                </div>
+              ` : ''}
+            </div>
+
+            ${ipo.llm_verdict ? `
+              <div class="bento-deep-dive">
+                <strong>Analyst Take:</strong> ${escapeHtml(ipo.llm_verdict)}
+              </div>
+            ` : ''}
+
+            ${reasonsList.length > 0 ? `
+              <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:4px;">
+                ${reasonsList.map(r => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.7rem;">${escapeHtml(r)}</span>`).join('')}
+              </div>
+            ` : ''}
+
+            <div class="bento-footer">
+              <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('Apply IPO: ${escapeHtml(ipo.company_name).replace(/'/g, "\\'")}', 'Finance')">
+                + Add Reminder to Apply
+              </button>
+              <a class="btn btn-secondary btn-sm" href="https://www.google.com/search?q=${encodeURIComponent(ipo.company_name + ' IPO DRHP Chittorgarh')}" target="_blank" rel="noopener noreferrer">
+                DRHP / Review ↗
+              </a>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+        return;
+      }
+
+      // VIEW B: STANDARD ARTICLES STREAM
       let filtered = (activeTrack === 'Archived') ? ALL_ARTICLES.filter(a => archivedSignals.includes(a.id)) : (activeTrack === 'All') 
         ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)) 
         : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeTrack.toLowerCase()) && !archivedSignals.includes(a.id));
