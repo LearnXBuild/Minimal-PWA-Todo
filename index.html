@@ -232,6 +232,38 @@
     /* ==========================================================================
        LEARNING HUB BENTO STYLES
        ========================================================================== */
+    /* Fixed Code Box CSS */
+.code-box {
+  background: #0f172a;
+  color: #f1f5f9;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.code-box-header {
+  background: #1e293b;
+  padding: 10px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+  font-size: 0.72rem;
+  color: #94a3b8;
+  flex-shrink: 0;
+}
+.code-box pre {
+  margin: 0;
+  padding: 14px;
+  overflow-x: auto;
+  line-height: 1.55;
+  flex: 1;
+  max-height: 380px;
+}
     /* Bento Grid Layout Fixes */
 .bento-grid {
   display: grid;
