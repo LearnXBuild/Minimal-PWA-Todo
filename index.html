@@ -1140,71 +1140,75 @@
     }
 
     function renderSignalsFeed() {
-      const container = document.getElementById('signals-container');
-      container.innerHTML = '';
+  const container = document.getElementById('signals-container');
+  container.innerHTML = '';
 
-      let filtered = [];
-      if (activeSignalTrack === 'Archived') {
-        filtered = ALL_ARTICLES.filter(a => appData.archivedSignals.includes(a.id));
-      } else if (activeSignalTrack === 'All') {
-        filtered = ALL_ARTICLES.filter(a => !appData.archivedSignals.includes(a.id));
-      } else {
-        filtered = ALL_ARTICLES.filter(a => a.track === activeSignalTrack && !appData.archivedSignals.includes(a.id));
-      }
+  let filtered = [];
+  if (activeSignalTrack === 'Archived') {
+    filtered = ALL_ARTICLES.filter(a => appData.archivedSignals.includes(a.id));
+  } else if (activeSignalTrack === 'All') {
+    filtered = ALL_ARTICLES.filter(a => !appData.archivedSignals.includes(a.id));
+  } else {
+    filtered = ALL_ARTICLES.filter(a => a.track === activeSignalTrack && !appData.archivedSignals.includes(a.id));
+  }
 
-      if (filtered.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem;">No signals in this view.</div>`;
-        return;
-      }
+  if (filtered.length === 0) {
+    container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem;">No signals in this view.</div>`;
+    return;
+  }
 
-      filtered.forEach(article => {
-        const isArchived = appData.archivedSignals.includes(article.id);
-        const tagsList = Array.isArray(article.tags) ? article.tags : (typeof article.tags === 'string' ? JSON.parse(article.tags || '[]') : []);
-        const isLongBody = (article.body || '').length > 240;
+  filtered.forEach(article => {
+    const isArchived = appData.archivedSignals.includes(article.id);
+    const tagsList = Array.isArray(article.tags) ? article.tags : (typeof article.tags === 'string' ? JSON.parse(article.tags || '[]') : []);
+    const isLongBody = (article.body || '').length > 240;
+    const articleUrl = article.url || '#';
 
-        const card = document.createElement('div');
-        card.className = 'signal-card';
-        card.id = `signal-card-${article.id}`;
+    const card = document.createElement('div');
+    card.className = 'signal-card';
+    card.id = `signal-card-${article.id}`;
 
-        card.innerHTML = `
-          <div class="signal-meta-bar">
-            <div style="display:flex; align-items:center; gap:8px;">
-              ${signalMeter(article.relevance || 3)}
-              <span><strong>${escapeHtml(article.source || 'Signal')}</strong></span>
-              <span>·</span>
-              <span>${article.date || ''}</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span class="pill" style="background:var(--bg); border:1px solid var(--border); font-size:0.65rem;">${escapeHtml(article.track || 'General')}</span>
-              <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.68rem;" onclick="toggleArchiveArticle(${article.id})">
-                ${isArchived ? '↩ Unarchive' : '✓ Mark Read'}
-              </button>
-            </div>
-          </div>
+    card.innerHTML = `
+      <div class="signal-meta-bar">
+        <div style="display:flex; align-items:center; gap:8px;">
+          ${signalMeter(article.relevance || 3)}
+          <span><strong>${escapeHtml(article.source || 'Signal')}</strong></span>
+          <span>·</span>
+          <span>${article.date || ''}</span>
+        </div>
+        <div style="display:flex; align-items:center; gap:6px;">
+          <span class="pill" style="background:var(--bg); border:1px solid var(--border); font-size:0.65rem;">${escapeHtml(article.track || 'General')}</span>
+          <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.68rem;" onclick="toggleArchiveArticle(${article.id})">
+            ${isArchived ? '↩ Unarchive' : '✓ Mark Read'}
+          </button>
+        </div>
+      </div>
 
-          <a href="${article.url || '#'}" target="_blank" rel="noopener" class="signal-headline">${escapeHtml(article.headline)}</a>
+      <!-- Outbound Link: Opens Original Source directly in new tab -->
+      <a href="${articleUrl}" target="_blank" rel="noopener noreferrer" class="signal-headline" onclick="event.stopPropagation()">
+        ${escapeHtml(article.headline)}
+      </a>
 
-          <div class="signal-body-wrap">
-            <p class="signal-body">${escapeHtml(article.body)}</p>
-            ${isLongBody ? `<button class="signal-expand-btn" onclick="toggleExpandArticle(${article.id}, this)">Read full summary ↓</button>` : ''}
-          </div>
+      <div class="signal-body-wrap">
+        <p class="signal-body">${escapeHtml(article.body)}</p>
+        ${isLongBody ? `<button class="signal-expand-btn" onclick="toggleExpandArticle(${article.id}, this)">Read full summary ↓</button>` : ''}
+      </div>
 
-          ${article.deep_dive ? `<div class="signal-deep-dive"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
+      ${article.deep_dive ? `<div class="signal-deep-dive"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
 
-          ${tagsList.length > 0 ? `
-            <div class="signal-tags-row">
-              ${tagsList.map(t => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.65rem;">#${escapeHtml(t)}</span>`).join('')}
-            </div>
-          ` : ''}
+      ${tagsList.length > 0 ? `
+        <div class="signal-tags-row">
+          ${tagsList.map(t => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.65rem;">#${escapeHtml(t)}</span>`).join('')}
+        </div>
+      ` : ''}
 
-          <div class="signal-footer">
-            <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('${escapeHtml(article.headline).replace(/'/g, "\\'")}', '${escapeHtml(article.track)}')">+ Add as Task</button>
-            ${article.url ? `<a class="btn btn-secondary btn-sm" href="${article.url}" target="_blank" rel="noopener">Read Source ↗</a>` : ''}
-          </div>
-        `;
-        container.appendChild(card);
-      });
-    }
+      <div class="signal-footer">
+        <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('${escapeHtml(article.headline).replace(/'/g, "\\'")}', '${escapeHtml(article.track)}')">+ Add as Task</button>
+        ${article.url ? `<a class="btn btn-secondary btn-sm" href="${article.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Read Original Source ↗</a>` : ''}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
 
     function toggleExpandArticle(id, btn) {
       const card = document.getElementById(`signal-card-${id}`);
