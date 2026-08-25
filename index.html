@@ -232,73 +232,114 @@
     /* ==========================================================================
        LEARNING HUB BENTO STYLES
        ========================================================================== */
-    .bento-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 16px;
-      width: 100%;
-    }
-    .bento-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      box-shadow: var(--shadow-bento);
-    }
-    .bento-span-5 { grid-column: span 5; }
-    .bento-span-7 { grid-column: span 7; }
-    .bento-span-12 { grid-column: span 12; }
+    /* Bento Grid Layout Fixes */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 14px;
+  width: 100%;
+}
+.bento-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: var(--shadow-sm);
+}
+.bento-span-5 { grid-column: span 5; }
+.bento-span-7 { grid-column: span 7; }
+.bento-span-12 { grid-column: span 12; }
 
-    @media (max-width: 768px) {
-      .bento-span-5, .bento-span-7, .bento-span-12 {
-        grid-column: span 12;
-      }
-    }
+@media (max-width: 840px) {
+  .bento-span-5, .bento-span-7, .bento-span-12 {
+    grid-column: span 12;
+  }
+  .mobile-nav {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
 
-    .code-box {
-      background: #0f172a;
-      color: #f1f5f9;
-      border-radius: var(--radius);
-      overflow: hidden;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-    }
-    .code-box-header {
-      background: #1e293b;
-      padding: 8px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #334155;
-      font-size: 0.72rem;
-      color: #94a3b8;
-    }
-    .code-box pre {
-      padding: 14px;
-      overflow-x: auto;
-      line-height: 1.55;
-    }
-
-    .ladder-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-      gap: 12px;
-      margin-top: 10px;
-    }
-    .ladder-card {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 8px;
-    }
-    .ladder-card.solved {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-    }
+/* Problem Ladder Row Layout */
+.ladder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+.ladder-row {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  transition: all 0.15s ease;
+}
+.ladder-row:hover {
+  border-color: var(--border-dark);
+}
+.ladder-row.solved {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.ladder-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+.ladder-checkbox {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  accent-color: var(--accent-primary);
+  flex-shrink: 0;
+}
+.ladder-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ladder-meta-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ladder-tier {
+  font-size: 0.65rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: #e0e7ff;
+  color: #4338ca;
+}
+.ladder-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ladder-title:hover {
+  color: var(--accent-primary);
+}
+.ladder-row.solved .ladder-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+.ladder-subtext {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
 
     /* ==========================================================================
        NEWSPAPER OVERLAY (MATCHES SCREENSHOT 1:1)
@@ -1377,114 +1418,120 @@
     }
 
     async function renderLearningHub() {
-      const container = document.getElementById('learning-bento-container');
-      if (!container) return;
+  const container = document.getElementById('learning-bento-container');
+  if (!container) return;
 
-      if (activeLearningTrack !== 'DSA') {
-        container.innerHTML = `
-          <div class="bento-card" style="text-align:center; padding:40px; color:var(--text-muted);">
-            <h3 style="font-size:1.1rem; font-weight:800; color:var(--text); margin-bottom:6px;">${activeLearningTrack} Mastery</h3>
-            <p style="font-size:0.85rem;">Curriculum & System Design drills are coming up next.</p>
-          </div>
-        `;
-        return;
-      }
+  if (activeLearningTrack !== 'DSA') {
+    container.innerHTML = `
+      <div class="bento-card" style="text-align:center; padding:36px; color:var(--text-muted);">
+        <h3 style="font-size:1rem; font-weight:800; color:var(--text); margin-bottom:4px;">${activeLearningTrack} Mastery Track</h3>
+        <p style="font-size:0.8rem;">Curriculum modules coming soon.</p>
+      </div>
+    `;
+    return;
+  }
 
-      container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem; font-family:var(--font-mono);">Fetching latest algorithm drill…</div>`;
+  container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Loading algorithm drill…</div>`;
 
-      try {
-        const { data: drills, error: drillErr } = await db
-          .from('dsa_daily_drills')
-          .select('*')
-          .order('drill_date', { ascending: false })
-          .limit(1);
+  try {
+    const { data: drills, error: drillErr } = await db
+      .from('dsa_daily_drills')
+      .select('*')
+      .order('drill_date', { ascending: false })
+      .limit(1);
 
-        if (drillErr || !drills || drills.length === 0) {
-          container.innerHTML = `<div class="bento-card" style="text-align:center; color:var(--text-muted);">No drill found. Execute your n8n pipeline to generate one!</div>`;
-          return;
-        }
-
-        const drill = drills[0];
-
-        const { data: questions } = await db
-          .from('dsa_questions')
-          .select('*')
-          .in('id', drill.problem_ids);
-
-        const problemMap = new Map((questions || []).map(q => [q.id, q]));
-
-        container.innerHTML = `
-          <div class="bento-grid">
-            <!-- Cell 1: Pattern Info & Triggers (Span 5) -->
-            <div class="bento-card bento-span-5" style="display:flex; flex-direction:column; justify-content:space-between; gap:16px;">
-              <div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted); margin-bottom:8px;">
-                  <span style="font-weight:700; color:var(--accent-primary); text-transform:uppercase;">⚡ Algorithm Drill</span>
-                  <span>${drill.drill_date}</span>
-                </div>
-                <h2 style="font-size:1.25rem; font-weight:800; letter-spacing:-0.015em;">${escapeHtml(drill.pattern_name)}</h2>
-
-                <div style="margin-top:14px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px;">
-                  <span style="font-size:0.7rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:6px;">Pattern Recognition Triggers</span>
-                  <ul style="font-size:0.78rem; line-height:1.6; padding-left:14px; color:var(--text);">
-                    ${(drill.trigger_cues || []).map(cue => `<li>${escapeHtml(cue)}</li>`).join('')}
-                  </ul>
-                </div>
-              </div>
-
-              <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:var(--radius-sm); padding:10px 12px; font-size:0.75rem; color:#b91c1c;">
-                <strong>⚠️ Interview Trap:</strong> ${escapeHtml(drill.common_pitfall)}
-              </div>
-            </div>
-
-            <!-- Cell 2: Java Speed Template (Span 7) -->
-            <div class="bento-span-7" style="display:flex; flex-direction:column;">
-              <div class="code-box" style="height:100%; display:flex; flex-direction:column;">
-                <div class="code-box-header">
-                  <span>☕ Java Speed Boilerplate</span>
-                  <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.65rem;" onclick="copyJavaTemplate()">Copy</button>
-                </div>
-                <pre style="flex:1;"><code id="java-code-content">${escapeHtml(drill.template_code)}</code></pre>
-              </div>
-            </div>
-
-            <!-- Cell 3: 3-Problem Ladder Row (Span 12) -->
-            <div class="bento-card bento-span-12">
-              <span style="font-size:0.75rem; font-weight:800; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase;">🪜 3-Tier Problem Ladder</span>
-              <div class="ladder-grid">
-                ${drill.problem_ids.map((id, index) => {
-                  const q = problemMap.get(id);
-                  if (!q) return '';
-                  const isSolved = q.status === 'solved';
-                  const tierName = index === 0 ? 'Foundation' : index === 1 ? 'Core SDE-2' : 'Curveball';
-
-                  return `
-                    <div class="ladder-card ${isSolved ? 'solved' : ''}">
-                      <div style="display:flex; align-items:flex-start; gap:8px;">
-                        <input type="checkbox" ${isSolved ? 'checked' : ''} onchange="toggleProblemSolved(${q.id}, this.checked)" style="margin-top:3px; cursor:pointer;">
-                        <div style="flex:1;">
-                          <span style="font-size:0.65rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); font-family:var(--font-mono);">${tierName}</span>
-                          <a href="${q.url}" target="_blank" rel="noopener noreferrer" style="display:block; font-size:0.85rem; font-weight:700; color:var(--text); text-decoration:none; margin:2px 0; ${isSolved ? 'text-decoration:line-through; color:var(--text-muted);' : ''}">
-                            ${escapeHtml(q.title)}
-                          </a>
-                          <span style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">${q.platform} • ${q.difficulty}</span>
-                        </div>
-                      </div>
-                      <div style="display:flex; justify-content:flex-end;">
-                        <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.68rem;">Solve ↗</a>
-                      </div>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
-            </div>
-          </div>
-        `;
-      } catch (err) {
-        console.error(err);
-        container.innerHTML = `<div class="bento-card" style="text-align:center; color:#ef4444; font-size:0.85rem;">Failed to load drill data from Supabase.</div>`;
-      }
+    if (drillErr || !drills || drills.length === 0) {
+      container.innerHTML = `<div class="bento-card" style="text-align:center; color:var(--text-muted);">No drill found.</div>`;
+      return;
     }
+
+    const drill = drills[0];
+
+    const { data: questions } = await db
+      .from('dsa_questions')
+      .select('*')
+      .in('id', drill.problem_ids);
+
+    const problemMap = new Map((questions || []).map(q => [q.id, q]));
+
+    container.innerHTML = `
+      <div class="bento-grid">
+        <!-- Top Left: Pattern Cues & Pitfall (Span 5) -->
+        <div class="bento-card bento-span-5" style="display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+          <div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin-bottom:6px;">
+              <span style="font-weight:700; color:var(--accent-primary);">⚡ PATTERN OF THE DAY</span>
+              <span>${drill.drill_date}</span>
+            </div>
+            <h2 style="font-size:1.15rem; font-weight:800; letter-spacing:-0.015em; line-height:1.3;">${escapeHtml(drill.pattern_name)}</h2>
+
+            <div style="margin-top:10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px;">
+              <span style="font-size:0.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:4px;">When to use this:</span>
+              <ul style="font-size:0.75rem; line-height:1.5; padding-left:14px; color:var(--text); margin:0;">
+                ${(drill.trigger_cues || []).map(cue => `<li style="margin-bottom:3px;">${escapeHtml(cue)}</li>`).join('')}
+              </ul>
+            </div>
+          </div>
+
+          <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:var(--radius-sm); padding:8px 10px; font-size:0.72rem; color:#b91c1c; line-height:1.4;">
+            <strong>⚠️ Trap:</strong> ${escapeHtml(drill.common_pitfall)}
+          </div>
+        </div>
+
+        <!-- Top Right: Java Boilerplate (Span 7) -->
+        <div class="bento-span-7" style="display:flex; flex-direction:column;">
+          <div class="code-box" style="height:100%; display:flex; flex-direction:column;">
+            <div class="code-box-header">
+              <span>☕ Java Speed Skeleton</span>
+              <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.65rem;" onclick="copyJavaTemplate()">Copy</button>
+            </div>
+            <pre style="flex:1; margin:0;"><code id="java-code-content">${escapeHtml(drill.template_code)}</code></pre>
+          </div>
+        </div>
+
+        <!-- Bottom: Linear 3-Problem Ladder (Span 12) -->
+        <div class="bento-card bento-span-12">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.72rem; font-weight:800; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase;">🪜 Problem Ladder</span>
+            <span style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">3 Problems</span>
+          </div>
+
+          <div class="ladder-list">
+            ${drill.problem_ids.map((id, index) => {
+              const q = problemMap.get(id);
+              if (!q) return '';
+              const isSolved = q.status === 'solved';
+              const tierName = index === 0 ? 'Foundation' : index === 1 ? 'Core SDE-2' : 'Curveball';
+
+              return `
+                <div class="ladder-row ${isSolved ? 'solved' : ''}">
+                  <div class="ladder-left">
+                    <input type="checkbox" ${isSolved ? 'checked' : ''} onchange="toggleProblemSolved(${q.id}, this.checked)" class="ladder-checkbox">
+                    <div class="ladder-info">
+                      <div class="ladder-meta-line">
+                        <span class="ladder-tier">${tierName}</span>
+                        <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="ladder-title">
+                          ${escapeHtml(q.title)}
+                        </a>
+                      </div>
+                      <span class="ladder-subtext">${q.platform} • ${q.difficulty}</span>
+                    </div>
+                  </div>
+                  <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:3px 10px; font-size:0.7rem; flex-shrink:0;">
+                    Solve ↗
+                  </a>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = `<div class="bento-card" style="text-align:center; color:#ef4444; font-size:0.8rem;">Failed to load drill data.</div>`;
+  }
+}
 
     async function toggleProblemSolved(problemId, isCompleted) {
       const newStatus = isCompleted ? 'solved' : 'todo';
