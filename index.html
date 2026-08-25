@@ -4,11 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>OneSpace</title>
-  <meta name="theme-color" content="#f4f6f8">
+  <meta name="theme-color" content="#E8E5D9">
   <link rel="manifest" id="pwa-manifest">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -25,11 +25,13 @@
       --radius-sm: 10px;
       --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
       --shadow-bento: 0 10px 25px -3px rgba(0, 0, 0, 0.05), 0 4px 10px -2px rgba(0, 0, 0, 0.02);
-      --font-mono: 'IBM Plex Mono', 'Space Mono', monospace;
+      --font-mono: 'IBM Plex Mono', monospace;
       --font-sans: 'Plus Jakarta Sans', -apple-system, sans-serif;
       --accent-primary: #6366f1;
+      --signal: #d97706;
+      --signal-bar: #cbd5e1;
 
-      /* Editorial Newspaper Digest Styles */
+      /* Editorial Newspaper Mode Variables */
       --paper: #E8E5D9;
       --paper-raised: #F1EEE3;
       --ink: #22261F;
@@ -37,7 +39,7 @@
       --ink-faint: #8B8C7F;
       --rule: #B9B6A5;
       --rule-strong: #22261F;
-      --signal: #B8842E;
+      --signal-gold: #B8842E;
       --signal-dim: #D9C7A0;
       --teal: #2F4F49;
       --teal-bg: #DDE3DE;
@@ -59,18 +61,18 @@
     .profile-icon-btn { background: #f3e8ff; border: 1px solid rgba(123, 31, 162, 0.15); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; transition: transform 0.15s ease; }
     .profile-icon-btn:hover { transform: scale(1.05); }
 
-    nav { display: flex; flex-direction: column; gap: 6px; }
-    nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 10px 14px; background: none; border: 1px solid transparent; border-radius: var(--radius); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease; }
-    nav button:hover { background: var(--surface-hover); color: var(--text); }
-    nav button.active { background: var(--accent-primary); color: #fff; font-weight: 700; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
+    nav.sidebar-nav { display: flex; flex-direction: column; gap: 6px; }
+    nav.sidebar-nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 10px 14px; background: none; border: 1px solid transparent; border-radius: var(--radius); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease; }
+    nav.sidebar-nav button:hover { background: var(--surface-hover); color: var(--text); }
+    nav.sidebar-nav button.active { background: var(--accent-primary); color: #fff; font-weight: 700; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
 
-    .content-section { display: none; padding: 24px 20px; max-width: 900px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+    .content-section { display: none; padding: 24px 20px; max-width: 860px; margin: 0 auto; width: 100%; box-sizing: border-box; }
     .content-section.active { display: block; }
 
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
-    h1 { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); }
+    header.workspace-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
+    h1.section-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); }
 
-    /* Buttons & Inputs */
+    /* Standard Buttons & Inputs */
     .btn { background: var(--text); color: #fff; border: none; padding: 8px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s ease; box-shadow: var(--shadow-sm); text-decoration: none; }
     .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
     .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border-dark); }
@@ -81,7 +83,7 @@
     input, select, textarea { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 0.85rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; transition: border-color 0.2s ease; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent-primary); }
 
-    /* Bento Filter Bar */
+    /* Bento Filter Bar (Tasks) */
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; background: var(--surface); padding: 14px 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-bento); }
     .filter-top-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -89,7 +91,7 @@
     .filter-chip.active { background: var(--text); color: #fff; border-color: var(--text); }
     .toggle-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select: none; white-space: nowrap; }
 
-    /* Stacked Collapsible Sections */
+    /* Stacked Collapsible Sections (Tasks) */
     .stack-sections { display: flex; flex-direction: column; gap: 16px; width: 100%; }
     .stack-section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-bento); overflow: hidden; }
     .stack-section-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; cursor: pointer; user-select: none; background: var(--surface); transition: background 0.15s ease; }
@@ -123,29 +125,24 @@
     .sub-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
     /* ==========================================================================
-       SIGNALS: NEWSPAPER READER VIEW (DEFAULT)
+       SIGNALS FEED: NEWSPAPER READER THEME (ISOLATED CONTAINER)
        ========================================================================== */
-    #sec-signals {
+    .newspaper-container {
       background: var(--paper);
       color: var(--ink);
-      padding: 24px 20px 60px;
       border-radius: var(--radius-lg);
-      margin-top: 10px;
+      border: 1px solid var(--rule);
+      padding: 24px 20px 48px;
       transition: all 0.2s ease;
+      font-family: var(--font-serif-body);
+      line-height: 1.68;
     }
 
-    .signals-masthead {
-      padding: 0.5rem 0 1rem;
-    }
-
-    .signals-masthead-top {
+    .masthead-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 0.8rem;
-    }
-
-    .signals-date-label {
+      margin-bottom: 1rem;
       font-family: var(--font-mono);
       font-size: 11px;
       letter-spacing: 0.08em;
@@ -153,7 +150,7 @@
       color: var(--ink-faint);
     }
 
-    .signals-mode-btn {
+    .mode-toggle-icon-btn {
       background: transparent;
       border: 1px solid var(--rule);
       font-size: 14px;
@@ -167,12 +164,9 @@
       line-height: 1;
       transition: all 0.15s ease;
     }
-    .signals-mode-btn:hover {
-      background: var(--ink);
-      border-color: var(--ink);
-    }
+    .mode-toggle-icon-btn:hover { background: var(--ink); border-color: var(--ink); }
 
-    .signals-main-title {
+    h1.newspaper-title {
       font-family: var(--font-serif-head);
       font-size: clamp(2.4rem, 7vw, 3.8rem);
       font-weight: 600;
@@ -182,73 +176,78 @@
       color: var(--ink);
     }
 
-    .signals-tagline {
+    .tagline {
       text-align: center;
       font-family: var(--font-mono);
-      font-size: 11px;
+      font-size: 10px;
       letter-spacing: 0.09em;
       text-transform: uppercase;
       color: var(--ink-soft);
-      margin-top: 0.6rem;
+      margin-top: 0.75rem;
     }
 
-    .signals-rule-thick {
+    .rule-thick {
       border: none;
       border-top: 3px solid var(--rule-strong);
       margin: 1.25rem 0 0;
     }
 
-    .signals-tabs-bar {
-      display: flex;
+    /* Scoped Horizontal Tabs Bar (Fixes vertical stacking) */
+    div.tabs-bar {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center;
       border-bottom: 1px solid var(--rule-strong);
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.75rem;
       overflow-x: auto;
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
+      gap: 0;
+      width: 100%;
     }
-    .signals-tabs-bar::-webkit-scrollbar { display: none; }
+    div.tabs-bar::-webkit-scrollbar { display: none; }
 
-    .signal-tab-btn {
+    div.tabs-bar .tab-btn {
       font-family: var(--font-mono);
       font-size: 11px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
       color: var(--ink-soft);
-      background: none;
-      border: none;
-      padding: 0.85rem 1rem 0.65rem;
+      background: none !important;
+      border: none !important;
+      border-radius: 0 !important;
+      box-shadow: none !important;
+      padding: 0.9rem 1rem 0.7rem;
       cursor: pointer;
       white-space: nowrap;
-      border-bottom: 2px solid transparent;
+      border-bottom: 2px solid transparent !important;
       margin-bottom: -1px;
       flex-shrink: 0;
-      transition: color 0.15s ease, border-color 0.15s ease;
+      width: auto !important;
     }
-    .signal-tab-btn .count {
+    div.tabs-bar .tab-btn .count {
       color: var(--ink-faint);
       margin-left: 4px;
       font-size: 10px;
     }
-    .signal-tab-btn.active {
-      color: var(--ink);
+    div.tabs-bar .tab-btn.active {
+      color: var(--ink) !important;
       font-weight: 700;
-      border-bottom: 2px solid var(--signal);
+      border-bottom: 2px solid var(--signal-gold) !important;
+      background: none !important;
     }
-    .signal-tab-btn:hover:not(.active) { color: var(--ink); }
 
-    .signal-article-item {
-      padding: 1.4rem 0;
+    /* Signal Articles List */
+    .article-item {
+      padding: 1.5rem 0;
       border-top: 1px solid var(--rule);
       display: flex;
       flex-direction: column;
       gap: 0.65rem;
     }
-    .signal-article-item:first-of-type {
-      border-top: none;
-      padding-top: 0.2rem;
-    }
+    .article-item:first-of-type { border-top: none; padding-top: 0.5rem; }
 
-    .signal-editorial-meta {
+    .editorial-meta {
       font-family: var(--font-mono);
       font-size: 11px;
       letter-spacing: 0.03em;
@@ -257,17 +256,17 @@
       align-items: center;
       gap: 8px;
       flex-wrap: nowrap;
-      margin-bottom: 0.2rem;
+      margin-bottom: 0.4rem;
     }
-    .signal-editorial-meta .source-text {
+    .editorial-meta .source-text {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 180px;
     }
-    .signal-editorial-meta .dot { color: var(--rule); flex-shrink: 0; }
+    .editorial-meta .dot { color: var(--rule); flex-shrink: 0; }
 
-    .signal-mark-read-btn {
+    .mark-read-text-btn {
       background: none;
       border: none;
       font-family: var(--font-mono);
@@ -283,9 +282,9 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-    .signal-mark-read-btn:hover { color: var(--ink); }
+    .mark-read-text-btn:hover { color: var(--ink); }
 
-    .signal-article-headline {
+    .article-headline {
       font-family: var(--font-serif-head);
       font-size: clamp(1.35rem, 4.5vw, 1.8rem);
       font-weight: 600;
@@ -294,15 +293,9 @@
       color: var(--ink);
       text-decoration: none;
     }
-    .signal-article-headline:hover {
-      color: var(--signal);
-    }
+    .article-headline:hover { color: var(--signal-gold); }
 
-    .signal-body-wrap {
-      position: relative;
-    }
-    .signal-body {
-      font-family: var(--font-serif-body);
+    .article-body {
       font-size: 1.02rem;
       line-height: 1.7;
       color: var(--ink);
@@ -312,28 +305,28 @@
       overflow: hidden;
       transition: all 0.25s ease;
     }
-    .signal-article-item.expanded .signal-body {
+    .article-item.expanded .article-body {
       display: block;
       -webkit-line-clamp: unset;
     }
 
-    .signal-read-more-btn {
+    .read-more-btn {
       background: none;
       border: none;
       font-family: var(--font-mono);
       font-size: 11px;
       letter-spacing: 0.03em;
-      color: var(--signal);
+      color: var(--signal-gold);
       cursor: pointer;
       padding: 4px 0 0;
       display: inline-block;
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-    .signal-read-more-btn:hover { color: var(--ink); }
+    .read-more-btn:hover { color: var(--ink); }
 
-    .signal-go-deeper-box {
-      margin-top: 0.35rem;
+    .go-deeper-box {
+      margin-top: 0.4rem;
       padding: 0.75rem 1rem;
       background: var(--teal-bg);
       border-left: 3px solid var(--teal);
@@ -343,13 +336,8 @@
       line-height: 1.55;
     }
 
-    .signal-tags-row {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      margin-top: 0.2rem;
-    }
-    .signal-editorial-tag {
+    .tags-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 0.2rem; }
+    .editorial-tag {
       font-family: var(--font-mono);
       font-size: 10px;
       letter-spacing: 0.04em;
@@ -361,82 +349,58 @@
       border-radius: 2px;
     }
 
-    .signal-source-action-row {
+    .source-action-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-top: 0.35rem;
-      flex-wrap: wrap;
-      gap: 10px;
     }
-    .signal-read-source-link {
+    .read-source-link {
       display: inline-flex;
       align-items: center;
       gap: 5px;
       font-family: var(--font-mono);
       font-size: 11px;
       letter-spacing: 0.04em;
-      color: var(--signal);
+      color: var(--signal-gold);
       text-decoration: none;
       border-bottom: 1px solid var(--signal-dim);
       padding-bottom: 1px;
     }
-    .signal-read-source-link:hover {
-      border-bottom-color: var(--signal);
-    }
+    .read-source-link:hover { border-bottom-color: var(--signal-gold); }
 
-    .signal-meter {
-      display: inline-flex;
-      align-items: flex-end;
-      gap: 2px;
-      height: 12px;
-      vertical-align: middle;
-      flex-shrink: 0;
-    }
-    .signal-meter .bar {
-      width: 3px;
-      background: var(--rule);
-      border-radius: 1px;
-    }
+    .signal-meter { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; vertical-align: middle; flex-shrink: 0; }
+    .signal-meter .bar { width: 3px; background: var(--rule); border-radius: 1px; }
     .signal-meter .bar:nth-child(1) { height: 4px; }
     .signal-meter .bar:nth-child(2) { height: 6px; }
     .signal-meter .bar:nth-child(3) { height: 8px; }
     .signal-meter .bar:nth-child(4) { height: 10px; }
     .signal-meter .bar:nth-child(5) { height: 12px; }
-    .signal-meter .bar.on { background: var(--signal); }
+    .signal-meter .bar.on { background: var(--signal-gold); }
 
-    .signals-footer {
-      margin-top: 3.5rem;
-      padding-top: 1.5rem;
-      border-top: 3px solid var(--rule-strong);
-      font-family: var(--font-mono);
-      font-size: 11px;
-      color: var(--ink-faint);
-      text-align: center;
-      letter-spacing: 0.05em;
-    }
-
-    /* Signals Bento Card Mode Overrides */
-    #sec-signals.bento-mode {
+    /* Bento View Overrides for Signals */
+    .newspaper-container.bento-view {
       background: transparent;
-      color: var(--text);
+      border: none;
       padding: 0;
+      color: #1e293b;
+      font-family: var(--font-sans);
     }
-    #sec-signals.bento-mode .signals-date-label { color: var(--text-muted); }
-    #sec-signals.bento-mode .signals-main-title { font-family: var(--font-sans); font-size: 2rem; font-weight: 800; color: var(--text); text-align: left; }
-    #sec-signals.bento-mode .signals-tagline { font-family: var(--font-mono); color: var(--text-muted); text-align: left; }
-    #sec-signals.bento-mode .signals-rule-thick { border-top-color: var(--border); }
-    #sec-signals.bento-mode .signals-tabs-bar { border-bottom-color: var(--border); gap: 6px; padding-bottom: 8px; }
-    #sec-signals.bento-mode .signal-tab-btn { border: 1px solid var(--border); background: var(--surface); border-radius: 99px; padding: 6px 14px; font-size: 11px; color: var(--text-muted); margin-bottom: 0; }
-    #sec-signals.bento-mode .signal-tab-btn.active { background: var(--text); color: #ffffff; border-color: var(--text); }
-    #sec-signals.bento-mode .signal-tab-btn.active .count { color: #94a3b8; }
-    #sec-signals.bento-mode .signal-article-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow-sm); margin-bottom: 16px; gap: 10px; }
-    #sec-signals.bento-mode .signal-article-headline { font-family: var(--font-sans); font-size: 1.18rem; font-weight: 800; color: var(--text); }
-    #sec-signals.bento-mode .signal-article-headline:hover { color: var(--accent-primary); }
-    #sec-signals.bento-mode .signal-body { font-family: var(--font-sans); font-size: 0.92rem; line-height: 1.65; color: #334155; }
-    #sec-signals.bento-mode .signal-go-deeper-box { background: #f8fafc; border-left-color: var(--accent-primary); color: #3730a3; border-radius: 0 8px 8px 0; }
-    #sec-signals.bento-mode .signal-editorial-tag { background: #f1f5f9; border-color: var(--border); border-radius: 99px; color: #475569; font-weight: 600; }
-    #sec-signals.bento-mode .signals-footer { border-top-color: var(--border); color: var(--text-muted); }
+    .newspaper-container.bento-view .masthead-top { color: #64748b; }
+    .newspaper-container.bento-view h1.newspaper-title { font-family: var(--font-sans); font-size: 2.2rem; font-weight: 800; color: #0f172a; }
+    .newspaper-container.bento-view .tagline { font-family: var(--font-mono); color: #64748b; }
+    .newspaper-container.bento-view .rule-thick { border-top-color: #e2e8f0; }
+    .newspaper-container.bento-view div.tabs-bar { border-bottom-color: #e2e8f0; gap: 6px; padding-bottom: 8px; }
+    .newspaper-container.bento-view div.tabs-bar .tab-btn { border: 1px solid #e2e8f0 !important; background: #ffffff !important; border-radius: 99px !important; padding: 6px 14px; font-size: 11px; color: #64748b; margin-bottom: 0; }
+    .newspaper-container.bento-view div.tabs-bar .tab-btn.active { background: #0f172a !important; color: #ffffff !important; border-color: #0f172a !important; }
+    .newspaper-container.bento-view div.tabs-bar .tab-btn.active .count { color: #94a3b8; }
+    .newspaper-container.bento-view .article-item { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 22px; box-shadow: 0 4px 14px rgba(0,0,0,0.03); margin-bottom: 16px; gap: 10px; }
+    .newspaper-container.bento-view .article-headline { font-family: var(--font-sans); font-size: 1.22rem; font-weight: 800; color: #0f172a; }
+    .newspaper-container.bento-view .article-headline:hover { color: #6366f1; }
+    .newspaper-container.bento-view .article-body { font-family: var(--font-sans); font-size: 0.93rem; line-height: 1.65; color: #334155; }
+    .newspaper-container.bento-view .go-deeper-box { background: #f8fafc; border-left-color: #6366f1; color: #3730a3; border-radius: 0 8px 8px 0; }
+    .newspaper-container.bento-view .editorial-tag { background: #f1f5f9; border-color: #e2e8f0; border-radius: 99px; color: #475569; font-weight: 600; }
+    .newspaper-container.bento-view .mode-toggle-icon-btn { background: #ffffff; border-color: #cbd5e1; }
 
     /* Schedule Bucket Grid */
     .schedule-bucket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -449,7 +413,7 @@
     .time-block-card:hover { transform: translateY(-1px); }
     .time-block-card.is-starred { border-left-color: #f59e0b; background: #fffdf5; }
 
-    /* Focus HUD */
+    /* Focus Desk HUD */
     .desk-hud-overlay { position: fixed; inset: 0; background: #0f172a; color: #ffffff; z-index: 200; display: none; flex-direction: column; padding: 24px; box-sizing: border-box; }
     .hud-header-fixed { display: flex; flex-direction: column; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #1e293b; flex-shrink: 0; width: 100%; position: relative; }
     .hud-top-bar { display: flex; justify-content: flex-start; width: 100%; margin-bottom: 4px; }
@@ -518,7 +482,7 @@
       <div class="logo"><div class="logo-dot"></div> ONESPACE</div>
       <button class="profile-icon-btn" onclick="openProfileModal()">👤</button>
     </div>
-    <nav>
+    <nav class="sidebar-nav">
       <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule</button>
       <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks & Reminders</button>
       <button class="nav-btn" onclick="switchTab('signals', this)">Signals Feed</button>
@@ -535,8 +499,8 @@
   <main id="main-scroll-container">
     <!-- 1. SCHEDULE TAB -->
     <section id="sec-calendar" class="content-section active">
-      <header>
-        <h1>SCHEDULE CALENDAR</h1>
+      <header class="workspace-header">
+        <h1 class="section-title">SCHEDULE CALENDAR</h1>
         <div class="flex-gap" style="align-items: center;">
           <button class="btn btn-secondary btn-sm" onclick="openCalendarEventModal(null, 'meeting')">+ Event</button>
           <button class="btn btn-sm" onclick="openDeskHud()">🖥️ Focus Mode</button>
@@ -553,7 +517,7 @@
 
     <!-- 2. TASKS & REMINDERS TAB (COLLAPSIBLE SECTIONS) -->
     <section id="sec-tasks" class="content-section">
-      <header>
+      <header class="workspace-header">
         <div style="display:flex; align-items:center; gap:10px;">
           <select id="task-project-filter" onchange="filterTasksByProjectSelect()" style="font-size:1rem; font-weight:800; border:none; background:transparent; cursor:pointer; width:auto;">
             <option value="ALL">ALL PROJECTS</option>
@@ -614,33 +578,31 @@
 
     <!-- 3. SIGNALS FEED TAB (EDITORIAL NEWSPAPER DEFAULT) -->
     <section id="sec-signals" class="content-section">
-      <div class="signals-masthead">
-        <div class="signals-masthead-top">
-          <span class="signals-date-label" id="signal-issue-date">AUGUST 25, 2026</span>
-          <button class="signals-mode-btn" id="signal-mode-btn" onclick="toggleSignalViewMode()" title="Toggle Bento / Newspaper Mode">💻</button>
-        </div>
-        <div class="signals-main-title">The Signal</div>
-        <div class="signals-tagline">Engineering, filtered. No noise, just what moved.</div>
+      <div class="newspaper-container" id="newspaper-container">
+        <header class="masthead">
+          <div class="masthead-top">
+            <span id="signals-issue-date">TUESDAY, AUG 25, 2026</span>
+            <button class="mode-toggle-icon-btn" id="signals-mode-btn" onclick="toggleSignalsViewMode()" title="Toggle View Mode">💻</button>
+          </div>
+          <h1 class="newspaper-title">The Signal</h1>
+          <div class="tagline">Engineering, filtered. No noise, just what moved.</div>
+        </header>
+        
+        <hr class="rule-thick">
+
+        <div class="tabs-bar" id="signals-tabs-bar"></div>
+
+        <div id="signals-loading" style="text-align:center; padding: 40px; color: var(--ink-soft); font-family:var(--font-mono); font-size:12px;">Loading today's issue…</div>
+        <div id="signals-empty" style="display:none; text-align:center; padding: 40px; color: var(--ink-soft); font-family:var(--font-mono); font-size:12px;">Nothing cleared the signal threshold in this track.</div>
+
+        <main id="signals-content"></main>
       </div>
-      
-      <hr class="signals-rule-thick">
-
-      <nav class="signals-tabs-bar" id="signals-tabs-bar"></nav>
-
-      <div id="signals-loading" style="text-align:center; padding: 40px; color: var(--ink-soft); font-size:0.85rem; font-family:var(--font-mono);">Connecting to Supabase signals stream…</div>
-      <div id="signals-empty" style="display:none; text-align:center; padding: 40px; color: var(--ink-soft); font-size:0.85rem; font-family:var(--font-mono);">Nothing cleared the signal threshold in this track today.</div>
-      
-      <div id="signals-container" class="signals-feed-container"></div>
-
-      <footer class="signals-footer">
-        generated automatically · signal threshold ≥ 3 · <span id="signals-article-count">0</span> signals
-      </footer>
     </section>
 
     <!-- 4. REPORTS TAB -->
     <section id="sec-reports" class="content-section">
-      <header>
-        <h1>REPORTS & LIMITS</h1>
+      <header class="workspace-header">
+        <h1 class="section-title">REPORTS & LIMITS</h1>
         <div class="flex-gap">
           <button class="btn btn-secondary" onclick="openManualTimeModal()">+ Log Time</button>
           <button class="btn btn-secondary" onclick="openProjectLimitModal()">Limits</button>
@@ -877,11 +839,17 @@
 
     let ALL_ARTICLES = [];
     let activeSignalTrack = "All";
-    let isSignalBentoMode = false;
+    let isSignalsBentoMode = false;
+    let archivedSignals = JSON.parse(localStorage.getItem('the_signal_archived_ids') || '[]');
 
     function escapeHtml(str) {
       if (!str) return '';
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
     }
 
     function formatDateLocal(dateObj) {
@@ -889,6 +857,12 @@
       const month = String(dateObj.getMonth() + 1).padStart(2, '0');
       const day = String(dateObj.getDate()).padStart(2, '0');
       return `${year}-${month}-${day}`;
+    }
+
+    function formatEditorialDate(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
     }
 
     function getISOWeekKey(d) {
@@ -932,13 +906,11 @@
         tagColors: {},
         manualProjectTimes: {},
         calendarEvents: [],
-        weeklySummaries: {},
-        archivedSignals: []
+        weeklySummaries: {}
       };
     }
 
     let appData = loadData();
-    if (!appData.archivedSignals) appData.archivedSignals = [];
     let selectedFilterTags = new Set();
 
     let trackingState = {
@@ -973,7 +945,7 @@
 
       if (tab === 'calendar') renderScheduleCalendar();
       if (tab === 'tasks') renderTaskStack();
-      if (tab === 'signals') renderSignalsFeed();
+      if (tab === 'signals') { renderSignalsTabs(); renderSignalsContent(); }
       if (tab === 'reports') renderReports();
     }
 
@@ -1246,7 +1218,7 @@
     }
 
     /* ==========================================================================
-       SIGNALS FEED (EDITORIAL NEWSPAPER & DUAL MODE ENGINE)
+       SIGNALS FEED (NEWSPAPER AS DEFAULT WITH READ MORE & TAB FIXES)
        ========================================================================== */
     function signalMeter(score) {
       let bars = '';
@@ -1259,7 +1231,7 @@
     async function fetchSupabaseSignals() {
       const loader = document.getElementById('signals-loading');
       loader.style.display = 'block';
-      loader.textContent = 'Connecting to Supabase signals stream…';
+      loader.textContent = "Loading today's issue…";
       try {
         const { data, error } = await db.from('articles').select('*').order('id', { ascending: false });
         if (error) throw error;
@@ -1267,36 +1239,46 @@
         loader.style.display = 'none';
 
         if (ALL_ARTICLES.length > 0) {
-          const d = ALL_ARTICLES[0].date || new Date().toISOString().split('T')[0];
-          const dateObj = new Date(d.includes('T') ? d : d + 'T00:00:00');
-          document.getElementById('signal-issue-date').textContent = dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
+          const latestDate = ALL_ARTICLES[0].date || new Date().toISOString().split('T')[0];
+          document.getElementById('signals-issue-date').textContent = formatEditorialDate(latestDate);
         }
 
-        renderSignalTrackPills();
-        renderSignalsFeed();
+        renderSignalsTabs();
+        renderSignalsContent();
       } catch (err) {
-        loader.textContent = 'Error connecting to Supabase: ' + err.message;
+        loader.textContent = 'Error connecting to database: ' + err.message;
       }
     }
 
-    function toggleSignalViewMode() {
-      isSignalBentoMode = !isSignalBentoMode;
-      const sec = document.getElementById('sec-signals');
-      const btn = document.getElementById('signal-mode-btn');
-      if (isSignalBentoMode) {
-        sec.classList.add('bento-mode');
+    function toggleSignalsViewMode() {
+      isSignalsBentoMode = !isSignalsBentoMode;
+      const container = document.getElementById('newspaper-container');
+      const btn = document.getElementById('signals-mode-btn');
+      if (isSignalsBentoMode) {
+        container.classList.add('bento-view');
         btn.innerText = '📰';
-        btn.title = 'Switch to Newspaper View';
+        btn.title = 'Switch to Reader Mode';
       } else {
-        sec.classList.remove('bento-mode');
+        container.classList.remove('bento-view');
         btn.innerText = '💻';
-        btn.title = 'Switch to Bento Cards View';
+        btn.title = 'Switch to Bento Mode';
       }
     }
 
-    function renderSignalTrackPills() {
-      const pillBox = document.getElementById('signals-tabs-bar');
-      pillBox.innerHTML = '';
+    function toggleArchiveArticle(articleId) {
+      if (archivedSignals.includes(articleId)) {
+        archivedSignals = archivedSignals.filter(id => id !== articleId);
+      } else {
+        archivedSignals.push(articleId);
+      }
+      localStorage.setItem('the_signal_archived_ids', JSON.stringify(archivedSignals));
+      renderSignalsTabs();
+      renderSignalsContent();
+    }
+
+    function renderSignalsTabs() {
+      const tabsContainer = document.getElementById('signals-tabs-bar');
+      tabsContainer.innerHTML = '';
 
       const discoveredTracks = new Set();
       ALL_ARTICLES.forEach(a => {
@@ -1313,59 +1295,45 @@
       dynamicTracks.forEach(track => {
         let count = 0;
         if (track === 'Archived') {
-          count = appData.archivedSignals.length;
+          count = archivedSignals.length;
         } else if (track === 'All') {
-          count = ALL_ARTICLES.filter(a => !appData.archivedSignals.includes(a.id)).length;
+          count = ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)).length;
         } else {
-          count = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !appData.archivedSignals.includes(a.id)).length;
+          count = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id)).length;
         }
 
         const btn = document.createElement('button');
-        btn.className = `signal-tab-btn ${activeSignalTrack === track ? 'active' : ''}`;
+        btn.className = `tab-btn ${activeSignalTrack === track ? 'active' : ''}`;
         btn.innerHTML = `${track}<span class="count">${count}</span>`;
         btn.onclick = () => {
           activeSignalTrack = track;
-          renderSignalTrackPills();
-          renderSignalsFeed();
+          renderSignalsTabs();
+          renderSignalsContent();
         };
-        pillBox.appendChild(btn);
+        tabsContainer.appendChild(btn);
       });
     }
 
-    function toggleArchiveArticle(articleId) {
-      if (!appData.archivedSignals) appData.archivedSignals = [];
-      if (appData.archivedSignals.includes(articleId)) {
-        appData.archivedSignals = appData.archivedSignals.filter(id => id !== articleId);
-      } else {
-        appData.archivedSignals.push(articleId);
-      }
-      saveData();
-      renderSignalTrackPills();
-      renderSignalsFeed();
-    }
-
     function toggleExpandBody(articleId, btn) {
-      const articleElem = document.getElementById(`signal-article-${articleId}`);
+      const articleElem = document.getElementById(`article-item-${articleId}`);
       if (articleElem) {
         const isExpanded = articleElem.classList.toggle('expanded');
         btn.innerText = isExpanded ? 'Show less ↑' : 'Read full summary ↓';
       }
     }
 
-    function renderSignalsFeed() {
-      const container = document.getElementById('signals-container');
+    function renderSignalsContent() {
+      const container = document.getElementById('signals-content');
       container.innerHTML = '';
 
       let filtered = [];
       if (activeSignalTrack === 'Archived') {
-        filtered = ALL_ARTICLES.filter(a => appData.archivedSignals.includes(a.id));
+        filtered = ALL_ARTICLES.filter(a => archivedSignals.includes(a.id));
       } else if (activeSignalTrack === 'All') {
-        filtered = ALL_ARTICLES.filter(a => !appData.archivedSignals.includes(a.id));
+        filtered = ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id));
       } else {
-        filtered = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeSignalTrack.toLowerCase()) && !appData.archivedSignals.includes(a.id));
+        filtered = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeSignalTrack.toLowerCase()) && !archivedSignals.includes(a.id));
       }
-
-      document.getElementById('signals-article-count').textContent = filtered.length;
 
       if (filtered.length === 0) {
         document.getElementById('signals-empty').style.display = 'block';
@@ -1374,47 +1342,47 @@
       document.getElementById('signals-empty').style.display = 'none';
 
       filtered.forEach(article => {
-        const isArchived = appData.archivedSignals.includes(article.id);
+        const isArchived = archivedSignals.includes(article.id);
         const tagsList = Array.isArray(article.tags) ? article.tags : (typeof article.tags === 'string' ? JSON.parse(article.tags || '[]') : []);
         const isLong = (article.body || '').length > 220;
         const targetUrl = article.url || article.link || article.source_url || `https://www.google.com/search?q=${encodeURIComponent(article.headline + ' ' + (article.source || ''))}`;
 
         const card = document.createElement('article');
-        card.className = 'signal-article-item';
-        card.id = `signal-article-${article.id}`;
+        card.className = 'article-item';
+        card.id = `article-item-${article.id}`;
 
         card.innerHTML = `
-          <div class="signal-editorial-meta">
+          <div class="editorial-meta">
             ${signalMeter(article.relevance || 3)}
             <span class="dot">·</span>
             <span class="source-text">${escapeHtml(article.source || 'Signal')}</span>
             <span class="dot">·</span>
             <span>${article.date || ''}</span>
-            <button class="signal-mark-read-btn" onclick="toggleArchiveArticle(${article.id})">
+            <button class="mark-read-text-btn" onclick="toggleArchiveArticle(${article.id})">
               ${isArchived ? '↩ Unarchive' : '✓ Mark Read'}
             </button>
           </div>
 
-          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="signal-article-headline" onclick="event.stopPropagation()">
+          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="article-headline">
             ${escapeHtml(article.headline)}
           </a>
 
-          <div class="signal-body-wrap">
-            <p class="signal-body">${escapeHtml(article.body)}</p>
-            ${isLong ? `<button class="signal-read-more-btn" onclick="toggleExpandBody(${article.id}, this)">Read full summary ↓</button>` : ''}
+          <div class="article-body-wrap">
+            <p class="article-body">${escapeHtml(article.body)}</p>
+            ${isLong ? `<button class="read-more-btn" onclick="toggleExpandBody(${article.id}, this)">Read full summary ↓</button>` : ''}
           </div>
 
-          ${article.deep_dive ? `<div class="signal-go-deeper-box"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
+          ${article.deep_dive ? `<div class="go-deeper-box"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
 
           ${tagsList.length > 0 ? `
-            <div class="signal-tags-row">
-              ${tagsList.map(t => `<span class="signal-editorial-tag">#${escapeHtml(t)}</span>`).join('')}
+            <div class="tags-row">
+              ${tagsList.map(t => `<span class="editorial-tag">#${escapeHtml(t)}</span>`).join('')}
             </div>
           ` : ''}
 
-          <div class="signal-source-action-row">
+          <div class="source-action-row">
             <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('${escapeHtml(article.headline).replace(/'/g, "\\'")}', '${escapeHtml(article.track)}')">+ Add as Task</button>
-            <a class="signal-read-source-link" href="${targetUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Read original source →</a>
+            <a class="read-source-link" href="${targetUrl}" target="_blank" rel="noopener noreferrer">Read original source →</a>
           </div>
         `;
         container.appendChild(card);
