@@ -1429,87 +1429,92 @@
       }
     }
 
-    function renderNewspaperContent() {
-      const tabsContainer = document.getElementById('news-tabs-bar');
-      const container = document.getElementById('news-content-list');
-      tabsContainer.innerHTML = '';
-      container.innerHTML = '';
+   function renderNewspaperContent() {
+  const tabsContainer = document.getElementById('news-tabs-bar');
+  const container = document.getElementById('news-content-list');
+  const newsLoading = document.getElementById('news-loading');
+  const newsEmpty = document.getElementById('news-empty');
 
-      const discoveredTracks = new Set();
-      ALL_ARTICLES.forEach(a => {
-        if (a.track) a.track.split(',').forEach(t => { const clean = t.trim(); if (clean) discoveredTracks.add(clean); });
-      });
+  // Hide the loading state once rendering starts
+  if (newsLoading) newsLoading.style.display = 'none';
 
-      const dynamicTracks = ["All", ...Array.from(discoveredTracks).sort(), "Archived"];
+  tabsContainer.innerHTML = '';
+  container.innerHTML = '';
 
-      dynamicTracks.forEach(track => {
-        let count = (track === 'Archived') ? archivedSignals.length : (track === 'All') 
-          ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)).length 
-          : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id)).length;
+  const discoveredTracks = new Set();
+  ALL_ARTICLES.forEach(a => {
+    if (a.track) a.track.split(',').forEach(t => { const clean = t.trim(); if (clean) discoveredTracks.add(clean); });
+  });
 
-        const btn = document.createElement('button');
-        btn.className = `tab-btn ${activeTrack === track ? 'active' : ''}`;
-        btn.innerHTML = `${track}<span class="count">${count}</span>`;
-        btn.onclick = () => {
-          activeTrack = track;
-          renderNewspaperContent();
-          renderBentoSignals();
-        };
-        tabsContainer.appendChild(btn);
-      });
+  const dynamicTracks = ["All", ...Array.from(discoveredTracks).sort(), "Archived"];
 
-      let filtered = (activeTrack === 'Archived') ? ALL_ARTICLES.filter(a => archivedSignals.includes(a.id)) : (activeTrack === 'All') 
-        ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)) 
-        : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeTrack.toLowerCase()) && !archivedSignals.includes(a.id));
+  dynamicTracks.forEach(track => {
+    let count = (track === 'Archived') ? archivedSignals.length : (track === 'All') 
+      ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)).length 
+      : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id)).length;
 
-      if (filtered.length === 0) {
-        document.getElementById('news-empty').style.display = 'block';
-        return;
-      }
-      document.getElementById('news-empty').style.display = 'none';
+    const btn = document.createElement('button');
+    btn.className = `tab-btn ${activeTrack === track ? 'active' : ''}`;
+    btn.innerHTML = `${track}<span class="count">${count}</span>`;
+    btn.onclick = () => {
+      activeTrack = track;
+      renderNewspaperContent();
+      renderBentoSignals();
+    };
+    tabsContainer.appendChild(btn);
+  });
 
-      filtered.forEach(article => {
-        const isArchived = archivedSignals.includes(article.id);
-        const isLong = (article.body || '').length > 200;
-        const targetUrl = article.url || article.link || article.source_url || `https://www.google.com/search?q=${encodeURIComponent(article.headline + ' ' + (article.source || ''))}`;
+  let filtered = (activeTrack === 'Archived') ? ALL_ARTICLES.filter(a => archivedSignals.includes(a.id)) : (activeTrack === 'All') 
+    ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)) 
+    : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeTrack.toLowerCase()) && !archivedSignals.includes(a.id));
 
-        const card = document.createElement('article');
-        card.className = 'news-article-item';
-        card.id = `news-article-${article.id}`;
+  if (filtered.length === 0) {
+    if (newsEmpty) newsEmpty.style.display = 'block';
+    return;
+  }
+  if (newsEmpty) newsEmpty.style.display = 'none';
 
-        card.innerHTML = `
-          <div class="news-article-meta">
-            ${signalMeter(article.relevance || 3)}
-            <span class="news-source-label">${escapeHtml(article.source || 'Signal')}</span>
-            <span class="news-date-label">${article.date || ''}</span>
-            <button class="news-mark-read-btn" onclick="toggleArchiveArticle(${article.id})">
-              ${isArchived ? '✓ Unarchive' : '✓ Mark Read'}
-            </button>
-          </div>
+  filtered.forEach(article => {
+    const isArchived = archivedSignals.includes(article.id);
+    const isLong = (article.body || '').length > 200;
+    const targetUrl = article.url || article.link || article.source_url || `https://www.google.com/search?q=${encodeURIComponent(article.headline + ' ' + (article.source || ''))}`;
 
-          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="news-headline">
-            ${escapeHtml(article.headline)}
-          </a>
+    const card = document.createElement('article');
+    card.className = 'news-article-item';
+    card.id = `news-article-${article.id}`;
 
-          <div>
-            <p class="news-body">${escapeHtml(article.body)}</p>
-            ${isLong ? `<button class="news-read-more-btn" onclick="toggleNewsExpand(${article.id}, this)">Read full summary ↓</button>` : ''}
-          </div>
+    card.innerHTML = `
+      <div class="news-article-meta">
+        ${signalMeter(article.relevance || 3)}
+        <span class="news-source-label">${escapeHtml(article.source || 'Signal')}</span>
+        <span class="news-date-label">${article.date || ''}</span>
+        <button class="news-mark-read-btn" onclick="toggleArchiveArticle(${article.id})">
+          ${isArchived ? '✓ Unarchive' : '✓ Mark Read'}
+        </button>
+      </div>
 
-          ${article.deep_dive ? `
-            <div class="news-deep-dive-box">
-              <strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}
-            </div>
-          ` : ''}
+      <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="news-headline">
+        ${escapeHtml(article.headline)}
+      </a>
 
-          <a class="news-source-link" href="${targetUrl}" target="_blank" rel="noopener noreferrer">
-            Read original source →
-          </a>
-        `;
-        container.appendChild(card);
-      });
-    }
+      <div>
+        <p class="news-body">${escapeHtml(article.body)}</p>
+        ${isLong ? `<button class="news-read-more-btn" onclick="toggleNewsExpand(${article.id}, this)">Read full summary ↓</button>` : ''}
+      </div>
 
+      ${article.deep_dive ? `
+        <div class="news-deep-dive-box">
+          <strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}
+        </div>
+      ` : ''}
+
+      <a class="news-source-link" href="${targetUrl}" target="_blank" rel="noopener noreferrer">
+        Read original source →
+      </a>
+    `;
+    container.appendChild(card);
+  });
+}
     function convertSignalToTask(headline, track) {
       appData.tasks.push({
         id: 'task_' + Date.now(),
