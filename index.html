@@ -117,7 +117,7 @@
     .sub-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
     /* ==========================================================================
-       SIGNALS FEED & POLISHED READER DESIGN
+       SIGNALS FEED & ULTRA-CLEAN CARD DESIGN
        ========================================================================== */
     .filter-bar.signals-filter-bar {
       background: transparent;
@@ -160,18 +160,41 @@
       border-color: var(--border-dark);
     }
 
-    .signal-meta-bar {
+    .signal-card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 12px;
+    }
+    .signal-source-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text);
+      font-family: var(--font-mono);
+      min-width: 0;
+    }
+    .signal-source-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .signal-subline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
       font-size: 0.73rem;
       color: var(--text-muted);
       font-family: var(--font-mono);
-      letter-spacing: 0.02em;
+      margin-top: -4px;
     }
 
     .signal-headline {
-      font-size: 1.12rem;
+      font-size: 1.15rem;
       font-weight: 800;
       line-height: 1.35;
       letter-spacing: -0.015em;
@@ -226,7 +249,7 @@
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .signal-footer {
@@ -240,7 +263,7 @@
       border-top: 1px solid var(--border);
     }
 
-    .signal-meter { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; vertical-align: middle; }
+    .signal-meter { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; vertical-align: middle; flex-shrink: 0; }
     .signal-meter .bar { width: 3px; background: var(--signal-bar); border-radius: 1px; }
     .signal-meter .bar:nth-child(1) { height: 4px; }
     .signal-meter .bar:nth-child(2) { height: 6px; }
@@ -254,7 +277,7 @@
     .newspaper-mode .signal-card { background: var(--paper-card); border-color: var(--paper-border); border-radius: 4px; box-shadow: none; border-bottom: 2px solid var(--paper-border); }
     .newspaper-mode .signal-headline { font-family: 'Fraunces', serif; font-size: 1.35rem; font-weight: 600; color: var(--paper-ink); }
     .newspaper-mode .signal-body { font-family: 'Source Serif 4', serif; font-size: 1rem; line-height: 1.65; color: var(--paper-ink-muted); }
-    .newspaper-mode .signal-meta-bar { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; }
+    .newspaper-mode .signal-subline { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; }
     .newspaper-mode .filter-chip { background: var(--paper-card); border-color: var(--paper-border); color: var(--paper-ink-muted); }
     .newspaper-mode .filter-chip.active { background: var(--paper-ink); color: #fff; border-color: var(--paper-ink); }
     .newspaper-mode .signal-footer { border-top-color: var(--paper-border); }
@@ -420,7 +443,7 @@
           <div class="stack-content" id="list-backlog"></div>
         </div>
 
-        <!-- 3. COMPLETED DRAWER (DEFAULT COLLAPSED) -->
+        <!-- 3. COMPLETED DRAWER -->
         <div class="stack-section-card collapsed" id="card-section-completed">
           <div class="stack-section-header" onclick="toggleSectionCollapse('completed')">
             <div class="stack-title-group">
@@ -690,7 +713,6 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_WNpgnNEFi329sp-lnqRPdg_huw4yojT';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const TRACKS = ["All", "Engineering", "Finance", "AI", "Trends", "Opportunities", "Archived"];
     let ALL_ARTICLES = [];
     let activeSignalTrack = "All";
     let isReaderMode = false;
@@ -1062,7 +1084,7 @@
     }
 
     /* ==========================================================================
-       SIGNALS FEED
+       SIGNALS FEED (DYNAMIC TRACKS & CLEAN CARD LAYOUT)
        ========================================================================== */
     function signalMeter(score) {
       let bars = '';
@@ -1088,17 +1110,32 @@
       }
     }
 
+    /* Dynamically build track list based on all unique tracks in the DB */
     function renderSignalTrackPills() {
       const pillBox = document.getElementById('signal-track-pills');
       pillBox.innerHTML = '';
-      TRACKS.forEach(track => {
+
+      // Extract unique non-empty tracks from articles
+      const discoveredTracks = new Set();
+      ALL_ARTICLES.forEach(a => {
+        if (a.track) {
+          a.track.split(',').forEach(t => {
+            const clean = t.trim();
+            if (clean) discoveredTracks.add(clean);
+          });
+        }
+      });
+
+      const dynamicTracks = ["All", ...Array.from(discoveredTracks).sort(), "Archived"];
+
+      dynamicTracks.forEach(track => {
         let count = 0;
         if (track === 'Archived') {
           count = appData.archivedSignals.length;
         } else if (track === 'All') {
           count = ALL_ARTICLES.filter(a => !appData.archivedSignals.includes(a.id)).length;
         } else {
-          count = ALL_ARTICLES.filter(a => a.track === track && !appData.archivedSignals.includes(a.id)).length;
+          count = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !appData.archivedSignals.includes(a.id)).length;
         }
 
         const chip = document.createElement('span');
@@ -1140,75 +1177,82 @@
     }
 
     function renderSignalsFeed() {
-  const container = document.getElementById('signals-container');
-  container.innerHTML = '';
+      const container = document.getElementById('signals-container');
+      container.innerHTML = '';
 
-  let filtered = [];
-  if (activeSignalTrack === 'Archived') {
-    filtered = ALL_ARTICLES.filter(a => appData.archivedSignals.includes(a.id));
-  } else if (activeSignalTrack === 'All') {
-    filtered = ALL_ARTICLES.filter(a => !appData.archivedSignals.includes(a.id));
-  } else {
-    filtered = ALL_ARTICLES.filter(a => a.track === activeSignalTrack && !appData.archivedSignals.includes(a.id));
-  }
+      let filtered = [];
+      if (activeSignalTrack === 'Archived') {
+        filtered = ALL_ARTICLES.filter(a => appData.archivedSignals.includes(a.id));
+      } else if (activeSignalTrack === 'All') {
+        filtered = ALL_ARTICLES.filter(a => !appData.archivedSignals.includes(a.id));
+      } else {
+        filtered = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeSignalTrack.toLowerCase()) && !appData.archivedSignals.includes(a.id));
+      }
 
-  if (filtered.length === 0) {
-    container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem;">No signals in this view.</div>`;
-    return;
-  }
+      if (filtered.length === 0) {
+        container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem;">No signals in this view.</div>`;
+        return;
+      }
 
-  filtered.forEach(article => {
-    const isArchived = appData.archivedSignals.includes(article.id);
-    const tagsList = Array.isArray(article.tags) ? article.tags : (typeof article.tags === 'string' ? JSON.parse(article.tags || '[]') : []);
-    const isLongBody = (article.body || '').length > 240;
-    const articleUrl = article.url || '#';
+      filtered.forEach(article => {
+        const isArchived = appData.archivedSignals.includes(article.id);
+        const tagsList = Array.isArray(article.tags) ? article.tags : (typeof article.tags === 'string' ? JSON.parse(article.tags || '[]') : []);
+        const isLongBody = (article.body || '').length > 240;
+        const targetUrl = article.url || article.link || article.source_url || `https://www.google.com/search?q=${encodeURIComponent(article.headline + ' ' + (article.source || ''))}`;
 
-    const card = document.createElement('div');
-    card.className = 'signal-card';
-    card.id = `signal-card-${article.id}`;
+        const card = document.createElement('div');
+        card.className = 'signal-card';
+        card.id = `signal-card-${article.id}`;
 
-    card.innerHTML = `
-      <div class="signal-meta-bar">
-        <div style="display:flex; align-items:center; gap:8px;">
-          ${signalMeter(article.relevance || 3)}
-          <span><strong>${escapeHtml(article.source || 'Signal')}</strong></span>
-          <span>·</span>
-          <span>${article.date || ''}</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:6px;">
-          <span class="pill" style="background:var(--bg); border:1px solid var(--border); font-size:0.65rem;">${escapeHtml(article.track || 'General')}</span>
-          <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.68rem;" onclick="toggleArchiveArticle(${article.id})">
-            ${isArchived ? '↩ Unarchive' : '✓ Mark Read'}
-          </button>
-        </div>
-      </div>
+        card.innerHTML = `
+          <!-- Row 1: Left = Source & Meter; Right = Mark Read Action -->
+          <div class="signal-card-header">
+            <div class="signal-source-wrap">
+              ${signalMeter(article.relevance || 3)}
+              <span class="signal-source-name">${escapeHtml(article.source || 'Signal')}</span>
+            </div>
+            <button class="btn btn-secondary btn-sm" style="padding:3px 10px; font-size:0.7rem;" onclick="toggleArchiveArticle(${article.id})">
+              ${isArchived ? '↩ Unarchive' : '✓ Mark Read'}
+            </button>
+          </div>
 
-      <!-- Outbound Link: Opens Original Source directly in new tab -->
-      <a href="${articleUrl}" target="_blank" rel="noopener noreferrer" class="signal-headline" onclick="event.stopPropagation()">
-        ${escapeHtml(article.headline)}
-      </a>
+          <!-- Headline Link -->
+          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="signal-headline" onclick="event.stopPropagation()">
+            ${escapeHtml(article.headline)}
+          </a>
 
-      <div class="signal-body-wrap">
-        <p class="signal-body">${escapeHtml(article.body)}</p>
-        ${isLongBody ? `<button class="signal-expand-btn" onclick="toggleExpandArticle(${article.id}, this)">Read full summary ↓</button>` : ''}
-      </div>
+          <!-- Subline: Category Badge + Date directly under title -->
+          <div class="signal-subline">
+            <span class="pill" style="background:var(--bg); border:1px solid var(--border); font-size:0.68rem; padding:2px 8px;">
+              ${escapeHtml(article.track || 'General')}
+            </span>
+            <span>·</span>
+            <span>${article.date || ''}</span>
+          </div>
 
-      ${article.deep_dive ? `<div class="signal-deep-dive"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
+          <!-- Body Text -->
+          <div class="signal-body-wrap">
+            <p class="signal-body">${escapeHtml(article.body)}</p>
+            ${isLongBody ? `<button class="signal-expand-btn" onclick="toggleExpandArticle(${article.id}, this)">Read full summary ↓</button>` : ''}
+          </div>
 
-      ${tagsList.length > 0 ? `
-        <div class="signal-tags-row">
-          ${tagsList.map(t => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.65rem;">#${escapeHtml(t)}</span>`).join('')}
-        </div>
-      ` : ''}
+          ${article.deep_dive ? `<div class="signal-deep-dive"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
 
-      <div class="signal-footer">
-        <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('${escapeHtml(article.headline).replace(/'/g, "\\'")}', '${escapeHtml(article.track)}')">+ Add as Task</button>
-        ${article.url ? `<a class="btn btn-secondary btn-sm" href="${article.url}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Read Original Source ↗</a>` : ''}
-      </div>
-    `;
-    container.appendChild(card);
-  });
-}
+          ${tagsList.length > 0 ? `
+            <div class="signal-tags-row">
+              ${tagsList.map(t => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.65rem;">#${escapeHtml(t)}</span>`).join('')}
+            </div>
+          ` : ''}
+
+          <!-- Footer Actions -->
+          <div class="signal-footer">
+            <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('${escapeHtml(article.headline).replace(/'/g, "\\'")}', '${escapeHtml(article.track)}')">+ Add as Task</button>
+            <a class="btn btn-secondary btn-sm" href="${targetUrl}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Read Original Source ↗</a>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
 
     function toggleExpandArticle(id, btn) {
       const card = document.getElementById(`signal-card-${id}`);
@@ -1225,7 +1269,7 @@
         project: track || 'General',
         status: 'todo',
         completed: false,
-        tags: ['signal', track.toLowerCase()]
+        tags: ['signal', (track || 'general').toLowerCase()]
       });
       saveData();
       alert(`Added to Backlog!`);
@@ -1361,7 +1405,7 @@
 
     /* ==========================================================================
        FOCUS DESK HUD
-       ========================================================================== */
+       ========================================================================= */
     function autoDetectCurrentScheduleSlot() {
       const todayStr = formatDateLocal(new Date());
       const currentBucket = getCurrentSystemBucket();
