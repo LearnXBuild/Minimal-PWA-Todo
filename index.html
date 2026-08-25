@@ -254,6 +254,9 @@
       .bento-span-5, .bento-span-6, .bento-span-7, .bento-span-12 {
         grid-column: span 12 !important;
       }
+      .bento-card {
+        padding: 16px 14px;
+      }
     }
 
     /* Fixed Code Box CSS */
@@ -289,86 +292,96 @@
       max-height: 380px;
     }
 
-    /* Problem Ladder & Roadmap Item Row Layout */
+    /* Problem Ladder & Learning Card Clean Layout */
     .ladder-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       margin-top: 10px;
     }
-    .ladder-row {
+    .ladder-card-clean {
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
-      padding: 10px 14px;
+      padding: 12px 14px;
       background: var(--bg);
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
+      flex-direction: column;
+      gap: 10px;
       transition: all 0.15s ease;
     }
-    .ladder-row:hover {
+    .ladder-card-clean:hover {
       border-color: var(--border-dark);
     }
-    .ladder-row.solved {
+    .ladder-card-clean.solved {
       background: #f0fdf4;
       border-color: #bbf7d0;
     }
-    .ladder-left {
+    .ladder-top-row {
       display: flex;
-      align-items: center;
-      gap: 12px;
-      min-width: 0;
-      flex: 1;
+      align-items: flex-start;
+      gap: 10px;
+      width: 100%;
     }
     .ladder-checkbox {
-      width: 18px;
-      height: 18px;
+      width: 19px;
+      height: 19px;
       border-radius: 4px;
       cursor: pointer;
       accent-color: var(--accent-primary);
       flex-shrink: 0;
+      margin-top: 2px;
     }
-    .ladder-info {
+    .ladder-content {
       display: flex;
       flex-direction: column;
+      gap: 4px;
+      flex: 1;
       min-width: 0;
     }
-    .ladder-meta-line {
+    .ladder-badge-wrapper {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
     .ladder-tier {
       font-size: 0.65rem;
       font-weight: 800;
       text-transform: uppercase;
       font-family: var(--font-mono);
-      padding: 1px 6px;
+      padding: 2px 7px;
       border-radius: 4px;
       background: #e0e7ff;
       color: #4338ca;
+      display: inline-block;
+      width: fit-content;
     }
-    .ladder-title {
-      font-size: 0.88rem;
+    .ladder-title-text {
+      font-size: 0.92rem;
       font-weight: 700;
       color: var(--text);
       text-decoration: none;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      line-height: 1.4;
+      word-break: break-word;
     }
-    .ladder-title:hover {
+    .ladder-title-text:hover {
       color: var(--accent-primary);
     }
-    .ladder-row.solved .ladder-title {
+    .ladder-card-clean.solved .ladder-title-text {
       text-decoration: line-through;
       color: var(--text-muted);
+    }
+    .ladder-bottom-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 8px;
+      border-top: 1px solid rgba(0, 0, 0, 0.05);
+      margin-top: 2px;
     }
     .ladder-subtext {
       font-size: 0.72rem;
       color: var(--text-muted);
-      margin-top: 1px;
+      font-family: var(--font-mono);
     }
 
     /* Newspaper Overlay */
@@ -631,6 +644,7 @@
     @media (max-width: 640px) {
       body { flex-direction: column; }
       aside { display: none; }
+      .content-section { padding: 16px 12px; }
       .schedule-bucket-grid { grid-template-columns: 1fr; }
       .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
       .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px); }
@@ -1511,26 +1525,28 @@
 
           container.innerHTML = `
             <div class="bento-grid">
-              <!-- HLD Header & Progress (Span 12) -->
-              <div class="bento-card bento-span-12" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; background:var(--surface);">
+              
+              <!-- HLD Header & Aligned Full-Width Progress Banner (Span 12) -->
+              <div class="bento-card bento-span-12" style="display:flex; flex-direction:column; gap:14px; background:var(--surface);">
                 <div>
-                  <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--accent-primary); font-weight:700; margin-bottom:4px;">
+                  <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--accent-primary); font-weight:700; margin-bottom:4px; text-transform:uppercase;">
                     🏗️ SYSTEM DESIGN & HLD ROADMAP
                   </div>
-                  <h2 style="font-size:1.35rem; font-weight:800; letter-spacing:-0.015em; color:var(--text);">
+                  <h2 style="font-size:1.3rem; font-weight:800; letter-spacing:-0.015em; color:var(--text); line-height:1.25;">
                     Awesome System Design Curriculum
                   </h2>
-                  <p style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">
+                  <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
                     Curated concepts, trade-offs, and interview problems seeded from AlgoMaster.
                   </p>
                 </div>
 
-                <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 16px; min-width:170px; text-align:right;">
-                  <div style="font-size:0.7rem; font-weight:800; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase;">Curriculum Progress</div>
-                  <div style="font-size:1.25rem; font-weight:800; color:var(--text); margin:2px 0;">
-                    ${completedCount} / ${totalCount} <span style="font-size:0.8rem; color:var(--accent-primary);">(${percentDone}%)</span>
+                <!-- Aligned Progress Meter -->
+                <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.72rem; margin-bottom:6px;">
+                    <span style="font-weight:700; color:var(--text-muted); text-transform:uppercase;">Curriculum Progress</span>
+                    <span style="font-weight:800; color:var(--text);">${completedCount} / ${totalCount} (${percentDone}%)</span>
                   </div>
-                  <div style="width:100%; height:5px; background:var(--border); border-radius:99px; overflow:hidden; margin-top:4px;">
+                  <div style="width:100%; height:6px; background:var(--border); border-radius:99px; overflow:hidden;">
                     <div style="width:${percentDone}%; height:100%; background:var(--accent-primary); transition:width 0.3s ease;"></div>
                   </div>
                 </div>
@@ -1551,12 +1567,12 @@
                 </div>
               </div>
 
-              <!-- Grouped Checklists (Span 12) -->
-              <div class="bento-span-12" style="display:flex; flex-direction:column; gap:16px;">
+              <!-- Grouped Checklists with Clean Two-Row Layout (Span 12) -->
+              <div class="bento-span-12" style="display:flex; flex-direction:column; gap:14px;">
                 ${Object.entries(grouped).map(([categoryName, items]) => {
                   const catCompleted = items.filter(i => i.status === 'completed' || i.status === 'mastered').length;
                   return `
-                    <div class="bento-card" style="padding:16px 18px;">
+                    <div class="bento-card">
                       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:8px;">
                         <span style="font-size:0.85rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:8px;">
                           <span>📌</span> ${escapeHtml(categoryName)}
@@ -1566,7 +1582,7 @@
                         </span>
                       </div>
 
-                      <div class="ladder-list" style="margin-top:0;">
+                      <div class="ladder-list">
                         ${items.map(item => {
                           const isDone = item.status === 'completed' || item.status === 'mastered';
                           const diffBadge = item.difficulty === 'Foundation' 
@@ -1578,40 +1594,46 @@
                             : 'background:#f1f5f9; color:#475569;';
 
                           return `
-                            <div class="ladder-row ${isDone ? 'solved' : ''}">
-                              <div class="ladder-left">
+                            <div class="ladder-card-clean ${isDone ? 'solved' : ''}">
+                              
+                              <!-- Top Row: Checkbox + Difficulty Badge + Full Title (Wraps naturally) -->
+                              <div class="ladder-top-row">
                                 <input type="checkbox" 
                                   ${isDone ? 'checked' : ''} 
                                   onchange="toggleHldModuleMastered(${item.id}, this.checked)" 
                                   class="ladder-checkbox">
-                                <div class="ladder-info">
-                                  <div class="ladder-meta-line">
+                                
+                                <div class="ladder-content">
+                                  <div class="ladder-badge-wrapper">
                                     <span class="ladder-tier" style="${diffBadge}">
                                       ${item.difficulty || 'Concept'}
                                     </span>
-                                    <a href="${item.reference_url || '#'}" 
-                                      target="_blank" 
-                                      rel="noopener noreferrer" 
-                                      class="ladder-title"
-                                      title="${escapeHtml(item.module_title)}">
-                                      ${escapeHtml(item.module_title)}
-                                    </a>
                                   </div>
-                                  <span class="ladder-subtext">
-                                    Code: ${escapeHtml(item.module_code)}
-                                  </span>
+                                  <a href="${item.reference_url || '#'}" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    class="ladder-title-text">
+                                    ${escapeHtml(item.module_title)}
+                                  </a>
                                 </div>
                               </div>
 
-                              ${item.reference_url ? `
-                                <a href="${item.reference_url}" 
-                                  target="_blank" 
-                                  rel="noopener noreferrer" 
-                                  class="btn btn-secondary btn-sm" 
-                                  style="padding:4px 12px; font-size:0.7rem; flex-shrink:0;">
-                                  Read / Watch ↗
-                                </a>
-                              ` : ''}
+                              <!-- Bottom Bar: Code + Action Button on bottom right -->
+                              <div class="ladder-bottom-bar">
+                                <span class="ladder-subtext">
+                                  Code: ${escapeHtml(item.module_code)}
+                                </span>
+                                ${item.reference_url ? `
+                                  <a href="${item.reference_url}" 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    class="btn btn-secondary btn-sm" 
+                                    style="padding:3px 10px; font-size:0.7rem;">
+                                    Read / Watch ↗
+                                  </a>
+                                ` : ''}
+                              </div>
+
                             </div>
                           `;
                         }).join('')}
@@ -1620,6 +1642,7 @@
                   `;
                 }).join('')}
               </div>
+
             </div>
           `;
         } catch (err) {
@@ -1720,22 +1743,24 @@
                   const tierName = index === 0 ? 'Foundation' : index === 1 ? 'Core SDE-2' : 'Curveball';
 
                   return `
-                    <div class="ladder-row ${isSolved ? 'solved' : ''}">
-                      <div class="ladder-left">
+                    <div class="ladder-card-clean ${isSolved ? 'solved' : ''}">
+                      <div class="ladder-top-row">
                         <input type="checkbox" ${isSolved ? 'checked' : ''} onchange="toggleProblemSolved(${q.id}, this.checked)" class="ladder-checkbox">
-                        <div class="ladder-info">
-                          <div class="ladder-meta-line">
+                        <div class="ladder-content">
+                          <div class="ladder-badge-wrapper">
                             <span class="ladder-tier">${tierName}</span>
-                            <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="ladder-title">
-                              ${escapeHtml(q.title)}
-                            </a>
                           </div>
-                          <span class="ladder-subtext">${q.platform} • ${q.difficulty}</span>
+                          <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="ladder-title-text">
+                            ${escapeHtml(q.title)}
+                          </a>
                         </div>
                       </div>
-                      <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:3px 10px; font-size:0.7rem; flex-shrink:0;">
-                        Solve ↗
-                      </a>
+                      <div class="ladder-bottom-bar">
+                        <span class="ladder-subtext">${q.platform} • ${q.difficulty}</span>
+                        <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:3px 10px; font-size:0.7rem;">
+                          Solve ↗
+                        </a>
+                      </div>
                     </div>
                   `;
                 }).join('')}
