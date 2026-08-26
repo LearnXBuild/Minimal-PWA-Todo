@@ -1732,15 +1732,30 @@
     }
 
     async function deleteCalendarEvent() {
-      const editId = document.getElementById('cal-edit-id').value;
-      if (editId && confirm("Delete this event?")) {
-        const numericId = Number(editId);
-        closeModal('calendar-modal');
-        ALL_EVENTS = ALL_EVENTS.filter(e => Number(e.id) !== numericId);
-        renderScheduleCalendar();
-        await db.from('schedule_events').delete().eq('id', numericId);
-      }
+  const editId = document.getElementById('cal-edit-id').value;
+  if (!editId) return;
+
+  if (confirm("Delete this event block?")) {
+    const numericId = Number(editId);
+
+    // 1. Close modal first
+    closeModal('calendar-modal');
+
+    // 2. Optimistically remove from memory immediately
+    ALL_EVENTS = ALL_EVENTS.filter(e => Number(e.id) !== numericId);
+
+    // 3. Instant UI re-render
+    renderScheduleCalendar();
+
+    // 4. Persist deletion in Supabase
+    const { error } = await db.from('schedule_events').delete().eq('id', numericId);
+    if (error) {
+      console.error("Failed to delete event from DB:", error);
+      alert("Could not delete event: " + error.message);
+      await syncAllSupabaseData();
     }
+  }
+}
 
     /* ==========================================================================
        SIGNALS DATA ENGINE & BENTO VIEW (WITH COLLAPSIBLE IPO & SUPABASE ACTIONS)
@@ -2485,16 +2500,32 @@
     function openProfileModal() { document.getElementById('profile-modal').style.display = 'flex'; }
 
     async function clearCompletedTasks() {
-      if (confirm("Delete all completed tasks from Supabase?")) {
-        const completedIds = ALL_TASKS.filter(t => t.status === 'done').map(t => Number(t.id));
-        ALL_TASKS = ALL_TASKS.filter(t => t.status !== 'done');
-        renderTaskStack();
-        closeModal('profile-modal');
-        if (completedIds.length > 0) {
-          await db.from('tasks').delete().in('id', completedIds);
-        }
-      }
-    }
+  if (!confirm("Delete all completed tasks from Supabase?")) return;
+
+  const completedIds = ALL_TASKS
+    .filter(t => t.status === 'done')
+    .map(t => Number(t.id));
+
+  if (completedIds.length === 0) {
+    closeModal('profile-modal');
+    return;
+  }
+
+  // 1. Optimistically remove all completed tasks and their subtasks
+  ALL_TASKS = ALL_TASKS.filter(t => t.status !== 'done' && !completedIds.includes(Number(t.parent_id)));
+
+  // 2. Instant UI re-render
+  renderTaskStack();
+  closeModal('profile-modal');
+
+  // 3. Persist batch deletion in Supabase
+  const { error } = await db.from('tasks').delete().in('id', completedIds);
+  if (error) {
+    console.error("Failed to clear completed tasks:", error);
+    alert("Could not delete from DB: " + error.message);
+    await syncAllSupabaseData();
+  }
+}
 
     function exportData() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ tasks: ALL_TASKS, events: ALL_EVENTS, meta: metaData }));
