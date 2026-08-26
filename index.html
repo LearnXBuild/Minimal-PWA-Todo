@@ -723,7 +723,6 @@
       <header class="workspace-header">
         <h1 class="section-title">SCHEDULE CALENDAR</h1>
         <div class="flex-gap" style="align-items: center;">
-          <button class="btn btn-secondary btn-sm" onclick="syncAllSupabaseData()">↻ Refresh</button>
           <button class="btn btn-secondary btn-sm" onclick="openCalendarEventModal(null)">+ Event</button>
           <button class="btn btn-sm" onclick="openDeskHud()">🖥️ Focus Mode</button>
         </div>
@@ -746,7 +745,6 @@
           </select>
         </div>
         <div class="flex-gap" style="align-items: center;">
-          <button class="btn btn-secondary btn-sm" onclick="syncAllSupabaseData()">↻ Refresh</button>
           <button class="btn btn-secondary btn-sm" onclick="openProjectManagerModal()">📂 Projects</button>
           <button class="btn btn-sm" onclick="openTaskModal()">+ Add Task</button>
         </div>
@@ -1255,7 +1253,7 @@
     }
 
     /* ==========================================================================
-       TASKS ENGINE
+       TASKS ENGINE (OPTIMISTIC STATE UPDATES & TYPE-SAFE MUTATIONS)
        ========================================================================== */
     function toggleSectionCollapse(sectionId) {
       const card = document.getElementById(`card-section-${sectionId}`);
@@ -1280,8 +1278,9 @@
       const rootTasks = ALL_TASKS.filter(t => !t.parent_id);
       const subtaskMap = new Map();
       ALL_TASKS.filter(t => t.parent_id).forEach(sub => {
-        if (!subtaskMap.has(sub.parent_id)) subtaskMap.set(sub.parent_id, []);
-        subtaskMap.get(sub.parent_id).push(sub);
+        const pId = Number(sub.parent_id);
+        if (!subtaskMap.has(pId)) subtaskMap.set(pId, []);
+        subtaskMap.get(pId).push(sub);
       });
 
       rootTasks.forEach(task => {
@@ -1296,7 +1295,7 @@
 
         const status = task.status || 'todo';
         const projColor = metaData.projectColors[task.project] || '#e2e8f0';
-        const subs = subtaskMap.get(task.id) || [];
+        const subs = subtaskMap.get(Number(task.id)) || [];
 
         const card = document.createElement('div');
         card.className = `reminder-card ${status === 'done' ? 'completed' : ''}`;
@@ -1361,13 +1360,14 @@
     }
 
     async function toggleTaskStatus(taskId) {
-      const task = ALL_TASKS.find(t => t.id === taskId);
+      const numericId = Number(taskId);
+      const task = ALL_TASKS.find(t => Number(t.id) === numericId);
       if (!task) return;
       const nextStatus = (task.status === 'done') ? 'todo' : 'done';
       task.status = nextStatus;
       renderTaskStack();
 
-      const { error } = await db.from('tasks').update({ status: nextStatus, updated_at: new Date().toISOString() }).eq('id', taskId);
+      const { error } = await db.from('tasks').update({ status: nextStatus, updated_at: new Date().toISOString() }).eq('id', numericId);
       if (error) {
         console.error(error);
         syncAllSupabaseData();
@@ -1375,13 +1375,14 @@
     }
 
     async function toggleSubtaskStatus(subId) {
-      const sub = ALL_TASKS.find(t => t.id === subId);
+      const numericId = Number(subId);
+      const sub = ALL_TASKS.find(t => Number(t.id) === numericId);
       if (!sub) return;
       const nextStatus = (sub.status === 'done') ? 'todo' : 'done';
       sub.status = nextStatus;
       renderTaskStack();
 
-      const { error } = await db.from('tasks').update({ status: nextStatus, updated_at: new Date().toISOString() }).eq('id', subId);
+      const { error } = await db.from('tasks').update({ status: nextStatus, updated_at: new Date().toISOString() }).eq('id', numericId);
       if (error) {
         console.error(error);
         syncAllSupabaseData();
@@ -1389,12 +1390,13 @@
     }
 
     async function moveTask(taskId, newStatus) {
-      const task = ALL_TASKS.find(t => t.id === taskId);
+      const numericId = Number(taskId);
+      const task = ALL_TASKS.find(t => Number(t.id) === numericId);
       if (!task) return;
       task.status = newStatus;
       renderTaskStack();
 
-      const { error } = await db.from('tasks').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', taskId);
+      const { error } = await db.from('tasks').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', numericId);
       if (error) {
         console.error(error);
         syncAllSupabaseData();
@@ -1413,7 +1415,8 @@
     function openTaskModal(taskId = null) {
       populateTaskModalProjects();
       if (taskId) {
-        const task = ALL_TASKS.find(t => t.id === taskId);
+        const numericId = Number(taskId);
+        const task = ALL_TASKS.find(t => Number(t.id) === numericId);
         document.getElementById('modal-title').innerText = 'Edit Task';
         document.getElementById('edit-task-id').value = task.id;
         document.getElementById('t-title').value = task.title;
@@ -1473,19 +1476,21 @@
       }
 
       if (editId) {
-        const task = ALL_TASKS.find(t => t.id === parseInt(editId, 10));
+        const numericId = Number(editId);
+        const task = ALL_TASKS.find(t => Number(t.id) === numericId);
         if (task) {
           task.title = title;
           task.description = description;
           task.project = project;
           task.status = status;
           task.tags = tags;
+          task.updated_at = new Date().toISOString();
         }
         renderTaskStack();
         closeModal('task-modal');
         await db.from('tasks').update({
           title, description, project, status, tags, updated_at: new Date().toISOString()
-        }).eq('id', editId);
+        }).eq('id', numericId);
       } else {
         closeModal('task-modal');
         await createGlobalTask({ title, description, project, status, tags });
@@ -1496,9 +1501,10 @@
 
     async function deleteTask(id) {
       if (!confirm("Delete this task?")) return;
-      ALL_TASKS = ALL_TASKS.filter(t => t.id !== id && t.parent_id !== id);
+      const numericId = Number(id);
+      ALL_TASKS = ALL_TASKS.filter(t => Number(t.id) !== numericId && Number(t.parent_id) !== numericId);
       renderTaskStack();
-      await db.from('tasks').delete().eq('id', id);
+      await db.from('tasks').delete().eq('id', numericId);
     }
 
     function openSubtaskModal(parentTaskId) {
@@ -1508,11 +1514,11 @@
     }
 
     async function saveSubtask() {
-      const parentId = parseInt(document.getElementById('sub-parent-task-id').value, 10);
+      const parentId = Number(document.getElementById('sub-parent-task-id').value);
       const title = document.getElementById('sub-title').value.trim();
       if (!title) return;
       
-      const parentTask = ALL_TASKS.find(t => t.id === parentId);
+      const parentTask = ALL_TASKS.find(t => Number(t.id) === parentId);
       closeModal('subtask-modal');
 
       await createGlobalTask({
@@ -1608,7 +1614,8 @@
     }
 
     function navigateToSpecificTaskId(taskId) {
-      const task = ALL_TASKS.find(t => t.id === taskId);
+      const numericId = Number(taskId);
+      const task = ALL_TASKS.find(t => Number(t.id) === numericId);
       if (task) {
         const tasksTabBtn = document.querySelectorAll('.nav-btn')[1];
         switchTab('tasks', tasksTabBtn);
@@ -1621,7 +1628,8 @@
       updateProjectDropdowns();
       const delBtn = document.getElementById('cal-delete-btn');
       if (eventId) {
-        const evt = ALL_EVENTS.find(e => e.id === eventId);
+        const numericId = Number(eventId);
+        const evt = ALL_EVENTS.find(e => Number(e.id) === numericId);
         if (evt) {
           document.getElementById('cal-edit-id').value = evt.id;
           document.getElementById('cal-linked-task-id').value = evt.task_id || '';
@@ -1668,17 +1676,16 @@
 
       const payload = {
         title, description, event_date, time_bucket, start_time, end_time, project, is_starred,
-        task_id: linkedTaskId ? parseInt(linkedTaskId, 10) : null,
+        task_id: linkedTaskId ? Number(linkedTaskId) : null,
         updated_at: new Date().toISOString()
       };
 
       if (editId) {
-        const { error } = await db.from('schedule_events').update(payload).eq('id', editId);
-        if (!error) {
-          const idx = ALL_EVENTS.findIndex(e => e.id === parseInt(editId, 10));
-          if (idx !== -1) ALL_EVENTS[idx] = { ...ALL_EVENTS[idx], ...payload };
-          renderScheduleCalendar();
-        }
+        const numericId = Number(editId);
+        const idx = ALL_EVENTS.findIndex(e => Number(e.id) === numericId);
+        if (idx !== -1) ALL_EVENTS[idx] = { ...ALL_EVENTS[idx], ...payload };
+        renderScheduleCalendar();
+        await db.from('schedule_events').update(payload).eq('id', numericId);
       } else {
         const { data, error } = await db.from('schedule_events').insert([payload]).select();
         if (!error && data && data[0]) {
@@ -1691,10 +1698,11 @@
     async function deleteCalendarEvent() {
       const editId = document.getElementById('cal-edit-id').value;
       if (editId && confirm("Delete this event?")) {
+        const numericId = Number(editId);
         closeModal('calendar-modal');
-        ALL_EVENTS = ALL_EVENTS.filter(e => e.id !== parseInt(editId, 10));
+        ALL_EVENTS = ALL_EVENTS.filter(e => Number(e.id) !== numericId);
         renderScheduleCalendar();
-        await db.from('schedule_events').delete().eq('id', editId);
+        await db.from('schedule_events').delete().eq('id', numericId);
       }
     }
 
@@ -2356,7 +2364,7 @@
       }
 
       relevantTasks.forEach(task => {
-        const subs = ALL_TASKS.filter(s => s.parent_id === task.id);
+        const subs = ALL_TASKS.filter(s => Number(s.parent_id) === Number(task.id));
         const card = document.createElement('div');
         card.className = 'hud-hero-card';
         card.innerHTML = `
@@ -2439,7 +2447,7 @@
 
     async function clearCompletedTasks() {
       if (confirm("Delete all completed tasks from Supabase?")) {
-        const completedIds = ALL_TASKS.filter(t => t.status === 'done').map(t => t.id);
+        const completedIds = ALL_TASKS.filter(t => t.status === 'done').map(t => Number(t.id));
         ALL_TASKS = ALL_TASKS.filter(t => t.status !== 'done');
         renderTaskStack();
         closeModal('profile-modal');
