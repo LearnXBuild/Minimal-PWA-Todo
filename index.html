@@ -1500,12 +1500,33 @@
     }
 
     async function deleteTask(id) {
-      if (!confirm("Delete this task?")) return;
-      const numericId = Number(id);
-      ALL_TASKS = ALL_TASKS.filter(t => Number(t.id) !== numericId && Number(t.parent_id) !== numericId);
-      renderTaskStack();
-      await db.from('tasks').delete().eq('id', numericId);
+  if (!confirm("Delete this task?")) return;
+  
+  const numericId = Number(id);
+
+  // 1. Optimistically purge task AND any child subtasks from memory immediately
+  ALL_TASKS = ALL_TASKS.filter(t => Number(t.id) !== numericId && Number(t.parent_id) !== numericId);
+  
+  // 2. Unlink any schedule event referencing this task
+  ALL_EVENTS = ALL_EVENTS.map(e => {
+    if (Number(e.task_id) === numericId) {
+      return { ...e, task_id: null };
     }
+    return e;
+  });
+
+  // 3. Instant UI re-render
+  renderTaskStack();
+  renderScheduleCalendar();
+
+  // 4. Persist deletion in Supabase
+  const { error } = await db.from('tasks').delete().eq('id', numericId);
+  if (error) {
+    console.error("Failed to delete task from DB:", error);
+    alert("Could not delete task: " + error.message);
+    await syncAllSupabaseData();
+  }
+}
 
     function openSubtaskModal(parentTaskId) {
       document.getElementById('sub-parent-task-id').value = parentTaskId;
