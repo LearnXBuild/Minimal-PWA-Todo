@@ -121,9 +121,7 @@
     .sub-item { font-size: 0.78rem; display: flex; align-items: center; gap: 6px; color: var(--text); }
     .sub-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
-    /* ==========================================================================
-       SIGNALS & LEARNING: BENTO COMMON STYLES
-       ========================================================================== */
+    /* Bento Common Styles */
     .bento-pill-scroll {
       display: flex;
       gap: 8px;
@@ -697,7 +695,7 @@
       <header class="workspace-header">
         <h1 class="section-title">SCHEDULE CALENDAR</h1>
         <div class="flex-gap" style="align-items: center;">
-          <button class="btn btn-secondary btn-sm" onclick="openCalendarEventModal(null, 'meeting')">+ Event</button>
+          <button class="btn btn-secondary btn-sm" onclick="openCalendarEventModal(null)">+ Event</button>
           <button class="btn btn-sm" onclick="openDeskHud()">🖥️ Focus Mode</button>
         </div>
       </header>
@@ -805,7 +803,7 @@
       <div id="bento-signals-container" class="bento-signals-container"></div>
     </section>
 
-    <!-- 5. REPORTS TAB (Accessed from Workspace Settings) -->
+    <!-- 5. REPORTS TAB -->
     <section id="sec-reports" class="content-section">
       <header class="workspace-header">
         <h1 class="section-title">REPORTS & LIMITS</h1>
@@ -830,7 +828,7 @@
   <div class="newspaper-overlay" id="newspaper-overlay">
     <div class="newspaper-wrap">
       <div class="news-top-bar">
-        <span id="news-issue-date">TUESDAY, AUGUST 25, 2026</span>
+        <span id="news-issue-date">WEDNESDAY, AUGUST 26, 2026</span>
         <button class="news-exit-btn" onclick="closeNewspaperOverlay()" title="Exit Reader View">💻</button>
       </div>
       <h1 class="news-title">The Signal</h1>
@@ -973,6 +971,7 @@
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;" id="cal-modal-title">Event Block</h2>
       <input type="hidden" id="cal-edit-id">
+      <input type="hidden" id="cal-linked-task-id">
       <div class="modal-body-scroll">
         <div class="space-y">
           <input type="text" id="cal-title" placeholder="Event Title">
@@ -981,7 +980,6 @@
           <div>
             <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">TIME BUCKET:</label>
             <select id="cal-bucket-select">
-              <option value="auto">⏱️ Auto-deduce from Start Time</option>
               <option value="morning">🌅 Morning (till 12 PM)</option>
               <option value="afternoon">☀️ Afternoon (12 PM - 4 PM)</option>
               <option value="evening">🌆 Evening (4 PM - 8 PM)</option>
@@ -1065,12 +1063,16 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_WNpgnNEFi329sp-lnqRPdg_huw4yojT';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let ALL_TASKS = [];
+    let ALL_EVENTS = [];
     let ALL_ARTICLES = [];
     let ALL_IPOS = [];
+
     let activeTrack = "All";
     let activeLearningTrack = "DSA";
     let activeHldCategory = "All";
     let archivedSignals = JSON.parse(localStorage.getItem('the_signal_archived_ids') || '[]');
+    let selectedFilterTags = new Set();
 
     function escapeHtml(str) {
       if (!str) return '';
@@ -1085,7 +1087,7 @@
     }
 
     function formatEditorialDate(dateStr) {
-      if (!dateStr) return 'TUESDAY, AUGUST 25, 2026';
+      if (!dateStr) return 'WEDNESDAY, AUGUST 26, 2026';
       const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00');
       return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase();
     }
@@ -1100,9 +1102,9 @@
     }
 
     function getEventBucket(evt) {
-      if (evt.bucket && evt.bucket !== 'auto') return evt.bucket.toLowerCase();
-      if (evt.startTime) {
-        const startH = parseInt(evt.startTime.split(':')[0], 10);
+      if (evt.time_bucket) return evt.time_bucket.toLowerCase();
+      if (evt.start_time) {
+        const startH = parseInt(evt.start_time.split(':')[0], 10);
         if (startH < 12) return 'morning';
         if (startH < 16) return 'afternoon';
         if (startH < 20) return 'evening';
@@ -1119,24 +1121,25 @@
       return 'others';
     }
 
-    function loadData() {
-      const saved = localStorage.getItem('onespace_master_data');
+    function loadMeta() {
+      const saved = localStorage.getItem('onespace_meta_data');
       if (saved) {
         try { return JSON.parse(saved); } catch(e) {}
       }
       return {
-        tasks: [],
         projectLimits: {},
-        projectColors: { 'General': '#6366f1' },
+        projectColors: { 'General': '#6366f1', 'Finance': '#10b981', 'Engineering': '#0ea5e9' },
         tagColors: {},
         manualProjectTimes: {},
-        calendarEvents: [],
         weeklySummaries: {}
       };
     }
 
-    let appData = loadData();
-    let selectedFilterTags = new Set();
+    let metaData = loadMeta();
+
+    function saveMeta() {
+      localStorage.setItem('onespace_meta_data', JSON.stringify(metaData));
+    }
 
     let trackingState = {
       isRunning: false,
@@ -1147,16 +1150,6 @@
       timerId: null,
       lastTickTime: Date.now()
     };
-
-    function saveData() {
-      const currentWeekKey = getISOWeekKey(new Date());
-      if (!appData.weeklySummaries) appData.weeklySummaries = {};
-      if (!appData.weeklySummaries[currentWeekKey]) appData.weeklySummaries[currentWeekKey] = {};
-      Object.entries(appData.manualProjectTimes || {}).forEach(([p, s]) => {
-        appData.weeklySummaries[currentWeekKey][p] = s;
-      });
-      localStorage.setItem('onespace_master_data', JSON.stringify(appData));
-    }
 
     function switchTab(tab, element) {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -1178,16 +1171,55 @@
       if (tab === 'reports') renderReports();
     }
 
-    function navigateToSpecificTask(taskTitle) {
-      const tasksTabBtn = document.querySelectorAll('.nav-btn')[1];
-      switchTab('tasks', tasksTabBtn);
+    /* ==========================================================================
+       SUPABASE DATA SYNC (TASKS & SCHEDULES)
+       ========================================================================== */
+    async function syncAllSupabaseData() {
+      try {
+        const [tasksRes, eventsRes] = await Promise.all([
+          db.from('tasks').select('*').order('id', { ascending: false }),
+          db.from('schedule_events').select('*').order('start_time', { ascending: true })
+        ]);
 
-      document.getElementById('task-project-filter').value = 'ALL';
-      const searchInput = document.getElementById('search-input');
-      searchInput.value = taskTitle;
-      selectedFilterTags.clear();
-      renderTagFilters();
-      renderTaskStack();
+        if (tasksRes.data) ALL_TASKS = tasksRes.data;
+        if (eventsRes.data) ALL_EVENTS = eventsRes.data;
+
+        updateProjectDropdowns();
+        renderTagFilters();
+        renderTaskStack();
+        renderScheduleCalendar();
+      } catch (err) {
+        console.error("Supabase load error:", err);
+      }
+    }
+
+    /* Universal Task Creation Engine */
+    async function createGlobalTask({ title, description = '', project = 'General', status = 'todo', tags = [], parent_id = null, source_type = 'manual' }) {
+      const payload = {
+        title,
+        description,
+        project: project || 'General',
+        status: status || 'todo',
+        tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
+        parent_id,
+        source_type,
+        updated_at: new Date().toISOString()
+      };
+
+      const { data, error } = await db.from('tasks').insert([payload]).select();
+      if (error) {
+        console.error('Task insertion failed:', error);
+        alert('Could not save task to database: ' + error.message);
+        return null;
+      }
+
+      if (data && data[0]) {
+        ALL_TASKS.unshift(data[0]);
+        renderTaskStack();
+        renderTagFilters();
+        return data[0];
+      }
+      return null;
     }
 
     /* ==========================================================================
@@ -1213,7 +1245,15 @@
 
       let focusCount = 0, backlogCount = 0, completedCount = 0;
 
-      appData.tasks.forEach(task => {
+      // Group parent tasks and children
+      const rootTasks = ALL_TASKS.filter(t => !t.parent_id);
+      const subtaskMap = new Map();
+      ALL_TASKS.filter(t => t.parent_id).forEach(sub => {
+        if (!subtaskMap.has(sub.parent_id)) subtaskMap.set(sub.parent_id, []);
+        subtaskMap.get(sub.parent_id).push(sub);
+      });
+
+      rootTasks.forEach(task => {
         if (!isAll && task.project !== selectedProject) return;
 
         const matchesSearch = task.title.toLowerCase().includes(searchQuery) ||
@@ -1223,34 +1263,35 @@
 
         if (!matchesSearch || !matchesTags) return;
 
-        const status = task.status || (task.completed ? 'done' : 'todo');
-        const projColor = appData.projectColors[task.project] || '#e2e8f0';
+        const status = task.status || 'todo';
+        const projColor = metaData.projectColors[task.project] || '#e2e8f0';
+        const subs = subtaskMap.get(task.id) || [];
 
         const card = document.createElement('div');
         card.className = `reminder-card ${status === 'done' ? 'completed' : ''}`;
         card.innerHTML = `
           <div class="reminder-row">
-            <div class="reminder-circle" onclick="toggleTaskStatus('${task.id}')"></div>
+            <div class="reminder-circle" onclick="toggleTaskStatus(${task.id})"></div>
             <div class="reminder-title-text">${escapeHtml(task.title)}</div>
             <div class="reminder-actions">
-              <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" title="Schedule Task" onclick="scheduleTaskToCalendar('${escapeHtml(task.title).replace(/'/g, "\\'")}', '${escapeHtml(task.project || '')}', '${escapeHtml(task.description || '').replace(/'/g, "\\'")}')">📅</button>
-              <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" title="Edit Task" onclick="openTaskModal('${task.id}')">✏️</button>
-              <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" title="Delete" onclick="deleteTask('${task.id}')">✕</button>
+              <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" title="Schedule Task" onclick="scheduleTaskToCalendar(${task.id}, '${escapeHtml(task.title).replace(/'/g, "\\'")}', '${escapeHtml(task.project || '')}', '${escapeHtml(task.description || '').replace(/'/g, "\\'")}')">📅</button>
+              <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" title="Edit Task" onclick="openTaskModal(${task.id})">✏️</button>
+              <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" title="Delete" onclick="deleteTask(${task.id})">✕</button>
             </div>
           </div>
 
           <div class="reminder-meta">
             ${task.project ? `<span class="pill" style="background:${projColor}; color:var(--text);">${escapeHtml(task.project)}</span>` : ''}
-            ${(task.tags || []).map(tg => `<span class="pill pill-tag" style="background:${appData.tagColors[tg] || '#f1f5f9'};">#${escapeHtml(tg)}</span>`).join('')}
+            ${(task.tags || []).map(tg => `<span class="pill pill-tag" style="background:${metaData.tagColors[tg] || '#f1f5f9'};">#${escapeHtml(tg)}</span>`).join('')}
           </div>
 
           ${task.description ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-left:28px;">${escapeHtml(task.description)}</div>` : ''}
 
-          ${(task.subtasks && task.subtasks.length > 0) ? `
+          ${subs.length > 0 ? `
             <div class="reminder-subtasks">
-              ${task.subtasks.map(s => `
-                <div class="sub-item ${s.completed ? 'done' : ''}">
-                  <input type="checkbox" ${s.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${s.id}')" style="cursor:pointer;">
+              ${subs.map(s => `
+                <div class="sub-item ${s.status === 'done' ? 'done' : ''}">
+                  <input type="checkbox" ${s.status === 'done' ? 'checked' : ''} onchange="toggleSubtaskStatus(${s.id})" style="cursor:pointer;">
                   <span>${escapeHtml(s.title)}</span>
                 </div>
               `).join('')}
@@ -1258,11 +1299,11 @@
           ` : ''}
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px; margin-left:28px;">
-            <button style="background:none; border:none; font-size:0.7rem; color:var(--text-muted); cursor:pointer; font-weight:700;" onclick="openSubtaskModal('${task.id}')">+ Subtask</button>
+            <button style="background:none; border:none; font-size:0.7rem; color:var(--text-muted); cursor:pointer; font-weight:700;" onclick="openSubtaskModal(${task.id})">+ Subtask</button>
             <div style="display:flex; gap:6px;">
-              ${status !== 'in_progress' ? `<button style="background:none; border:none; font-size:0.68rem; color:var(--accent-primary); cursor:pointer; font-weight:700;" onclick="moveTask('${task.id}', 'in_progress')">⚡ Focus</button>` : ''}
-              ${status !== 'todo' ? `<button style="background:none; border:none; font-size:0.68rem; color:var(--accent-primary); cursor:pointer; font-weight:700;" onclick="moveTask('${task.id}', 'todo')">📋 Backlog</button>` : ''}
-              ${status !== 'done' ? `<button style="background:none; border:none; font-size:0.68rem; color:var(--accent-primary); cursor:pointer; font-weight:700;" onclick="moveTask('${task.id}', 'done')">✅ Done</button>` : ''}
+              ${status !== 'in_progress' ? `<button style="background:none; border:none; font-size:0.68rem; color:var(--accent-primary); cursor:pointer; font-weight:700;" onclick="moveTask(${task.id}, 'in_progress')">⚡ Focus</button>` : ''}
+              ${status !== 'todo' ? `<button style="background:none; border:none; font-size:0.68rem; color:var(--accent-primary); cursor:pointer; font-weight:700;" onclick="moveTask(${task.id}, 'todo')">📋 Backlog</button>` : ''}
+              ${status !== 'done' ? `<button style="background:none; border:none; font-size:0.68rem; color:var(--accent-primary); cursor:pointer; font-weight:700;" onclick="moveTask(${task.id}, 'done')">✅ Done</button>` : ''}
             </div>
           </div>
         `;
@@ -1288,49 +1329,66 @@
       if (completedCount === 0) completedList.innerHTML = `<div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No completed tasks.</div>`;
     }
 
-    function toggleTaskStatus(taskId) {
-      const task = appData.tasks.find(t => t.id === taskId);
-      if (task) {
-        if (task.status === 'done' || task.completed) {
-          task.status = 'todo';
-          task.completed = false;
-        } else {
-          task.status = 'done';
-          task.completed = true;
-        }
-        saveData();
-        renderTaskStack();
+    async function toggleTaskStatus(taskId) {
+      const task = ALL_TASKS.find(t => t.id === taskId);
+      if (!task) return;
+      const nextStatus = (task.status === 'done') ? 'todo' : 'done';
+      task.status = nextStatus;
+      renderTaskStack();
+
+      const { error } = await db.from('tasks').update({ status: nextStatus, updated_at: new Date().toISOString() }).eq('id', taskId);
+      if (error) {
+        console.error(error);
+        syncAllSupabaseData();
       }
     }
 
-    function moveTask(taskId, newStatus) {
-      const task = appData.tasks.find(t => t.id === taskId);
-      if (task) {
-        task.status = newStatus;
-        task.completed = (newStatus === 'done');
-        saveData();
-        renderTaskStack();
+    async function toggleSubtaskStatus(subId) {
+      const sub = ALL_TASKS.find(t => t.id === subId);
+      if (!sub) return;
+      const nextStatus = (sub.status === 'done') ? 'todo' : 'done';
+      sub.status = nextStatus;
+      renderTaskStack();
+
+      const { error } = await db.from('tasks').update({ status: nextStatus, updated_at: new Date().toISOString() }).eq('id', subId);
+      if (error) {
+        console.error(error);
+        syncAllSupabaseData();
       }
     }
 
-    function scheduleTaskToCalendar(title, proj, desc) {
+    async function moveTask(taskId, newStatus) {
+      const task = ALL_TASKS.find(t => t.id === taskId);
+      if (!task) return;
+      task.status = newStatus;
+      renderTaskStack();
+
+      const { error } = await db.from('tasks').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', taskId);
+      if (error) {
+        console.error(error);
+        syncAllSupabaseData();
+      }
+    }
+
+    function scheduleTaskToCalendar(taskId, title, proj, desc) {
       openCalendarEventModal(null);
       document.getElementById('cal-title').value = title;
       document.getElementById('cal-desc').value = desc || '';
-      document.getElementById('cal-project-select').value = proj || '';
+      document.getElementById('cal-project-select').value = proj || 'General';
+      document.getElementById('cal-linked-task-id').value = taskId;
       document.getElementById('cal-date').value = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
     }
 
     function openTaskModal(taskId = null) {
       populateTaskModalProjects();
       if (taskId) {
-        const task = appData.tasks.find(t => t.id === taskId);
+        const task = ALL_TASKS.find(t => t.id === taskId);
         document.getElementById('modal-title').innerText = 'Edit Task';
         document.getElementById('edit-task-id').value = task.id;
         document.getElementById('t-title').value = task.title;
         document.getElementById('t-desc').value = task.description || '';
         document.getElementById('t-project').value = task.project || 'General';
-        document.getElementById('t-status').value = task.status || (task.completed ? 'done' : 'todo');
+        document.getElementById('t-status').value = task.status || 'todo';
         document.getElementById('t-tags').value = (task.tags || []).join(', ');
       } else {
         document.getElementById('modal-title').innerText = 'Create Task';
@@ -1349,7 +1407,7 @@
     function populateTaskModalProjects() {
       const select = document.getElementById('t-project');
       select.innerHTML = '';
-      const allProjects = Object.keys(appData.projectColors || {});
+      const allProjects = Object.keys(metaData.projectColors || {});
       allProjects.forEach(p => {
         select.innerHTML += `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`;
       });
@@ -1362,12 +1420,13 @@
       box.style.display = (select.value === '__NEW__') ? 'block' : 'none';
     }
 
-    function saveTask() {
+    async function saveTask() {
       const title = document.getElementById('t-title').value.trim();
       if (!title) return;
       const editId = document.getElementById('edit-task-id').value;
       const status = document.getElementById('t-status').value;
       const tags = document.getElementById('t-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
+      const description = document.getElementById('t-desc').value;
 
       let project = document.getElementById('t-project').value;
       if (project === '__NEW__') {
@@ -1375,45 +1434,40 @@
         const newProjColor = document.getElementById('t-custom-proj-color').value;
         if (newProjName) {
           project = newProjName;
-          appData.projectColors[newProjName] = newProjColor;
+          metaData.projectColors[newProjName] = newProjColor;
+          saveMeta();
         } else {
           project = 'General';
         }
       }
 
       if (editId) {
-        const task = appData.tasks.find(t => t.id === editId);
+        const task = ALL_TASKS.find(t => t.id === parseInt(editId, 10));
         if (task) {
           task.title = title;
-          task.description = document.getElementById('t-desc').value;
+          task.description = description;
           task.project = project;
           task.status = status;
-          task.completed = (status === 'done');
           task.tags = tags;
         }
+        renderTaskStack();
+        closeModal('task-modal');
+        await db.from('tasks').update({
+          title, description, project, status, tags, updated_at: new Date().toISOString()
+        }).eq('id', editId);
       } else {
-        appData.tasks.push({
-          id: 'task_' + Date.now(),
-          title,
-          description: document.getElementById('t-desc').value,
-          project,
-          status,
-          completed: (status === 'done'),
-          tags,
-          subtasks: []
-        });
+        closeModal('task-modal');
+        await createGlobalTask({ title, description, project, status, tags });
       }
-      saveData();
-      closeModal('task-modal');
       updateProjectDropdowns();
       renderTagFilters();
-      renderTaskStack();
     }
 
-    function deleteTask(id) {
-      appData.tasks = appData.tasks.filter(t => t.id !== id);
-      saveData();
+    async function deleteTask(id) {
+      if (!confirm("Delete this task?")) return;
+      ALL_TASKS = ALL_TASKS.filter(t => t.id !== id && t.parent_id !== id);
       renderTaskStack();
+      await db.from('tasks').delete().eq('id', id);
     }
 
     function openSubtaskModal(parentTaskId) {
@@ -1422,367 +1476,199 @@
       document.getElementById('subtask-modal').style.display = 'flex';
     }
 
-    function saveSubtask() {
-      const parentId = document.getElementById('sub-parent-task-id').value;
+    async function saveSubtask() {
+      const parentId = parseInt(document.getElementById('sub-parent-task-id').value, 10);
       const title = document.getElementById('sub-title').value.trim();
       if (!title) return;
-      const task = appData.tasks.find(t => t.id === parentId);
-      if (task) {
-        if (!task.subtasks) task.subtasks = [];
-        task.subtasks.push({ id: 'sub_' + Date.now(), title, completed: false });
-        saveData();
-        closeModal('subtask-modal');
-        renderTaskStack();
-      }
+      
+      const parentTask = ALL_TASKS.find(t => t.id === parentId);
+      closeModal('subtask-modal');
+
+      await createGlobalTask({
+        title,
+        project: parentTask ? parentTask.project : 'General',
+        status: 'todo',
+        parent_id: parentId,
+        source_type: 'manual'
+      });
     }
 
-    function toggleSubtask(taskId, subId) {
-      const task = appData.tasks.find(t => t.id === taskId);
-      if (task && task.subtasks) {
-        const sub = task.subtasks.find(s => s.id === subId);
-        if (sub) sub.completed = !sub.completed;
-        saveData();
-        renderTaskStack();
+    function handleSearchInput() { renderTaskStack(); }
+
+    function renderTagFilters() {
+      const container = document.getElementById('tag-filters');
+      container.innerHTML = '';
+      const tags = new Set();
+      ALL_TASKS.forEach(t => (t.tags || []).forEach(tg => tags.add(tg)));
+      if (tags.size === 0) {
+        container.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted);">No tags available</span>`;
+        return;
       }
+      tags.forEach(tg => {
+        const chip = document.createElement('span');
+        chip.className = `filter-chip ${selectedFilterTags.has(tg) ? 'active' : ''}`;
+        chip.innerText = `#${tg}`;
+        chip.onclick = () => {
+          if (selectedFilterTags.has(tg)) selectedFilterTags.delete(tg);
+          else selectedFilterTags.add(tg);
+          renderTagFilters();
+          renderTaskStack();
+        };
+        container.appendChild(chip);
+      });
+    }
+
+    function filterTasksByProjectSelect() {
+      selectedFilterTags.clear();
+      renderTagFilters();
+      renderTaskStack();
     }
 
     /* ==========================================================================
-       LEARNING HUB (DSA + LLD + HLD DIRECT DATABASE ROADMAP)
+       SCHEDULE CALENDAR
        ========================================================================== */
-    function setLearningTrack(track, element) {
-      activeLearningTrack = track;
-      document.querySelectorAll('#learning-track-pills .filter-chip').forEach(c => c.classList.remove('active'));
-      if (element) element.classList.add('active');
-      renderLearningHub();
-    }
+    function renderScheduleCalendar() {
+      const viewInput = document.getElementById('cal-view-date');
+      if (!viewInput.value) viewInput.value = formatDateLocal(new Date());
 
-    function setHldCategory(cat) {
-      activeHldCategory = cat;
-      renderLearningHub();
-    }
+      const dateStr = viewInput.value.split('T')[0];
+      const dateObj = new Date(dateStr + 'T00:00:00');
+      document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
-    async function toggleHldModuleMastered(moduleId, isCompleted) {
-      const newStatus = isCompleted ? 'completed' : 'todo';
-      const { error } = await db
-        .from('hld_modules')
-        .update({
-          status: newStatus,
-          completed_at: isCompleted ? new Date().toISOString() : null
-        })
-        .eq('id', moduleId);
+      const area = document.getElementById('calendar-render-area');
+      area.innerHTML = '';
 
-      if (error) {
-        console.error("Failed to update HLD module status:", error);
-        alert("Could not update module status in database.");
-      } else {
-        renderLearningHub();
-      }
-    }
+      const buckets = [
+        { id: 'morning', title: '🌅 Morning', subtitle: 'Till 12 PM' },
+        { id: 'afternoon', title: '☀️ Afternoon', subtitle: '12 PM - 4 PM' },
+        { id: 'evening', title: '🌆 Evening', subtitle: '4 PM - 8 PM' },
+        { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards' }
+      ];
 
-    async function toggleProblemSolved(problemId, isCompleted) {
-      const newStatus = isCompleted ? 'solved' : 'todo';
-      const { error } = await db
-        .from('dsa_questions')
-        .update({
-          status: newStatus,
-          last_attempted_at: isCompleted ? new Date().toISOString() : null
-        })
-        .eq('id', problemId);
+      const dayEvents = ALL_EVENTS.filter(e => e.event_date === dateStr);
 
-      if (error) {
-        console.error('Error updating status:', error);
-        alert('Failed to update problem in database.');
-      } else {
-        renderLearningHub();
-      }
-    }
-
-    function copyJavaTemplate() {
-      const code = document.getElementById('java-code-content').innerText;
-      navigator.clipboard.writeText(code).then(() => alert('Java template copied!'));
-    }
-
-    async function renderLearningHub() {
-      const container = document.getElementById('learning-bento-container');
-      if (!container) return;
-
-      // --- 1. HLD CURRICULUM VIEW ---
-      if (activeLearningTrack === 'HLD') {
-        container.innerHTML = `<div style="text-align:center; padding:36px; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Loading System Design Curriculum…</div>`;
-
-        try {
-          const { data: modules, error } = await db
-            .from('hld_modules')
-            .select('*')
-            .order('id', { ascending: true });
-
-          if (error || !modules || modules.length === 0) {
-            container.innerHTML = `<div class="bento-card" style="text-align:center; color:var(--text-muted);">No HLD modules found in database.</div>`;
-            return;
-          }
-
-          const categories = ["All", ...Array.from(new Set(modules.map(m => m.track_category))).filter(Boolean)];
-          const totalCount = modules.length;
-          const completedCount = modules.filter(m => m.status === 'completed' || m.status === 'mastered').length;
-          const percentDone = Math.round((completedCount / totalCount) * 100) || 0;
-
-          const filteredModules = activeHldCategory === "All"
-            ? modules
-            : modules.filter(m => m.track_category === activeHldCategory);
-
-          const grouped = {};
-          filteredModules.forEach(m => {
-            const cat = m.track_category || 'General Concepts';
-            if (!grouped[cat]) grouped[cat] = [];
-            grouped[cat].push(m);
-          });
-
-          container.innerHTML = `
-            <div class="bento-grid">
-              <!-- HLD Header & Progress Banner (Span 12) -->
-              <div class="bento-card bento-span-12" style="display:flex; flex-direction:column; gap:14px; background:var(--surface);">
-                <div>
-                  <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--accent-primary); font-weight:700; margin-bottom:4px; text-transform:uppercase;">
-                    🏗️ SYSTEM DESIGN & HLD ROADMAP
-                  </div>
-                  <h2 style="font-size:1.3rem; font-weight:800; letter-spacing:-0.015em; color:var(--text); line-height:1.25;">
-                    Awesome System Design Curriculum
-                  </h2>
-                  <p style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;">
-                    Curated concepts, trade-offs, and interview problems seeded from AlgoMaster.
-                  </p>
-                </div>
-
-                <!-- Aligned Progress Bar -->
-                <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px;">
-                  <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.72rem; margin-bottom:6px;">
-                    <span style="font-weight:700; color:var(--text-muted); text-transform:uppercase;">Curriculum Progress</span>
-                    <span style="font-weight:800; color:var(--text);">${completedCount} / ${totalCount} (${percentDone}%)</span>
-                  </div>
-                  <div style="width:100%; height:6px; background:var(--border); border-radius:99px; overflow:hidden;">
-                    <div style="width:${percentDone}%; height:100%; background:var(--accent-primary); transition:width 0.3s ease;"></div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Category Filter Pills (Span 12) -->
-              <div class="bento-span-12">
-                <div class="bento-pill-scroll" style="padding-bottom:2px;">
-                  ${categories.map(cat => {
-                    const catTotal = (cat === 'All') ? totalCount : modules.filter(m => m.track_category === cat).length;
-                    const catDone = (cat === 'All') ? completedCount : modules.filter(m => m.track_category === cat && (m.status === 'completed' || m.status === 'mastered')).length;
-                    return `
-                      <span class="filter-chip ${activeHldCategory === cat ? 'active' : ''}" onclick="setHldCategory('${cat}')">
-                        ${cat} (${catDone}/${catTotal})
-                      </span>
-                    `;
-                  }).join('')}
-                </div>
-              </div>
-
-              <!-- Grouped Checklists (Span 12) -->
-              <div class="bento-span-12" style="display:flex; flex-direction:column; gap:14px;">
-                ${Object.entries(grouped).map(([categoryName, items]) => {
-                  const catCompleted = items.filter(i => i.status === 'completed' || i.status === 'mastered').length;
-                  return `
-                    <div class="bento-card">
-                      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:8px;">
-                        <span style="font-size:0.85rem; font-weight:800; color:var(--text); display:flex; align-items:center; gap:8px;">
-                          <span>📌</span> ${escapeHtml(categoryName)}
-                        </span>
-                        <span style="font-size:0.7rem; font-family:var(--font-mono); font-weight:700; color:var(--text-muted);">
-                          ${catCompleted} / ${items.length} Done
-                        </span>
-                      </div>
-
-                      <div class="ladder-list">
-                        ${items.map(item => {
-                          const isDone = item.status === 'completed' || item.status === 'mastered';
-                          const diffBadge = item.difficulty === 'Foundation' 
-                            ? 'background:#e0e7ff; color:#4338ca;'
-                            : item.difficulty === 'Core SDE-2' || item.difficulty === 'Medium'
-                            ? 'background:#fef3c7; color:#92400e;'
-                            : item.difficulty === 'Hard' || item.difficulty === 'Advanced'
-                            ? 'background:#fee2e2; color:#b91c1c;'
-                            : 'background:#f1f5f9; color:#475569;';
-
-                          return `
-                            <div class="ladder-card-clean ${isDone ? 'solved' : ''}">
-                              <div class="ladder-top-row">
-                                <input type="checkbox" 
-                                  ${isDone ? 'checked' : ''} 
-                                  onchange="toggleHldModuleMastered(${item.id}, this.checked)" 
-                                  class="ladder-checkbox">
-                                
-                                <div class="ladder-content">
-                                  <div class="ladder-badge-wrapper">
-                                    <span class="ladder-tier" style="${diffBadge}">
-                                      ${item.difficulty || 'Concept'}
-                                    </span>
-                                  </div>
-                                  <a href="${item.reference_url || '#'}" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
-                                    class="ladder-title-text">
-                                    ${escapeHtml(item.module_title)}
-                                  </a>
-                                </div>
-                              </div>
-
-                              <div class="ladder-bottom-bar">
-                                <span class="ladder-subtext">
-                                  Code: ${escapeHtml(item.module_code)}
-                                </span>
-                                ${item.reference_url ? `
-                                  <a href="${item.reference_url}" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer" 
-                                    class="btn btn-secondary btn-sm" 
-                                    style="padding:3px 10px; font-size:0.7rem;">
-                                    Read / Watch ↗
-                                  </a>
-                                ` : ''}
-                              </div>
-                            </div>
-                          `;
-                        }).join('')}
-                      </div>
+      let html = '<div class="schedule-bucket-grid">';
+      buckets.forEach(b => {
+        const bucketEvents = dayEvents.filter(e => getEventBucket(e) === b.id);
+        html += `
+          <div class="schedule-bucket-card">
+            <div class="schedule-bucket-header">
+              <div class="schedule-bucket-title">${b.title}</div>
+              <div class="schedule-bucket-subtitle">${b.subtitle} (${bucketEvents.length})</div>
+            </div>
+            <div class="schedule-bucket-items">
+              ${bucketEvents.length === 0 ? `<div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No blocks scheduled.</div>` : bucketEvents.map(evt => `
+                <div class="time-block-card ${evt.is_starred ? 'is-starred' : ''}">
+                  <div style="flex:1;" onclick="${evt.task_id ? `navigateToSpecificTaskId(${evt.task_id})` : ''}">
+                    <div style="font-weight:700; font-size:0.85rem;">${evt.is_starred ? '⭐ ' : ''}${escapeHtml(evt.title)}</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
+                      ${evt.start_time ? `${evt.start_time.slice(0,5)} ${evt.end_time ? '- ' + evt.end_time.slice(0,5) : ''} | ` : ''}${evt.project || 'General'}
                     </div>
-                  `;
-                }).join('')}
-              </div>
-            </div>
-          `;
-        } catch (err) {
-          console.error("Error loading HLD modules:", err);
-          container.innerHTML = `<div class="bento-card" style="text-align:center; color:#ef4444; font-size:0.8rem;">Failed to load HLD data from Supabase.</div>`;
-        }
-        return;
-      }
-
-      // --- 2. LLD VIEW ---
-      if (activeLearningTrack === 'LLD') {
-        container.innerHTML = `
-          <div class="bento-card" style="text-align:center; padding:36px; color:var(--text-muted);">
-            <h3 style="font-size:1rem; font-weight:800; color:var(--text); margin-bottom:4px;">Low-Level Design (LLD) Mastery Track</h3>
-            <p style="font-size:0.8rem;">Design Patterns, SOLID Principles, and Machine Coding problems coming up next.</p>
-          </div>
-        `;
-        return;
-      }
-
-      // --- 3. DSA VIEW (Bento Drill) ---
-      container.innerHTML = `<div style="text-align:center; padding:30px; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Loading algorithm drill…</div>`;
-
-      try {
-        const { data: drills, error: drillErr } = await db
-          .from('dsa_daily_drills')
-          .select('*')
-          .order('drill_date', { ascending: false })
-          .limit(1);
-
-        if (drillErr || !drills || drills.length === 0) {
-          container.innerHTML = `<div class="bento-card" style="text-align:center; color:var(--text-muted);">No drill found.</div>`;
-          return;
-        }
-
-        const drill = drills[0];
-
-        const { data: questions } = await db
-          .from('dsa_questions')
-          .select('*')
-          .in('id', drill.problem_ids);
-
-        const problemMap = new Map((questions || []).map(q => [q.id, q]));
-
-        container.innerHTML = `
-          <div class="bento-grid">
-            <!-- Top Left: Pattern Cues & Pitfall (Span 5) -->
-            <div class="bento-card bento-span-5" style="display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
-              <div>
-                <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted); margin-bottom:6px;">
-                  <span style="font-weight:700; color:var(--accent-primary);">⚡ PATTERN OF THE DAY</span>
-                  <span>${drill.drill_date}</span>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem;" onclick="openCalendarEventModal(${evt.id})">Edit</button>
                 </div>
-                <h2 style="font-size:1.15rem; font-weight:800; letter-spacing:-0.015em; line-height:1.3;">${escapeHtml(drill.pattern_name)}</h2>
-
-                <div style="margin-top:10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px;">
-                  <span style="font-size:0.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:4px;">When to use this:</span>
-                  <ul style="font-size:0.75rem; line-height:1.5; padding-left:14px; color:var(--text); margin:0;">
-                    ${(drill.trigger_cues || []).map(cue => `<li style="margin-bottom:3px;">${escapeHtml(cue)}</li>`).join('')}
-                  </ul>
-                </div>
-              </div>
-
-              <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:var(--radius-sm); padding:8px 10px; font-size:0.72rem; color:#b91c1c; line-height:1.4;">
-                <strong>⚠️ Trap:</strong> ${escapeHtml(drill.common_pitfall)}
-              </div>
-            </div>
-
-            <!-- Top Right: Java Boilerplate (Span 7) -->
-            <div class="bento-span-7" style="display:flex; flex-direction:column; gap:14px;">
-              <div class="code-box" style="display:flex; flex-direction:column;">
-                <div class="code-box-header">
-                  <span>☕ Java Speed Skeleton</span>
-                  <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.65rem;" onclick="copyJavaTemplate()">Copy</button>
-                </div>
-                <pre style="margin:0;"><code id="java-code-content">${escapeHtml(drill.template_code)}</code></pre>
-              </div>
-
-              <div class="bento-card" style="background:#f8fafc; border-color:var(--border);">
-                <div style="font-size:0.7rem; font-weight:800; font-family:var(--font-mono); color:var(--accent-primary); text-transform:uppercase; margin-bottom:4px;">💡 Intuitive Approach & Breakdown</div>
-                <p style="font-size:0.8rem; line-height:1.6; color:var(--text);">${escapeHtml(drill.approach_explanation || 'Step-by-step logic map for fast interview execution.')}</p>
-              </div>
-            </div>
-
-            <!-- Bottom: Linear 3-Problem Ladder (Span 12) -->
-            <div class="bento-card bento-span-12">
-              <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span style="font-size:0.72rem; font-weight:800; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase;">🪜 Problem Ladder</span>
-                <span style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">3 Problems</span>
-              </div>
-
-              <div class="ladder-list">
-                ${drill.problem_ids.map((id, index) => {
-                  const q = problemMap.get(id);
-                  if (!q) return '';
-                  const isSolved = q.status === 'solved';
-                  const tierName = index === 0 ? 'Foundation' : index === 1 ? 'Core SDE-2' : 'Curveball';
-
-                  return `
-                    <div class="ladder-card-clean ${isSolved ? 'solved' : ''}">
-                      <div class="ladder-top-row">
-                        <input type="checkbox" ${isSolved ? 'checked' : ''} onchange="toggleProblemSolved(${q.id}, this.checked)" class="ladder-checkbox">
-                        <div class="ladder-content">
-                          <div class="ladder-badge-wrapper">
-                            <span class="ladder-tier">${tierName}</span>
-                          </div>
-                          <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="ladder-title-text">
-                            ${escapeHtml(q.title)}
-                          </a>
-                        </div>
-                      </div>
-                      <div class="ladder-bottom-bar">
-                        <span class="ladder-subtext">${q.platform} • ${q.difficulty}</span>
-                        <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:3px 10px; font-size:0.7rem;">
-                          Solve ↗
-                        </a>
-                      </div>
-                    </div>
-                  `;
-                }).join('')}
-              </div>
+              `).join('')}
             </div>
           </div>
         `;
-      } catch (err) {
-        console.error(err);
-        container.innerHTML = `<div class="bento-card" style="text-align:center; color:#ef4444; font-size:0.8rem;">Failed to load drill data.</div>`;
+      });
+      html += '</div>';
+      area.innerHTML = html;
+    }
+
+    function navigateToSpecificTaskId(taskId) {
+      const task = ALL_TASKS.find(t => t.id === taskId);
+      if (task) {
+        const tasksTabBtn = document.querySelectorAll('.nav-btn')[1];
+        switchTab('tasks', tasksTabBtn);
+        document.getElementById('search-input').value = task.title;
+        renderTaskStack();
+      }
+    }
+
+    function openCalendarEventModal(eventId = null) {
+      updateProjectDropdowns();
+      const delBtn = document.getElementById('cal-delete-btn');
+      if (eventId) {
+        const evt = ALL_EVENTS.find(e => e.id === eventId);
+        if (evt) {
+          document.getElementById('cal-edit-id').value = evt.id;
+          document.getElementById('cal-linked-task-id').value = evt.task_id || '';
+          document.getElementById('cal-title').value = evt.title;
+          document.getElementById('cal-desc').value = evt.description || '';
+          document.getElementById('cal-date').value = evt.event_date;
+          document.getElementById('cal-bucket-select').value = evt.time_bucket || 'morning';
+          document.getElementById('cal-start-time').value = evt.start_time || '';
+          document.getElementById('cal-end-time').value = evt.end_time || '';
+          document.getElementById('cal-project-select').value = evt.project || 'General';
+          document.getElementById('cal-starred').checked = !!evt.is_starred;
+          delBtn.style.display = 'inline-flex';
+        }
+      } else {
+        document.getElementById('cal-edit-id').value = '';
+        document.getElementById('cal-linked-task-id').value = '';
+        document.getElementById('cal-title').value = '';
+        document.getElementById('cal-desc').value = '';
+        document.getElementById('cal-date').value = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
+        document.getElementById('cal-bucket-select').value = 'morning';
+        document.getElementById('cal-start-time').value = '';
+        document.getElementById('cal-end-time').value = '';
+        document.getElementById('cal-starred').checked = false;
+        delBtn.style.display = 'none';
+      }
+      document.getElementById('calendar-modal').style.display = 'flex';
+    }
+
+    async function saveCalendarEvent() {
+      const editId = document.getElementById('cal-edit-id').value;
+      const linkedTaskId = document.getElementById('cal-linked-task-id').value || null;
+      const title = document.getElementById('cal-title').value.trim();
+      if (!title) return;
+
+      const event_date = document.getElementById('cal-date').value || formatDateLocal(new Date());
+      const time_bucket = document.getElementById('cal-bucket-select').value;
+      const start_time = document.getElementById('cal-start-time').value || null;
+      const end_time = document.getElementById('cal-end-time').value || null;
+      const project = document.getElementById('cal-project-select').value || 'General';
+      const is_starred = document.getElementById('cal-starred').checked;
+      const description = document.getElementById('cal-desc').value;
+
+      closeModal('calendar-modal');
+
+      const payload = {
+        title, description, event_date, time_bucket, start_time, end_time, project, is_starred,
+        task_id: linkedTaskId ? parseInt(linkedTaskId, 10) : null,
+        updated_at: new Date().toISOString()
+      };
+
+      if (editId) {
+        const { error } = await db.from('schedule_events').update(payload).eq('id', editId);
+        if (!error) {
+          const idx = ALL_EVENTS.findIndex(e => e.id === parseInt(editId, 10));
+          if (idx !== -1) ALL_EVENTS[idx] = { ...ALL_EVENTS[idx], ...payload };
+          renderScheduleCalendar();
+        }
+      } else {
+        const { data, error } = await db.from('schedule_events').insert([payload]).select();
+        if (!error && data && data[0]) {
+          ALL_EVENTS.push(data[0]);
+          renderScheduleCalendar();
+        }
+      }
+    }
+
+    async function deleteCalendarEvent() {
+      const editId = document.getElementById('cal-edit-id').value;
+      if (editId && confirm("Delete this event?")) {
+        closeModal('calendar-modal');
+        ALL_EVENTS = ALL_EVENTS.filter(e => e.id !== parseInt(editId, 10));
+        renderScheduleCalendar();
+        await db.from('schedule_events').delete().eq('id', editId);
       }
     }
 
     /* ==========================================================================
-       SIGNALS DATA ENGINE & BENTO VIEW (WITH COLLAPSIBLE IPO HUB)
+       SIGNALS DATA ENGINE & BENTO VIEW (WITH COLLAPSIBLE IPO & SUPABASE ACTIONS)
        ========================================================================== */
     function signalMeter(score) {
       let bars = '';
@@ -1799,7 +1685,7 @@
       try {
         const [articlesRes, iposRes] = await Promise.all([
           db.from('articles').select('*').order('id', { ascending: false }),
-          db.from('ipo_evaluations').select('*').order('score', { ascending: false })
+          db.from('ipo_evaluations').select('*').neq('is_hidden', true).order('score', { ascending: false })
         ]);
 
         ALL_ARTICLES = articlesRes.data || [];
@@ -1819,15 +1705,14 @@
       }
     }
 
-    function toggleArchiveArticle(articleId) {
-      if (archivedSignals.includes(articleId)) {
-        archivedSignals = archivedSignals.filter(id => id !== articleId);
-      } else {
-        archivedSignals.push(articleId);
-      }
-      localStorage.setItem('the_signal_archived_ids', JSON.stringify(archivedSignals));
+    async function hideIpoCard(symbol, event) {
+      if (event) event.stopPropagation();
+      if (!confirm('Hide this IPO from your signals feed?')) return;
+
+      ALL_IPOS = ALL_IPOS.filter(item => item.symbol !== symbol);
       renderBentoSignals();
-      renderNewspaperContent();
+
+      await db.from('ipo_evaluations').update({ is_hidden: true }).eq('symbol', symbol);
     }
 
     function toggleIpoExpand(index) {
@@ -1877,7 +1762,7 @@
         pillBox.appendChild(chip);
       });
 
-      // VIEW A: DEDICATED COLLAPSIBLE IPO EVALUATIONS VIEW
+      // VIEW A: COLLAPSIBLE IPO VIEW
       if (activeTrack === 'IPOs') {
         if (ALL_IPOS.length === 0) {
           container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem;">No evaluated IPOs found in database.</div>`;
@@ -1896,7 +1781,6 @@
           card.style.cursor = 'pointer';
 
           card.innerHTML = `
-            <!-- Collapsed Summary Header (Always Visible) -->
             <div onclick="toggleIpoExpand(${idx})" style="display:flex; flex-direction:column; gap:8px;">
               <div class="bento-meta-bar">
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -1905,7 +1789,8 @@
                   </span>
                   <span><strong>Score: ${ipo.score || 0}/100</strong></span>
                 </div>
-                <div style="display:flex; align-items:center; gap:6px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.65rem; color:var(--text-muted);" title="Hide IPO" onclick="hideIpoCard('${escapeHtml(ipo.symbol)}', event)">✕ Hide</button>
                   <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">
                     ${ipo.evaluated_at ? new Date(ipo.evaluated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
                   </span>
@@ -1928,7 +1813,6 @@
               </div>
             </div>
 
-            <!-- Expandable Deep Details (Sector, Risks, Thesis & Actions) -->
             <div class="ipo-expanded-body" style="margin-top:8px;">
               ${ipo.anchor_quality ? `
                 <div style="font-size:0.78rem; font-family:var(--font-mono); background:var(--bg); padding:6px 10px; border-radius:var(--radius-sm); border:1px solid var(--border);">
@@ -1961,7 +1845,7 @@
               ` : ''}
 
               <div class="bento-footer" onclick="event.stopPropagation()">
-                <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('Apply IPO: ${escapeHtml(ipo.company_name).replace(/'/g, "\\'")}', 'Finance')">
+                <button class="btn btn-secondary btn-sm" onclick="createGlobalTask({ title: 'Apply IPO: ${escapeHtml(ipo.company_name).replace(/'/g, "\\'")}', project: 'Finance', tags: ['ipo', 'finance'], source_type: 'ipo' }); alert('Added to Tasks!')">
                   + Add Reminder to Apply
                 </button>
                 <a class="btn btn-secondary btn-sm" href="https://www.google.com/search?q=${encodeURIComponent(ipo.company_name + ' IPO DRHP Chittorgarh')}" target="_blank" rel="noopener noreferrer">
@@ -2026,7 +1910,7 @@
           ` : ''}
 
           <div class="bento-footer">
-            <button class="btn btn-secondary btn-sm" onclick="convertSignalToTask('${escapeHtml(article.headline).replace(/'/g, "\\'")}', '${escapeHtml(article.track)}')">+ Add as Task</button>
+            <button class="btn btn-secondary btn-sm" onclick="createGlobalTask({ title: '${escapeHtml(article.headline).replace(/'/g, "\\'")}', project: '${escapeHtml(article.track || 'General')}', tags: ['signal', '${escapeHtml((article.track || 'general').toLowerCase())}'], source_type: 'signal' }); alert('Added as Task!')">+ Add as Task</button>
             <a class="btn btn-secondary btn-sm" href="${targetUrl}" target="_blank" rel="noopener noreferrer">Read Source ↗</a>
           </div>
         `;
@@ -2040,6 +1924,17 @@
         const isExp = card.classList.toggle('expanded');
         btn.innerText = isExp ? 'Show less ↑' : 'Read full summary ↓';
       }
+    }
+
+    function toggleArchiveArticle(articleId) {
+      if (archivedSignals.includes(articleId)) {
+        archivedSignals = archivedSignals.filter(id => id !== articleId);
+      } else {
+        archivedSignals.push(articleId);
+      }
+      localStorage.setItem('the_signal_archived_ids', JSON.stringify(archivedSignals));
+      renderBentoSignals();
+      renderNewspaperContent();
     }
 
     /* ==========================================================================
@@ -2149,144 +2044,211 @@
       });
     }
 
-    function convertSignalToTask(headline, track) {
-      appData.tasks.push({
-        id: 'task_' + Date.now(),
-        title: headline,
-        project: track || 'General',
-        status: 'todo',
-        completed: false,
-        tags: ['signal', (track || 'general').toLowerCase()]
-      });
-      saveData();
-      alert(`Added to Backlog!`);
+    /* ==========================================================================
+       LEARNING HUB
+       ========================================================================== */
+    function setLearningTrack(track, element) {
+      activeLearningTrack = track;
+      document.querySelectorAll('#learning-track-pills .filter-chip').forEach(c => c.classList.remove('active'));
+      if (element) element.classList.add('active');
+      renderLearningHub();
     }
 
-    /* ==========================================================================
-       SCHEDULE CALENDAR
-       ========================================================================== */
-    function renderScheduleCalendar() {
-      const viewInput = document.getElementById('cal-view-date');
-      if (!viewInput.value) viewInput.value = formatDateLocal(new Date());
+    function setHldCategory(cat) {
+      activeHldCategory = cat;
+      renderLearningHub();
+    }
 
-      const dateStr = viewInput.value.split('T')[0];
-      const dateObj = new Date(dateStr + 'T00:00:00');
-      document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    async function toggleHldModuleMastered(moduleId, isCompleted) {
+      const newStatus = isCompleted ? 'completed' : 'todo';
+      await db.from('hld_modules').update({
+        status: newStatus,
+        completed_at: isCompleted ? new Date().toISOString() : null
+      }).eq('id', moduleId);
+      renderLearningHub();
+    }
 
-      const area = document.getElementById('calendar-render-area');
-      area.innerHTML = '';
+    async function toggleProblemSolved(problemId, isCompleted) {
+      const newStatus = isCompleted ? 'solved' : 'todo';
+      await db.from('dsa_questions').update({
+        status: newStatus,
+        last_attempted_at: isCompleted ? new Date().toISOString() : null
+      }).eq('id', problemId);
+      renderLearningHub();
+    }
 
-      const buckets = [
-        { id: 'morning', title: '🌅 Morning', subtitle: 'Till 12 PM' },
-        { id: 'afternoon', title: '☀️ Afternoon', subtitle: '12 PM - 4 PM' },
-        { id: 'evening', title: '🌆 Evening', subtitle: '4 PM - 8 PM' },
-        { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards' }
-      ];
+    function copyJavaTemplate() {
+      const code = document.getElementById('java-code-content').innerText;
+      navigator.clipboard.writeText(code).then(() => alert('Java template copied!'));
+    }
 
-      const dayEvents = (appData.calendarEvents || []).filter(e => (e.date ? e.date.split('T')[0] : '') === dateStr);
+    async function renderLearningHub() {
+      const container = document.getElementById('learning-bento-container');
+      if (!container) return;
 
-      let html = '<div class="schedule-bucket-grid">';
-      buckets.forEach(b => {
-        const bucketEvents = dayEvents.filter(e => getEventBucket(e) === b.id);
-        html += `
-          <div class="schedule-bucket-card">
-            <div class="schedule-bucket-header">
-              <div class="schedule-bucket-title">${b.title}</div>
-              <div class="schedule-bucket-subtitle">${b.subtitle} (${bucketEvents.length})</div>
-            </div>
-            <div class="schedule-bucket-items">
-              ${bucketEvents.length === 0 ? `<div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No blocks scheduled.</div>` : bucketEvents.map(evt => `
-                <div class="time-block-card ${evt.starred ? 'is-starred' : ''}">
-                  <div style="flex:1;" onclick="navigateToSpecificTask('${escapeHtml(evt.title).replace(/'/g, "\\'")}')">
-                    <div style="font-weight:700; font-size:0.85rem;">${evt.starred ? '⭐ ' : ''}${escapeHtml(evt.title)}</div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
-                      ${evt.startTime ? `${evt.startTime} ${evt.endTime ? '- ' + evt.endTime : ''} | ` : ''}${evt.project || 'General'}
+      if (activeLearningTrack === 'HLD') {
+        container.innerHTML = `<div style="text-align:center; padding:36px; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Loading System Design Curriculum…</div>`;
+        try {
+          const { data: modules } = await db.from('hld_modules').select('*').order('id', { ascending: true });
+          if (!modules || modules.length === 0) {
+            container.innerHTML = `<div class="bento-card" style="text-align:center; color:var(--text-muted);">No HLD modules found.</div>`;
+            return;
+          }
+
+          const categories = ["All", ...Array.from(new Set(modules.map(m => m.track_category))).filter(Boolean)];
+          const totalCount = modules.length;
+          const completedCount = modules.filter(m => m.status === 'completed' || m.status === 'mastered').length;
+          const percentDone = Math.round((completedCount / totalCount) * 100) || 0;
+
+          const filteredModules = activeHldCategory === "All" ? modules : modules.filter(m => m.track_category === activeHldCategory);
+          const grouped = {};
+          filteredModules.forEach(m => {
+            const cat = m.track_category || 'General Concepts';
+            if (!grouped[cat]) grouped[cat] = [];
+            grouped[cat].push(m);
+          });
+
+          container.innerHTML = `
+            <div class="bento-grid">
+              <div class="bento-card bento-span-12" style="display:flex; flex-direction:column; gap:14px;">
+                <div>
+                  <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--accent-primary); font-weight:700; margin-bottom:4px; text-transform:uppercase;">🏗️ SYSTEM DESIGN ROADMAP</div>
+                  <h2 style="font-size:1.3rem; font-weight:800; letter-spacing:-0.015em; color:var(--text);">Awesome System Design Curriculum</h2>
+                </div>
+                <div style="background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:12px 14px;">
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-family:var(--font-mono); font-size:0.72rem; margin-bottom:6px;">
+                    <span style="font-weight:700; color:var(--text-muted);">PROGRESS</span>
+                    <span style="font-weight:800; color:var(--text);">${completedCount} / ${totalCount} (${percentDone}%)</span>
+                  </div>
+                  <div style="width:100%; height:6px; background:var(--border); border-radius:99px; overflow:hidden;">
+                    <div style="width:${percentDone}%; height:100%; background:var(--accent-primary);"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bento-span-12">
+                <div class="bento-pill-scroll">
+                  ${categories.map(cat => `
+                    <span class="filter-chip ${activeHldCategory === cat ? 'active' : ''}" onclick="setHldCategory('${cat}')">${cat}</span>
+                  `).join('')}
+                </div>
+              </div>
+
+              <div class="bento-span-12" style="display:flex; flex-direction:column; gap:14px;">
+                ${Object.entries(grouped).map(([categoryName, items]) => `
+                  <div class="bento-card">
+                    <div style="font-size:0.85rem; font-weight:800; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+                      📌 ${escapeHtml(categoryName)} (${items.filter(i => i.status === 'completed' || i.status === 'mastered').length}/${items.length})
+                    </div>
+                    <div class="ladder-list">
+                      ${items.map(item => {
+                        const isDone = item.status === 'completed' || item.status === 'mastered';
+                        return `
+                          <div class="ladder-card-clean ${isDone ? 'solved' : ''}">
+                            <div class="ladder-top-row">
+                              <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleHldModuleMastered(${item.id}, this.checked)" class="ladder-checkbox">
+                              <div class="ladder-content">
+                                <span class="ladder-tier">${item.difficulty || 'Concept'}</span>
+                                <a href="${item.reference_url || '#'}" target="_blank" rel="noopener noreferrer" class="ladder-title-text">${escapeHtml(item.module_title)}</a>
+                              </div>
+                            </div>
+                            <div class="ladder-bottom-bar">
+                              <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.65rem;" onclick="createGlobalTask({ title: 'Study HLD: ${escapeHtml(item.module_title).replace(/'/g, "\\'")}', project: 'Engineering', tags: ['hld', 'study'], source_type: 'hld' }); alert('Added to Tasks!')">+ Task</button>
+                              ${item.reference_url ? `<a href="${item.reference_url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:3px 10px; font-size:0.7rem;">Read ↗</a>` : ''}
+                            </div>
+                          </div>
+                        `;
+                      }).join('')}
                     </div>
                   </div>
-                  <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem;" onclick="openCalendarEventModal('${evt.id}')">Edit</button>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        } catch (err) {
+          container.innerHTML = `<div class="bento-card" style="color:#ef4444;">Failed to load HLD data.</div>`;
+        }
+        return;
+      }
+
+      if (activeLearningTrack === 'LLD') {
+        container.innerHTML = `<div class="bento-card" style="text-align:center; padding:36px; color:var(--text-muted);"><h3 style="font-size:1rem; font-weight:800; color:var(--text);">Low-Level Design (LLD) Track</h3><p style="font-size:0.8rem;">Design Patterns and Machine Coding problems coming up next.</p></div>`;
+        return;
+      }
+
+      // DSA VIEW
+      try {
+        const { data: drills } = await db.from('dsa_daily_drills').select('*').order('drill_date', { ascending: false }).limit(1);
+        if (!drills || drills.length === 0) {
+          container.innerHTML = `<div class="bento-card" style="text-align:center; color:var(--text-muted);">No DSA drill found.</div>`;
+          return;
+        }
+
+        const drill = drills[0];
+        const { data: questions } = await db.from('dsa_questions').select('*').in('id', drill.problem_ids);
+        const problemMap = new Map((questions || []).map(q => [q.id, q]));
+
+        container.innerHTML = `
+          <div class="bento-grid">
+            <div class="bento-card bento-span-5" style="display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
+              <div>
+                <div style="font-family:var(--font-mono); font-size:0.7rem; color:var(--accent-primary); font-weight:700;">⚡ PATTERN OF THE DAY (${drill.drill_date})</div>
+                <h2 style="font-size:1.15rem; font-weight:800; margin-top:4px;">${escapeHtml(drill.pattern_name)}</h2>
+                <div style="margin-top:10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px 12px;">
+                  <span style="font-size:0.68rem; font-weight:800; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:4px;">Triggers:</span>
+                  <ul style="font-size:0.75rem; line-height:1.5; padding-left:14px; margin:0;">
+                    ${(drill.trigger_cues || []).map(cue => `<li>${escapeHtml(cue)}</li>`).join('')}
+                  </ul>
                 </div>
-              `).join('')}
+              </div>
+              <div style="background:#fef2f2; border:1px solid #fecaca; border-radius:var(--radius-sm); padding:8px 10px; font-size:0.72rem; color:#b91c1c;">
+                <strong>⚠️ Pitfall:</strong> ${escapeHtml(drill.common_pitfall)}
+              </div>
+            </div>
+
+            <div class="bento-span-7" style="display:flex; flex-direction:column; gap:14px;">
+              <div class="code-box">
+                <div class="code-box-header">
+                  <span>☕ Java Skeleton</span>
+                  <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.65rem;" onclick="copyJavaTemplate()">Copy</button>
+                </div>
+                <pre><code id="java-code-content">${escapeHtml(drill.template_code)}</code></pre>
+              </div>
+            </div>
+
+            <div class="bento-card bento-span-12">
+              <div style="font-size:0.72rem; font-weight:800; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase;">🪜 Problem Ladder</div>
+              <div class="ladder-list">
+                ${drill.problem_ids.map((id, index) => {
+                  const q = problemMap.get(id);
+                  if (!q) return '';
+                  const isSolved = q.status === 'solved';
+                  const tierName = index === 0 ? 'Foundation' : index === 1 ? 'Core SDE-2' : 'Curveball';
+                  return `
+                    <div class="ladder-card-clean ${isSolved ? 'solved' : ''}">
+                      <div class="ladder-top-row">
+                        <input type="checkbox" ${isSolved ? 'checked' : ''} onchange="toggleProblemSolved(${q.id}, this.checked)" class="ladder-checkbox">
+                        <div class="ladder-content">
+                          <span class="ladder-tier">${tierName}</span>
+                          <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="ladder-title-text">${escapeHtml(q.title)}</a>
+                        </div>
+                      </div>
+                      <div class="ladder-bottom-bar">
+                        <span class="ladder-subtext">${q.platform} • ${q.difficulty}</span>
+                        <div style="display:flex; gap:6px;">
+                          <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.65rem;" onclick="createGlobalTask({ title: 'Solve DSA: ${escapeHtml(q.title).replace(/'/g, "\\'")}', project: 'Engineering', tags: ['dsa', 'leetcode'], source_type: 'dsa' }); alert('Added to Tasks!')">+ Task</button>
+                          <a href="${q.url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:3px 10px; font-size:0.7rem;">Solve ↗</a>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
             </div>
           </div>
         `;
-      });
-      html += '</div>';
-      area.innerHTML = html;
-    }
-
-    function openCalendarEventModal(eventId = null) {
-      updateProjectDropdowns();
-      const delBtn = document.getElementById('cal-delete-btn');
-      if (eventId) {
-        const evt = (appData.calendarEvents || []).find(e => e.id === eventId);
-        if (evt) {
-          document.getElementById('cal-edit-id').value = evt.id;
-          document.getElementById('cal-title').value = evt.title;
-          document.getElementById('cal-desc').value = evt.description || '';
-          document.getElementById('cal-date').value = evt.date;
-          document.getElementById('cal-bucket-select').value = evt.bucket || 'auto';
-          document.getElementById('cal-start-time').value = evt.startTime || '';
-          document.getElementById('cal-end-time').value = evt.endTime || '';
-          document.getElementById('cal-project-select').value = evt.project || 'General';
-          document.getElementById('cal-starred').checked = !!evt.starred;
-          delBtn.style.display = 'inline-flex';
-        }
-      } else {
-        document.getElementById('cal-edit-id').value = '';
-        document.getElementById('cal-title').value = '';
-        document.getElementById('cal-desc').value = '';
-        document.getElementById('cal-date').value = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
-        document.getElementById('cal-bucket-select').value = 'auto';
-        document.getElementById('cal-start-time').value = '';
-        document.getElementById('cal-end-time').value = '';
-        document.getElementById('cal-starred').checked = false;
-        delBtn.style.display = 'none';
-      }
-      document.getElementById('calendar-modal').style.display = 'flex';
-    }
-
-    function saveCalendarEvent() {
-      const editId = document.getElementById('cal-edit-id').value;
-      const title = document.getElementById('cal-title').value.trim();
-      if (!title) return;
-
-      const date = document.getElementById('cal-date').value || formatDateLocal(new Date());
-      const bucket = document.getElementById('cal-bucket-select').value;
-      const startTime = document.getElementById('cal-start-time').value;
-      const endTime = document.getElementById('cal-end-time').value;
-      const project = document.getElementById('cal-project-select').value || 'General';
-      const starred = document.getElementById('cal-starred').checked;
-
-      if (!appData.calendarEvents) appData.calendarEvents = [];
-
-      if (editId) {
-        const evt = appData.calendarEvents.find(e => e.id === editId);
-        if (evt) {
-          evt.title = title;
-          evt.description = document.getElementById('cal-desc').value;
-          evt.date = date;
-          evt.bucket = bucket;
-          evt.startTime = startTime;
-          evt.endTime = endTime;
-          evt.project = project;
-          evt.starred = starred;
-        }
-      } else {
-        appData.calendarEvents.push({ id: 'cal_' + Date.now(), title, description: document.getElementById('cal-desc').value, date, bucket, startTime, endTime, project, starred });
-      }
-
-      saveData();
-      closeModal('calendar-modal');
-      renderScheduleCalendar();
-    }
-
-    function deleteCalendarEvent() {
-      const editId = document.getElementById('cal-edit-id').value;
-      if (editId && confirm("Delete this event?")) {
-        appData.calendarEvents = (appData.calendarEvents || []).filter(e => e.id !== editId);
-        saveData();
-        closeModal('calendar-modal');
-        renderScheduleCalendar();
+      } catch (err) {
+        container.innerHTML = `<div class="bento-card" style="color:#ef4444;">Failed to load drill.</div>`;
       }
     }
 
@@ -2296,9 +2258,9 @@
     function autoDetectCurrentScheduleSlot() {
       const todayStr = formatDateLocal(new Date());
       const currentBucket = getCurrentSystemBucket();
-      const todayEvents = (appData.calendarEvents || []).filter(e => e.date && e.date.split('T')[0] === todayStr);
+      const todayEvents = ALL_EVENTS.filter(e => e.event_date === todayStr);
 
-      const starredInBucket = todayEvents.find(e => getEventBucket(e) === currentBucket && e.starred);
+      const starredInBucket = todayEvents.find(e => getEventBucket(e) === currentBucket && e.is_starred);
       if (starredInBucket) return { proj: starredInBucket.project || 'General', title: starredInBucket.title };
 
       const anyInBucket = todayEvents.find(e => getEventBucket(e) === currentBucket);
@@ -2310,7 +2272,7 @@
     function openDeskHud() {
       const select = document.getElementById('hud-project-select');
       select.innerHTML = '<option value="Unscheduled">⚡ UNSCHEDULED FOCUS</option>';
-      const allProjects = Object.keys(appData.projectColors || {});
+      const allProjects = Object.keys(metaData.projectColors || {});
       allProjects.forEach(p => {
         select.innerHTML += `<option value="${escapeHtml(p)}">📂 ${escapeHtml(p).toUpperCase()}</option>`;
       });
@@ -2340,7 +2302,7 @@
       container.innerHTML = '';
 
       const proj = trackingState.targetProj;
-      const relevantTasks = appData.tasks.filter(t => t.project === proj && t.status !== 'done' && !t.completed);
+      const relevantTasks = ALL_TASKS.filter(t => t.project === proj && t.status !== 'done' && !t.parent_id);
 
       if (proj === 'Unscheduled') {
         container.innerHTML = `
@@ -2363,17 +2325,18 @@
       }
 
       relevantTasks.forEach(task => {
+        const subs = ALL_TASKS.filter(s => s.parent_id === task.id);
         const card = document.createElement('div');
         card.className = 'hud-hero-card';
         card.innerHTML = `
           <div style="font-size:1.1rem; font-weight:800; color:#ffffff; margin-bottom:6px;">${escapeHtml(task.title)}</div>
           ${task.description ? `<div style="font-size:0.85rem; color:#cbd5e1; margin-bottom:8px;">${escapeHtml(task.description)}</div>` : ''}
-          ${(task.subtasks && task.subtasks.length > 0) ? `
+          ${subs.length > 0 ? `
             <div style="margin-top:8px; border-top:1px solid #334155; padding-top:8px;">
-              ${task.subtasks.map(s => `
+              ${subs.map(s => `
                 <div style="display:flex; align-items:center; gap:8px; padding:4px 0; font-size:0.85rem;">
-                  <input type="checkbox" ${s.completed ? 'checked' : ''} onchange="toggleSubtask('${task.id}', '${s.id}'); renderHudBody();" style="cursor:pointer;">
-                  <span style="${s.completed ? 'text-decoration:line-through; color:#64748b;' : 'color:#fff;'}">${escapeHtml(s.title)}</span>
+                  <input type="checkbox" ${s.status === 'done' ? 'checked' : ''} onchange="toggleSubtaskStatus(${s.id}); renderHudBody();" style="cursor:pointer;">
+                  <span style="${s.status === 'done' ? 'text-decoration:line-through; color:#64748b;' : 'color:#fff;'}">${escapeHtml(s.title)}</span>
                 </div>
               `).join('')}
             </div>
@@ -2421,8 +2384,8 @@
       if (!trackingState.isRunning && trackingState.accumulatedSec === 0) return;
       clearInterval(trackingState.timerId);
       const proj = trackingState.targetProj || 'General';
-      if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
-      appData.manualProjectTimes[proj] = (appData.manualProjectTimes[proj] || 0) + trackingState.accumulatedSec;
+      if (!metaData.manualProjectTimes) metaData.manualProjectTimes = {};
+      metaData.manualProjectTimes[proj] = (metaData.manualProjectTimes[proj] || 0) + trackingState.accumulatedSec;
 
       const savedSec = trackingState.accumulatedSec;
       trackingState.isRunning = false;
@@ -2432,28 +2395,31 @@
 
       document.getElementById('hud-pause-text').innerText = '▶ Start Focus';
       document.getElementById('hud-clock-text').innerText = '00:00:00';
-      saveData();
+      saveMeta();
       closeDeskHud();
       renderReports();
       alert(`Saved ${formatTime(savedSec)} to ${proj}!`);
     }
 
     /* ==========================================================================
-       REPORTS, MODALS & GLOBAL INITIALIZATION
+       REPORTS & PROJECT MODALS
        ========================================================================== */
     function openProfileModal() { document.getElementById('profile-modal').style.display = 'flex'; }
 
-    function clearCompletedTasks() {
-      if (confirm("Delete all completed tasks?")) {
-        appData.tasks = appData.tasks.filter(t => !t.completed && t.status !== 'done');
-        saveData();
-        closeModal('profile-modal');
+    async function clearCompletedTasks() {
+      if (confirm("Delete all completed tasks from Supabase?")) {
+        const completedIds = ALL_TASKS.filter(t => t.status === 'done').map(t => t.id);
+        ALL_TASKS = ALL_TASKS.filter(t => t.status !== 'done');
         renderTaskStack();
+        closeModal('profile-modal');
+        if (completedIds.length > 0) {
+          await db.from('tasks').delete().in('id', completedIds);
+        }
       }
     }
 
     function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ tasks: ALL_TASKS, events: ALL_EVENTS, meta: metaData }));
       const a = document.createElement('a');
       a.setAttribute("href", dataStr);
       a.setAttribute("download", `onespace_backup_${Date.now()}.json`);
@@ -2471,8 +2437,8 @@
       const name = document.getElementById('new-local-proj-name').value.trim();
       const color = document.getElementById('new-local-proj-color').value;
       if (name) {
-        appData.projectColors[name] = color;
-        saveData();
+        metaData.projectColors[name] = color;
+        saveMeta();
         document.getElementById('new-local-proj-name').value = '';
         renderProjectManagerList();
         updateProjectDropdowns();
@@ -2481,12 +2447,11 @@
     }
 
     function deleteProject(projName) {
-      if (confirm(`Delete project "${projName}"? Associated tasks will be removed.`)) {
-        appData.tasks = appData.tasks.filter(t => t.project !== projName);
-        delete appData.projectColors[projName];
-        delete appData.projectLimits[projName];
-        delete appData.manualProjectTimes[projName];
-        saveData();
+      if (confirm(`Delete project "${projName}"?`)) {
+        delete metaData.projectColors[projName];
+        delete metaData.projectLimits[projName];
+        delete metaData.manualProjectTimes[projName];
+        saveMeta();
         renderProjectManagerList();
         updateProjectDropdowns();
         renderTaskStack();
@@ -2497,14 +2462,14 @@
     function renderProjectManagerList() {
       const wrapper = document.getElementById('project-list-wrapper');
       wrapper.innerHTML = '';
-      const allProjects = Object.keys(appData.projectColors || {});
+      const allProjects = Object.keys(metaData.projectColors || {});
       if (allProjects.length === 0) {
         wrapper.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">No projects created.</div>`;
         return;
       }
       allProjects.forEach(proj => {
-        const color = appData.projectColors[proj] || '#e2e8f0';
-        const taskCount = appData.tasks.filter(t => t.project === proj).length;
+        const color = metaData.projectColors[proj] || '#e2e8f0';
+        const taskCount = ALL_TASKS.filter(t => t.project === proj).length;
         const item = document.createElement('div');
         item.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm);";
         item.innerHTML = `
@@ -2525,7 +2490,7 @@
       const mProj = document.getElementById('m-project-select');
       const lProj = document.getElementById('p-limit-project-select');
 
-      const allProjects = Object.keys(appData.projectColors || {});
+      const allProjects = Object.keys(metaData.projectColors || {});
       const curr = taskProj.value || 'ALL';
 
       let taskOpts = '<option value="ALL">ALL PROJECTS</option>';
@@ -2543,37 +2508,6 @@
       if (lProj) lProj.innerHTML = genericOpts;
     }
 
-    function filterTasksByProjectSelect() {
-      selectedFilterTags.clear();
-      renderTagFilters();
-      renderTaskStack();
-    }
-
-    function handleSearchInput() { renderTaskStack(); }
-
-    function renderTagFilters() {
-      const container = document.getElementById('tag-filters');
-      container.innerHTML = '';
-      const tags = new Set();
-      appData.tasks.forEach(t => (t.tags || []).forEach(tg => tags.add(tg)));
-      if (tags.size === 0) {
-        container.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted);">No tags available</span>`;
-        return;
-      }
-      tags.forEach(tg => {
-        const chip = document.createElement('span');
-        chip.className = `filter-chip ${selectedFilterTags.has(tg) ? 'active' : ''}`;
-        chip.innerText = `#${tg}`;
-        chip.onclick = () => {
-          if (selectedFilterTags.has(tg)) selectedFilterTags.delete(tg);
-          else selectedFilterTags.add(tg);
-          renderTagFilters();
-          renderTaskStack();
-        };
-        container.appendChild(chip);
-      });
-    }
-
     function openManualTimeModal() {
       updateProjectDropdowns();
       document.getElementById('manual-time-modal').style.display = 'flex';
@@ -2585,9 +2519,9 @@
       const mins = parseFloat(document.getElementById('m-minutes').value) || 0;
       const totalSec = (hrs * 3600) + (mins * 60);
       if (proj) {
-        if (!appData.manualProjectTimes) appData.manualProjectTimes = {};
-        appData.manualProjectTimes[proj] = (appData.manualProjectTimes[proj] || 0) + totalSec;
-        saveData();
+        if (!metaData.manualProjectTimes) metaData.manualProjectTimes = {};
+        metaData.manualProjectTimes[proj] = (metaData.manualProjectTimes[proj] || 0) + totalSec;
+        saveMeta();
         closeModal('manual-time-modal');
         renderReports();
       }
@@ -2602,9 +2536,9 @@
       const proj = document.getElementById('p-limit-project-select').value;
       const limit = parseFloat(document.getElementById('p-limit').value);
       if (proj && !isNaN(limit)) {
-        if (!appData.projectLimits) appData.projectLimits = {};
-        appData.projectLimits[proj] = limit;
-        saveData();
+        if (!metaData.projectLimits) metaData.projectLimits = {};
+        metaData.projectLimits[proj] = limit;
+        saveMeta();
         closeModal('limit-modal');
         renderReports();
       }
@@ -2614,8 +2548,8 @@
       const container = document.getElementById('report-container');
       container.innerHTML = '';
       const currentWeekKey = getISOWeekKey(new Date());
-      const currentWeekTimes = (appData.weeklySummaries && appData.weeklySummaries[currentWeekKey]) || appData.manualProjectTimes || {};
-      const allProjects = Object.keys(appData.projectColors || {});
+      const currentWeekTimes = (metaData.weeklySummaries && metaData.weeklySummaries[currentWeekKey]) || metaData.manualProjectTimes || {};
+      const allProjects = Object.keys(metaData.projectColors || {});
 
       let html = `
         <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; background:var(--surface); box-shadow:var(--shadow-bento);">
@@ -2631,7 +2565,7 @@
       } else {
         allProjects.forEach(proj => {
           const sec = currentWeekTimes[proj] || 0;
-          const limit = appData.projectLimits ? appData.projectLimits[proj] : null;
+          const limit = metaData.projectLimits ? metaData.projectLimits[proj] : null;
           html += `
             <tr>
               <td style="font-weight:700;">${escapeHtml(proj)}</td>
@@ -2655,11 +2589,8 @@
 
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // INITIALIZATION
-    updateProjectDropdowns();
-    renderTagFilters();
-    renderTaskStack();
-    renderScheduleCalendar();
+    // INITIAL DATA FETCH & BOOTSTRAP
+    syncAllSupabaseData();
     fetchSupabaseSignals();
   </script>
 </body>
