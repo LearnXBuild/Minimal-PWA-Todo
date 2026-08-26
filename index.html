@@ -47,6 +47,31 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-sans); }
     body { background: var(--bg); color: var(--text); display: flex; height: 100vh; height: 100dvh; overflow: hidden; flex-direction: row; }
 
+    /* Pull-to-Refresh Bubble */
+    #ptr-indicator {
+      position: fixed;
+      top: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border-dark);
+      padding: 6px 16px;
+      border-radius: 99px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+      z-index: 999;
+      transition: top 0.2s ease, opacity 0.2s ease;
+      pointer-events: none;
+      opacity: 0;
+      font-family: var(--font-mono);
+    }
+    #ptr-indicator.visible {
+      top: 18px;
+      opacity: 1;
+    }
+
     /* Desktop Sidebar */
     aside { width: 240px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 20px 14px; flex-shrink: 0; }
     main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 90px; width: 100%; min-width: 0; scroll-behavior: smooth; }
@@ -303,7 +328,7 @@
       max-height: 380px;
     }
 
-    /* Problem Ladder & Learning Card Clean Layout */
+    /* Problem Ladder & Learning Card Layout */
     .ladder-list {
       display: flex;
       flex-direction: column;
@@ -669,6 +694,9 @@
 </head>
 <body>
 
+  <!-- PULL TO REFRESH BUBBLE -->
+  <div id="ptr-indicator">↓ Pull down to refresh</div>
+
   <!-- DESKTOP SIDEBAR -->
   <aside>
     <div class="sidebar-header">
@@ -695,6 +723,7 @@
       <header class="workspace-header">
         <h1 class="section-title">SCHEDULE CALENDAR</h1>
         <div class="flex-gap" style="align-items: center;">
+          <button class="btn btn-secondary btn-sm" onclick="syncAllSupabaseData()">↻ Refresh</button>
           <button class="btn btn-secondary btn-sm" onclick="openCalendarEventModal(null)">+ Event</button>
           <button class="btn btn-sm" onclick="openDeskHud()">🖥️ Focus Mode</button>
         </div>
@@ -717,6 +746,7 @@
           </select>
         </div>
         <div class="flex-gap" style="align-items: center;">
+          <button class="btn btn-secondary btn-sm" onclick="syncAllSupabaseData()">↻ Refresh</button>
           <button class="btn btn-secondary btn-sm" onclick="openProjectManagerModal()">📂 Projects</button>
           <button class="btn btn-sm" onclick="openTaskModal()">+ Add Task</button>
         </div>
@@ -778,7 +808,6 @@
         </div>
       </header>
 
-      <!-- Track Selector Tabs -->
       <div class="bento-pill-scroll" id="learning-track-pills">
         <span class="filter-chip active" onclick="setLearningTrack('DSA', this)">DSA</span>
         <span class="filter-chip" onclick="setLearningTrack('LLD', this)">LLD</span>
@@ -1151,7 +1180,7 @@
       lastTickTime: Date.now()
     };
 
-    function switchTab(tab, element) {
+    async function switchTab(tab, element) {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
       
@@ -1169,6 +1198,10 @@
       if (tab === 'learning') renderLearningHub();
       if (tab === 'signals') renderBentoSignals();
       if (tab === 'reports') renderReports();
+
+      if (tab === 'tasks' || tab === 'calendar') {
+        await syncAllSupabaseData();
+      }
     }
 
     /* ==========================================================================
@@ -1193,36 +1226,33 @@
       }
     }
 
-   async function createGlobalTask({ title, description = '', project = 'General', status = 'todo', tags = [], parent_id = null, source_type = 'manual' }) {
-  const cleanPayload = {
-    title: String(title).trim(),
-    description: description ? String(description).trim() : null,
-    project: project || 'General',
-    status: status || 'todo',
-    tags: Array.isArray(tags) ? tags : [],
-    parent_id: parent_id ? Number(parent_id) : null,
-    source_type: source_type || 'manual'
-  };
+    /* Universal Task Creation Engine */
+    async function createGlobalTask({ title, description = '', project = 'General', status = 'todo', tags = [], parent_id = null, source_type = 'manual' }) {
+      const cleanPayload = {
+        title: String(title).trim(),
+        description: description ? String(description).trim() : null,
+        project: project || 'General',
+        status: status || 'todo',
+        tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
+        parent_id: parent_id ? Number(parent_id) : null,
+        source_type: source_type || 'manual'
+      };
 
-  const { data, error } = await db
-    .from('tasks')
-    .insert([cleanPayload])
-    .select();
+      const { data, error } = await db.from('tasks').insert([cleanPayload]).select();
+      if (error) {
+        alert("Supabase Insert Failed: " + error.message + (error.details ? " | " + error.details : ""));
+        console.error('Task insertion failed:', error);
+        return null;
+      }
 
-  if (error) {
-    alert("Supabase Insert Failed: " + error.message + " | Details: " + error.details);
-    console.error("Supabase Error:", error);
-    return null;
-  }
-
-  if (data && data.length > 0) {
-    ALL_TASKS.unshift(data[0]);
-    renderTaskStack();
-    renderTagFilters();
-    return data[0];
-  }
-  return null;
-}
+      if (data && data[0]) {
+        ALL_TASKS.unshift(data[0]);
+        renderTaskStack();
+        renderTagFilters();
+        return data[0];
+      }
+      return null;
+    }
 
     /* ==========================================================================
        TASKS ENGINE
@@ -1247,7 +1277,6 @@
 
       let focusCount = 0, backlogCount = 0, completedCount = 0;
 
-      // Group parent tasks and children
       const rootTasks = ALL_TASKS.filter(t => !t.parent_id);
       const subtaskMap = new Map();
       ALL_TASKS.filter(t => t.parent_id).forEach(sub => {
@@ -2590,6 +2619,69 @@
     }
 
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    /* ==========================================================================
+       PULL DOWN TO REFRESH & LIFECYCLE HANDLERS
+       ========================================================================== */
+    let touchStartY = 0;
+    let isPulling = false;
+    const ptrIndicator = document.getElementById('ptr-indicator');
+    const mainScroll = document.getElementById('main-scroll-container');
+
+    mainScroll.addEventListener('touchstart', (e) => {
+      if (mainScroll.scrollTop === 0) {
+        touchStartY = e.touches[0].clientY;
+        isPulling = true;
+      } else {
+        isPulling = false;
+      }
+    }, { passive: true });
+
+    mainScroll.addEventListener('touchmove', (e) => {
+      if (!isPulling || mainScroll.scrollTop > 0) return;
+      const currentY = e.touches[0].clientY;
+      const diffY = currentY - touchStartY;
+
+      if (diffY > 60) {
+        ptrIndicator.innerText = "↻ Release to refresh...";
+        ptrIndicator.classList.add('visible');
+      } else if (diffY > 20) {
+        ptrIndicator.innerText = "↓ Pull down to refresh";
+        ptrIndicator.classList.add('visible');
+      }
+    }, { passive: true });
+
+    mainScroll.addEventListener('touchend', async (e) => {
+      if (!isPulling) return;
+      const currentY = e.changedTouches[0].clientY;
+      const diffY = currentY - touchStartY;
+      isPulling = false;
+
+      if (diffY > 60 && mainScroll.scrollTop === 0) {
+        ptrIndicator.innerText = "Syncing with Supabase...";
+        await Promise.all([
+          syncAllSupabaseData(),
+          fetchSupabaseSignals()
+        ]);
+        ptrIndicator.innerText = "✓ Updated";
+        setTimeout(() => {
+          ptrIndicator.classList.remove('visible');
+        }, 600);
+      } else {
+        ptrIndicator.classList.remove('visible');
+      }
+    });
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        syncAllSupabaseData();
+        fetchSupabaseSignals();
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      syncAllSupabaseData();
+    });
 
     // INITIAL DATA FETCH & BOOTSTRAP
     syncAllSupabaseData();
