@@ -1561,61 +1561,64 @@
       renderTaskStack();
     }
 
-    /* ==========================================================================
-       SCHEDULE CALENDAR (ROBUST DATE MATCHING & SYNC)
-       ========================================================================== */
     function renderScheduleCalendar() {
-      const viewInput = document.getElementById('cal-view-date');
-      if (!viewInput.value) viewInput.value = formatDateLocal(new Date());
+  const viewInput = document.getElementById('cal-view-date');
+  if (!viewInput.value) {
+    viewInput.value = formatDateLocal(new Date());
+  }
 
-      const dateStr = (viewInput.value || '').split('T')[0];
-      const dateObj = new Date(dateStr + 'T00:00:00');
-      document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  const dateStr = (viewInput.value || '').split('T')[0];
+  const dateObj = new Date(dateStr + 'T00:00:00');
+  document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    month: 'short', 
+    day: 'numeric' 
+  });
 
-      const area = document.getElementById('calendar-render-area');
-      area.innerHTML = '';
+  const area = document.getElementById('calendar-render-area');
+  area.innerHTML = '';
 
-      const buckets = [
-        { id: 'morning', title: '🌅 Morning', subtitle: 'Till 12 PM' },
-        { id: 'afternoon', title: '☀️ Afternoon', subtitle: '12 PM - 4 PM' },
-        { id: 'evening', title: '🌆 Evening', subtitle: '4 PM - 8 PM' },
-        { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards' }
-      ];
+  const buckets = [
+    { id: 'morning', title: '🌅 Morning', subtitle: 'Till 12 PM' },
+    { id: 'afternoon', title: '☀️ Afternoon', subtitle: '12 PM - 4 PM' },
+    { id: 'evening', title: '🌆 Evening', subtitle: '4 PM - 8 PM' },
+    { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards' }
+  ];
 
-      const dayEvents = ALL_EVENTS.filter(e => {
-        if (!e.event_date) return false;
-        const cleanEventDate = String(e.event_date).split('T')[0];
-        return cleanEventDate === dateStr;
-      });
+  const dayEvents = ALL_EVENTS.filter(e => {
+    if (!e.event_date) return false;
+    const cleanEventDate = String(e.event_date).split('T')[0];
+    return cleanEventDate === dateStr;
+  });
 
-      let html = '<div class="schedule-bucket-grid">';
-      buckets.forEach(b => {
-        const bucketEvents = dayEvents.filter(e => getEventBucket(e) === b.id);
-        html += `
-          <div class="schedule-bucket-card">
-            <div class="schedule-bucket-header">
-              <div class="schedule-bucket-title">${b.title}</div>
-              <div class="schedule-bucket-subtitle">${b.subtitle} (${bucketEvents.length})</div>
-            </div>
-            <div class="schedule-bucket-items">
-              ${bucketEvents.length === 0 ? `<div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No blocks scheduled.</div>` : bucketEvents.map(evt => `
-                <div class="time-block-card ${evt.is_starred ? 'is-starred' : ''}">
-                  <div style="flex:1;" onclick="${evt.task_id ? `navigateToSpecificTaskId(${evt.task_id})` : ''}">
-                    <div style="font-weight:700; font-size:0.85rem;">${evt.is_starred ? '⭐ ' : ''}${escapeHtml(evt.title)}</div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
-                      ${evt.start_time ? `${evt.start_time.slice(0,5)} ${evt.end_time ? '- ' + evt.end_time.slice(0,5) : ''} | ` : ''}${evt.project || 'General'}
-                    </div>
-                  </div>
-                  <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem;" onclick="openCalendarEventModal(${evt.id})">Edit</button>
+  let html = '<div class="schedule-bucket-grid">';
+  buckets.forEach(b => {
+    const bucketEvents = dayEvents.filter(e => getEventBucket(e) === b.id);
+    html += `
+      <div class="schedule-bucket-card">
+        <div class="schedule-bucket-header">
+          <div class="schedule-bucket-title">${b.title}</div>
+          <div class="schedule-bucket-subtitle">${b.subtitle} (${bucketEvents.length})</div>
+        </div>
+        <div class="schedule-bucket-items">
+          ${bucketEvents.length === 0 ? `<div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No blocks scheduled.</div>` : bucketEvents.map(evt => `
+            <div class="time-block-card ${evt.is_starred ? 'is-starred' : ''}">
+              <div style="flex:1;" onclick="${evt.task_id ? `navigateToSpecificTaskId(${evt.task_id})` : ''}">
+                <div style="font-weight:700; font-size:0.85rem;">${evt.is_starred ? '⭐ ' : ''}${escapeHtml(evt.title)}</div>
+                <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
+                  ${evt.start_time ? `${evt.start_time.slice(0,5)} ${evt.end_time ? '- ' + evt.end_time.slice(0,5) : ''} | ` : ''}${evt.project || 'General'}
                 </div>
-              `).join('')}
+              </div>
+              <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem;" onclick="openCalendarEventModal(${evt.id})">Edit</button>
             </div>
-          </div>
-        `;
-      });
-      html += '</div>';
-      area.innerHTML = html;
-    }
+          `).join('')}
+        </div>
+      </div>
+    `;
+  });
+  html += '</div>';
+  area.innerHTML = html;
+}
 
     function navigateToSpecificTaskId(taskId) {
       const numericId = Number(taskId);
@@ -2644,60 +2647,82 @@
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     /* ==========================================================================
-       PULL DOWN TO REFRESH & LIFECYCLE HANDLERS
-       ========================================================================== */
-    let touchStartY = 0;
-    let isPulling = false;
-    const ptrIndicator = document.getElementById('ptr-indicator');
-    const mainScroll = document.getElementById('main-scroll-container');
+   PULL DOWN TO REFRESH (SAFARI & CHROME MOBILE OPTIMIZED)
+   ========================================================================== */
+let touchStartY = 0;
+let isPulling = false;
+let pullDistance = 0;
+const ptrIndicator = document.getElementById('ptr-indicator');
+const mainScroll = document.getElementById('main-scroll-container');
 
-    mainScroll.addEventListener('touchstart', (e) => {
-      if (mainScroll.scrollTop === 0) {
-        touchStartY = e.touches[0].clientY;
-        isPulling = true;
-      } else {
-        isPulling = false;
+mainScroll.addEventListener('touchstart', (e) => {
+  // Allow pull if at the top (handles iOS sub-zero overscroll)
+  if (mainScroll.scrollTop <= 5) {
+    touchStartY = e.touches[0].clientY;
+    isPulling = true;
+    pullDistance = 0;
+  } else {
+    isPulling = false;
+  }
+}, { passive: true });
+
+mainScroll.addEventListener('touchmove', (e) => {
+  if (!isPulling) return;
+  const currentY = e.touches[0].clientY;
+  pullDistance = currentY - touchStartY;
+
+  if (pullDistance > 65) {
+    ptrIndicator.innerText = "↻ Release to refresh...";
+    ptrIndicator.classList.add('visible');
+  } else if (pullDistance > 20) {
+    ptrIndicator.innerText = "↓ Pull down to refresh";
+    ptrIndicator.classList.add('visible');
+  } else if (pullDistance < 0) {
+    ptrIndicator.classList.remove('visible');
+  }
+}, { passive: true });
+
+mainScroll.addEventListener('touchend', async () => {
+  if (!isPulling) return;
+  const triggered = pullDistance > 65;
+  isPulling = false;
+
+  if (triggered) {
+    ptrIndicator.innerText = "Syncing with Supabase...";
+    
+    try {
+      // 1. Fetch fresh data from Supabase
+      await Promise.all([
+        syncAllSupabaseData(),
+        fetchSupabaseSignals()
+      ]);
+
+      // 2. Identify the currently active tab and re-render its specific DOM view
+      const activeSection = document.querySelector('.content-section.active');
+      if (activeSection) {
+        const activeId = activeSection.id;
+        if (activeId === 'sec-calendar') renderScheduleCalendar();
+        if (activeId === 'sec-tasks') renderTaskStack();
+        if (activeId === 'sec-learning') renderLearningHub();
+        if (activeId === 'sec-signals') renderBentoSignals();
+        if (activeId === 'sec-reports') renderReports();
       }
-    }, { passive: true });
 
-    mainScroll.addEventListener('touchmove', (e) => {
-      if (!isPulling || mainScroll.scrollTop > 0) return;
-      const currentY = e.touches[0].clientY;
-      const diffY = currentY - touchStartY;
-
-      if (diffY > 60) {
-        ptrIndicator.innerText = "↻ Release to refresh...";
-        ptrIndicator.classList.add('visible');
-      } else if (diffY > 20) {
-        ptrIndicator.innerText = "↓ Pull down to refresh";
-        ptrIndicator.classList.add('visible');
-      }
-    }, { passive: true });
-
-    mainScroll.addEventListener('touchend', async (e) => {
-      if (!isPulling) return;
-      const currentY = e.changedTouches[0].clientY;
-      const diffY = currentY - touchStartY;
-      isPulling = false;
-
-      if (diffY > 60 && mainScroll.scrollTop === 0) {
-        ptrIndicator.innerText = "Syncing with Supabase...";
-        await Promise.all([
-          syncAllSupabaseData(),
-          fetchSupabaseSignals()
-        ]);
-        
-        renderScheduleCalendar();
-        renderTaskStack();
-
-        ptrIndicator.innerText = "✓ Updated";
-        setTimeout(() => {
-          ptrIndicator.classList.remove('visible');
-        }, 600);
-      } else {
+      ptrIndicator.innerText = "✓ Updated";
+    } catch (err) {
+      console.error("Pull-to-refresh sync failed:", err);
+      ptrIndicator.innerText = "Sync Error";
+    } finally {
+      setTimeout(() => {
         ptrIndicator.classList.remove('visible');
-      }
-    });
+        pullDistance = 0;
+      }, 500);
+    }
+  } else {
+    ptrIndicator.classList.remove('visible');
+    pullDistance = 0;
+  }
+});
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
