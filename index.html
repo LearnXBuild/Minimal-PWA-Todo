@@ -1562,13 +1562,13 @@
     }
 
     /* ==========================================================================
-       SCHEDULE CALENDAR
+       SCHEDULE CALENDAR (ROBUST DATE MATCHING & SYNC)
        ========================================================================== */
     function renderScheduleCalendar() {
       const viewInput = document.getElementById('cal-view-date');
       if (!viewInput.value) viewInput.value = formatDateLocal(new Date());
 
-      const dateStr = viewInput.value.split('T')[0];
+      const dateStr = (viewInput.value || '').split('T')[0];
       const dateObj = new Date(dateStr + 'T00:00:00');
       document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
@@ -1582,7 +1582,11 @@
         { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards' }
       ];
 
-      const dayEvents = ALL_EVENTS.filter(e => e.event_date === dateStr);
+      const dayEvents = ALL_EVENTS.filter(e => {
+        if (!e.event_date) return false;
+        const cleanEventDate = String(e.event_date).split('T')[0];
+        return cleanEventDate === dateStr;
+      });
 
       let html = '<div class="schedule-bucket-grid">';
       buckets.forEach(b => {
@@ -1635,7 +1639,7 @@
           document.getElementById('cal-linked-task-id').value = evt.task_id || '';
           document.getElementById('cal-title').value = evt.title;
           document.getElementById('cal-desc').value = evt.description || '';
-          document.getElementById('cal-date').value = evt.event_date;
+          document.getElementById('cal-date').value = evt.event_date ? String(evt.event_date).split('T')[0] : '';
           document.getElementById('cal-bucket-select').value = evt.time_bucket || 'morning';
           document.getElementById('cal-start-time').value = evt.start_time || '';
           document.getElementById('cal-end-time').value = evt.end_time || '';
@@ -1664,7 +1668,8 @@
       const title = document.getElementById('cal-title').value.trim();
       if (!title) return;
 
-      const event_date = document.getElementById('cal-date').value || formatDateLocal(new Date());
+      const rawDate = document.getElementById('cal-date').value || formatDateLocal(new Date());
+      const event_date = rawDate.split('T')[0];
       const time_bucket = document.getElementById('cal-bucket-select').value;
       const start_time = document.getElementById('cal-start-time').value || null;
       const end_time = document.getElementById('cal-end-time').value || null;
@@ -1675,7 +1680,14 @@
       closeModal('calendar-modal');
 
       const payload = {
-        title, description, event_date, time_bucket, start_time, end_time, project, is_starred,
+        title,
+        description,
+        event_date,
+        time_bucket,
+        start_time,
+        end_time,
+        project,
+        is_starred,
         task_id: linkedTaskId ? Number(linkedTaskId) : null,
         updated_at: new Date().toISOString()
       };
@@ -2297,7 +2309,10 @@
     function autoDetectCurrentScheduleSlot() {
       const todayStr = formatDateLocal(new Date());
       const currentBucket = getCurrentSystemBucket();
-      const todayEvents = ALL_EVENTS.filter(e => e.event_date === todayStr);
+      const todayEvents = ALL_EVENTS.filter(e => {
+        if (!e.event_date) return false;
+        return String(e.event_date).split('T')[0] === todayStr;
+      });
 
       const starredInBucket = todayEvents.find(e => getEventBucket(e) === currentBucket && e.is_starred);
       if (starredInBucket) return { proj: starredInBucket.project || 'General', title: starredInBucket.title };
@@ -2671,6 +2686,10 @@
           syncAllSupabaseData(),
           fetchSupabaseSignals()
         ]);
+        
+        renderScheduleCalendar();
+        renderTaskStack();
+
         ptrIndicator.innerText = "✓ Updated";
         setTimeout(() => {
           ptrIndicator.classList.remove('visible');
