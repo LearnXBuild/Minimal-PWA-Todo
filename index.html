@@ -1193,34 +1193,36 @@
       }
     }
 
-    /* Universal Task Creation Engine */
-    async function createGlobalTask({ title, description = '', project = 'General', status = 'todo', tags = [], parent_id = null, source_type = 'manual' }) {
-      const payload = {
-        title,
-        description,
-        project: project || 'General',
-        status: status || 'todo',
-        tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
-        parent_id,
-        source_type,
-        updated_at: new Date().toISOString()
-      };
+   async function createGlobalTask({ title, description = '', project = 'General', status = 'todo', tags = [], parent_id = null, source_type = 'manual' }) {
+  const cleanPayload = {
+    title: String(title).trim(),
+    description: description ? String(description).trim() : null,
+    project: project || 'General',
+    status: status || 'todo',
+    tags: Array.isArray(tags) ? tags : [],
+    parent_id: parent_id ? Number(parent_id) : null,
+    source_type: source_type || 'manual'
+  };
 
-      const { data, error } = await db.from('tasks').insert([payload]).select();
-      if (error) {
-        console.error('Task insertion failed:', error);
-        alert('Could not save task to database: ' + error.message);
-        return null;
-      }
+  const { data, error } = await db
+    .from('tasks')
+    .insert([cleanPayload])
+    .select();
 
-      if (data && data[0]) {
-        ALL_TASKS.unshift(data[0]);
-        renderTaskStack();
-        renderTagFilters();
-        return data[0];
-      }
-      return null;
-    }
+  if (error) {
+    alert("Supabase Insert Failed: " + error.message + " | Details: " + error.details);
+    console.error("Supabase Error:", error);
+    return null;
+  }
+
+  if (data && data.length > 0) {
+    ALL_TASKS.unshift(data[0]);
+    renderTaskStack();
+    renderTagFilters();
+    return data[0];
+  }
+  return null;
+}
 
     /* ==========================================================================
        TASKS ENGINE
