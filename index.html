@@ -111,9 +111,36 @@
     .btn-danger { background: #ef4444; color: #fff; border: none; }
     .btn-sm { padding: 5px 12px; font-size: 0.75rem; border-radius: 99px; }
 
-    input, select, textarea { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 0.85rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; transition: border-color 0.2s ease; }
-    input:focus, select:focus, textarea:focus { border-color: var(--accent-primary); }
+   input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), 
+select, 
+textarea { 
+  border: 1px solid var(--border); 
+  border-radius: var(--radius-sm); 
+  padding: 9px 12px; 
+  font-size: 0.85rem; 
+  width: 100%; 
+  background: var(--surface); 
+  color: var(--text); 
+  outline: none; 
+  box-sizing: border-box; 
+  transition: border-color 0.2s ease; 
+}
 
+input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus, 
+select:focus, 
+textarea:focus { 
+  border-color: var(--accent-primary); 
+}
+
+input[type="checkbox"] {
+  width: 16px !important;
+  height: 16px !important;
+  cursor: pointer;
+  accent-color: var(--accent-primary);
+  flex-shrink: 0;
+  margin: 0 !important;
+  padding: 0 !important;
+}
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; background: var(--surface); padding: 14px 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-bento); }
     .filter-top-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
