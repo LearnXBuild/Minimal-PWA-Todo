@@ -925,11 +925,12 @@
       }
     }
 
-    /* Universal Task Creation Engine */
+    /* Universal Task Creation Engine (Fixed Default to General) */
     async function createGlobalTask({ title, description = '', project_id = null, project = null, status = 'todo', tags = [], parent_id = null, source_type = 'manual' }) {
       let resolvedProjectId = project_id ? Number(project_id) : null;
       let resolvedProjectName = project;
 
+      // 1. Resolve project by ID or Name if explicitly provided
       if (!resolvedProjectId && project) {
         const p = getProjectByName(project);
         if (p) {
@@ -941,9 +942,15 @@
         if (p) resolvedProjectName = p.name;
       }
 
-      if (!resolvedProjectId && ALL_PROJECTS.length > 0) {
-        resolvedProjectId = ALL_PROJECTS[0].id;
-        resolvedProjectName = ALL_PROJECTS[0].name;
+      // 2. Strict fallback: Always default to 'General' project if unresolved
+      if (!resolvedProjectId) {
+        const generalProj = getProjectByName('General') || (ALL_PROJECTS.length > 0 ? ALL_PROJECTS[0] : null);
+        if (generalProj) {
+          resolvedProjectId = generalProj.id;
+          resolvedProjectName = generalProj.name;
+        } else {
+          resolvedProjectName = 'General';
+        }
       }
 
       const cleanPayload = {
@@ -1249,6 +1256,9 @@
 
     function openTaskModal(taskId = null) {
       updateProjectDropdowns();
+      const generalProj = getProjectByName('General');
+      const defaultProjId = generalProj ? generalProj.id : (ALL_PROJECTS[0] ? ALL_PROJECTS[0].id : '');
+
       if (taskId) {
         const numericId = Number(taskId);
         const task = ALL_TASKS.find(t => Number(t.id) === numericId);
@@ -1256,7 +1266,7 @@
         document.getElementById('edit-task-id').value = task.id;
         document.getElementById('t-title').value = task.title;
         document.getElementById('t-desc').value = task.description || '';
-        document.getElementById('t-project').value = task.project_id || (ALL_PROJECTS[0] ? ALL_PROJECTS[0].id : '');
+        document.getElementById('t-project').value = task.project_id || defaultProjId;
         document.getElementById('t-status').value = task.status || 'todo';
         document.getElementById('t-tags').value = (task.tags || []).join(', ');
       } else {
@@ -1264,8 +1274,8 @@
         document.getElementById('edit-task-id').value = '';
         document.getElementById('t-title').value = '';
         document.getElementById('t-desc').value = '';
-        const currFilter = document.getElementById('task-project-filter').value;
-        document.getElementById('t-project').value = (currFilter && currFilter !== 'ALL') ? currFilter : (ALL_PROJECTS[0] ? ALL_PROJECTS[0].id : '');
+        // Always default to 'General' project for new tasks
+        document.getElementById('t-project').value = defaultProjId;
         document.getElementById('t-status').value = 'in_progress';
         document.getElementById('t-tags').value = '';
       }
@@ -1842,7 +1852,7 @@
 
     /* ==========================================================================
        LEARNING HUB
-       ========================================================================== */
+       ========================================================================= */
     function setLearningTrack(track, element) {
       activeLearningTrack = track;
       document.querySelectorAll('#learning-track-pills .filter-chip').forEach(c => c.classList.remove('active'));
