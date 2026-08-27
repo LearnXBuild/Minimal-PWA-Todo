@@ -3,12 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>OneSpace</title>
+  <title>onespace</title>
   <meta name="theme-color" content="#f4f6f8">
+  
+  <!-- Modern Vector App Favicon & Apple Touch Icon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Crect x='110' y='110' width='292' height='292' rx='50' fill='none' stroke='%23ffffff' stroke-width='24' stroke-dasharray='380 40' stroke-linecap='round' opacity='0.35'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="manifest" id="pwa-manifest">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+  
   <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
@@ -77,22 +83,34 @@
     main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 90px; width: 100%; min-width: 0; scroll-behavior: smooth; }
     
     .sidebar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 0 4px; }
-    .logo { font-size: 0.95rem; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 10px; color: var(--text); }
-    .logo-dot { width: 10px; height: 10px; background: var(--accent-primary); border-radius: 50%; box-shadow: 0 0 10px rgba(99, 102, 241, 0.4); }
+    .logo { font-size: 0.98rem; font-weight: 800; letter-spacing: -0.03em; display: flex; align-items: center; gap: 9px; color: var(--text); text-transform: lowercase; }
+    .brand-icon-wrap {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #6366f1, #4338ca);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 3px 8px rgba(99, 102, 241, 0.35);
+      flex-shrink: 0;
+    }
+    .brand-icon-wrap svg { width: 16px; height: 16px; stroke: #ffffff; }
 
     .profile-icon-btn { background: #f3e8ff; border: 1px solid rgba(123, 31, 162, 0.15); border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 0.9rem; transition: transform 0.15s ease; }
     .profile-icon-btn:hover { transform: scale(1.05); }
 
     nav.sidebar-nav { display: flex; flex-direction: column; gap: 6px; }
-    nav.sidebar-nav button { display: flex; align-items: center; width: 100%; text-align: left; padding: 10px 14px; background: none; border: 1px solid transparent; border-radius: var(--radius); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease; }
+    nav.sidebar-nav button { display: flex; align-items: center; gap: 10px; width: 100%; text-align: left; padding: 10px 14px; background: none; border: 1px solid transparent; border-radius: var(--radius); font-size: 0.85rem; font-weight: 600; color: var(--text-muted); cursor: pointer; transition: all 0.2s ease; }
     nav.sidebar-nav button:hover { background: var(--surface-hover); color: var(--text); }
     nav.sidebar-nav button.active { background: var(--accent-primary); color: #fff; font-weight: 700; box-shadow: 0 4px 14px rgba(99, 102, 241, 0.3); }
+    nav.sidebar-nav button.active svg { stroke: #ffffff; }
 
     .content-section { display: none; padding: 24px 20px; max-width: 860px; margin: 0 auto; width: 100%; box-sizing: border-box; }
     .content-section.active { display: block; }
 
     header.workspace-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
-    h1.section-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); }
+    h1.section-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); display: flex; align-items: center; gap: 8px; }
 
     /* Standard Buttons & Inputs */
     .btn { background: var(--text); color: #fff; border: none; padding: 8px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s ease; box-shadow: var(--shadow-sm); text-decoration: none; }
@@ -265,7 +283,7 @@
     .signal-meter .bar:nth-child(5) { height: 12px; }
     .signal-meter .bar.on { background: var(--signal); }
 
-    /* Bento Grid Layout Fix */
+    /* Bento Grid Layout */
     .bento-grid {
       display: grid;
       grid-template-columns: repeat(12, 1fr);
@@ -285,6 +303,41 @@
     .bento-span-6 { grid-column: span 6; }
     .bento-span-7 { grid-column: span 7; }
     .bento-span-12 { grid-column: span 12; }
+
+    /* Collapsible HLD Card Specific Styles */
+    .hld-category-card {
+      padding: 0 !important;
+      overflow: hidden;
+      transition: border-color 0.2s ease;
+    }
+    .hld-category-header {
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--surface);
+      transition: background 0.15s ease;
+    }
+    .hld-category-header:hover {
+      background: var(--surface-hover);
+    }
+    .hld-category-card.collapsed .hld-category-body {
+      display: none;
+    }
+    .hld-category-card.collapsed .hld-chevron {
+      transform: rotate(-90deg);
+    }
+    .hld-chevron {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+    }
+    .hld-category-body {
+      padding: 0 18px 18px 18px;
+      border-top: 1px solid var(--border);
+    }
 
     @media (max-width: 768px) {
       .bento-span-5, .bento-span-6, .bento-span-7, .bento-span-12 {
@@ -684,8 +737,9 @@
       .schedule-bucket-grid { grid-template-columns: 1fr; }
       .mobile-header { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: var(--surface); border-bottom: 1px solid var(--border); }
       .mobile-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 60px; background: var(--surface); border-top: 1px solid var(--border); display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; z-index: 50; padding-bottom: env(safe-area-inset-bottom, 0px); }
-      .mobile-nav button { background: none; border: none; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; height: 100%; width: 100%; cursor: pointer; }
+      .mobile-nav button { background: none; border: none; font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 100%; width: 100%; cursor: pointer; }
       .mobile-nav button.active { color: var(--accent-primary); }
+      .mobile-nav button.active svg { stroke: var(--accent-primary); }
     }
     @media (min-width: 641px) {
       .mobile-nav, .mobile-header { display: none; }
@@ -700,20 +754,48 @@
   <!-- DESKTOP SIDEBAR -->
   <aside>
     <div class="sidebar-header">
-      <div class="logo"><div class="logo-dot"></div> ONESPACE</div>
+      <div class="logo">
+        <div class="brand-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/>
+            <path d="M12 3v18M3 12h18"/>
+          </svg>
+        </div>
+        <span>onespace</span>
+      </div>
       <button class="profile-icon-btn" onclick="openProfileModal()">👤</button>
     </div>
     <nav class="sidebar-nav">
-      <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule</button>
-      <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks & Reminders</button>
-      <button class="nav-btn" onclick="switchTab('learning', this)">Learning</button>
-      <button class="nav-btn" onclick="switchTab('signals', this)">Signals Feed</button>
+      <button class="nav-btn active" onclick="switchTab('calendar', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span>Schedule</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('tasks', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span>Tasks & Backlog</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('learning', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        <span>Learning</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('signals', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <span>Signals Feed</span>
+      </button>
     </nav>
   </aside>
 
   <!-- MOBILE HEADER -->
   <div class="mobile-header">
-    <div class="logo"><div class="logo-dot"></div> ONESPACE</div>
+    <div class="logo">
+      <div class="brand-icon-wrap">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 3v18M3 12h18"/>
+        </svg>
+      </div>
+      <span>onespace</span>
+    </div>
     <button class="profile-icon-btn" onclick="openProfileModal()">👤</button>
   </div>
 
@@ -721,7 +803,10 @@
     <!-- 1. SCHEDULE TAB -->
     <section id="sec-calendar" class="content-section active">
       <header class="workspace-header">
-        <h1 class="section-title">SCHEDULE CALENDAR</h1>
+        <h1 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          SCHEDULE CALENDAR
+        </h1>
         <div class="flex-gap" style="align-items: center;">
           <button class="btn btn-secondary btn-sm" onclick="openCalendarEventModal(null)">+ Event</button>
           <button class="btn btn-sm" onclick="openDeskHud()">🖥️ Focus Mode</button>
@@ -800,7 +885,10 @@
     <!-- 3. LEARNING TAB -->
     <section id="sec-learning" class="content-section">
       <header class="workspace-header">
-        <h1 class="section-title">LEARNING HUB</h1>
+        <h1 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+          LEARNING HUB
+        </h1>
         <div class="flex-gap">
           <button class="btn btn-secondary btn-sm" onclick="renderLearningHub()">↻ Refresh</button>
         </div>
@@ -818,7 +906,10 @@
     <!-- 4. SIGNALS FEED TAB (BENTO CARDS & COLLAPSIBLE IPO HUB) -->
     <section id="sec-signals" class="content-section">
       <header class="workspace-header">
-        <h1 class="section-title">SIGNALS FEED</h1>
+        <h1 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          SIGNALS FEED
+        </h1>
         <div class="flex-gap">
           <button class="btn btn-secondary btn-sm" onclick="openNewspaperOverlay()">📰 Reader Mode</button>
           <button class="btn btn-secondary btn-sm" onclick="fetchSupabaseSignals()">↻ Refresh</button>
@@ -833,7 +924,10 @@
     <!-- 5. REPORTS TAB -->
     <section id="sec-reports" class="content-section">
       <header class="workspace-header">
-        <h1 class="section-title">REPORTS & LIMITS</h1>
+        <h1 class="section-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          REPORTS & LIMITS
+        </h1>
         <div class="flex-gap">
           <button class="btn btn-secondary" onclick="openManualTimeModal()">+ Log Time</button>
           <button class="btn btn-secondary" onclick="openProjectLimitModal()">Limits</button>
@@ -845,10 +939,22 @@
 
   <!-- MOBILE NAVIGATION -->
   <div class="mobile-nav">
-    <button class="nav-btn active" onclick="switchTab('calendar', this)">Schedule</button>
-    <button class="nav-btn" onclick="switchTab('tasks', this)">Tasks</button>
-    <button class="nav-btn" onclick="switchTab('learning', this)">Learning</button>
-    <button class="nav-btn" onclick="switchTab('signals', this)">Signals</button>
+    <button class="nav-btn active" onclick="switchTab('calendar', this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Schedule</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('tasks', this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span>Tasks</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('learning', this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      <span>Learning</span>
+    </button>
+    <button class="nav-btn" onclick="switchTab('signals', this)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <span>Signals</span>
+    </button>
   </div>
 
   <!-- FULLSCREEN NEWSPAPER READER OVERLAY -->
@@ -888,6 +994,29 @@
       <button class="btn btn-secondary" style="background:#1e293b; color:#fff; border-color:#334155; padding:10px 20px;" onclick="toggleGlobalTracking()"><span id="hud-pause-text">▶ Start Focus</span></button>
       <button class="btn btn-secondary" style="background:#1e293b; color:#fff; border-color:#334155; padding:10px 20px;" onclick="addFiveMinsToTracking()">+5 Mins</button>
       <button class="btn btn-danger" style="padding:10px 20px;" onclick="stopAndSaveTracking()">⏹ Stop & Save</button>
+    </div>
+  </div>
+
+  <!-- PATTERN NOTES LINK EDIT MODAL -->
+  <div class="modal-overlay" id="pattern-notes-modal">
+    <div class="modal">
+      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Update Pattern Notes Link</h2>
+      <input type="hidden" id="edit-pattern-key">
+      <div class="modal-body-scroll">
+        <div class="space-y">
+          <div style="font-size:0.75rem; color:var(--text-muted);">
+            PATTERN: <strong id="edit-pattern-label" style="color:var(--text);"></strong>
+          </div>
+          <div>
+            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">MARKDOWN / GITHUB NOTES URL:</label>
+            <input type="url" id="edit-pattern-url" placeholder="https://github.com/user/notes/blob/main/patterns/...">
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal('pattern-notes-modal')">Cancel</button>
+        <button class="btn" onclick="savePatternNotesUrl()">Save Link</button>
+      </div>
     </div>
   </div>
 
@@ -1094,6 +1223,7 @@
     let ALL_EVENTS = [];
     let ALL_ARTICLES = [];
     let ALL_IPOS = [];
+    let CURRENT_DRILL = null;
 
     let activeTrack = "All";
     let activeLearningTrack = "DSA";
@@ -1500,33 +1630,29 @@
     }
 
     async function deleteTask(id) {
-  if (!confirm("Delete this task?")) return;
-  
-  const numericId = Number(id);
+      if (!confirm("Delete this task?")) return;
+      
+      const numericId = Number(id);
 
-  // 1. Optimistically purge task AND any child subtasks from memory immediately
-  ALL_TASKS = ALL_TASKS.filter(t => Number(t.id) !== numericId && Number(t.parent_id) !== numericId);
-  
-  // 2. Unlink any schedule event referencing this task
-  ALL_EVENTS = ALL_EVENTS.map(e => {
-    if (Number(e.task_id) === numericId) {
-      return { ...e, task_id: null };
+      ALL_TASKS = ALL_TASKS.filter(t => Number(t.id) !== numericId && Number(t.parent_id) !== numericId);
+      
+      ALL_EVENTS = ALL_EVENTS.map(e => {
+        if (Number(e.task_id) === numericId) {
+          return { ...e, task_id: null };
+        }
+        return e;
+      });
+
+      renderTaskStack();
+      renderScheduleCalendar();
+
+      const { error } = await db.from('tasks').delete().eq('id', numericId);
+      if (error) {
+        console.error("Failed to delete task from DB:", error);
+        alert("Could not delete task: " + error.message);
+        await syncAllSupabaseData();
+      }
     }
-    return e;
-  });
-
-  // 3. Instant UI re-render
-  renderTaskStack();
-  renderScheduleCalendar();
-
-  // 4. Persist deletion in Supabase
-  const { error } = await db.from('tasks').delete().eq('id', numericId);
-  if (error) {
-    console.error("Failed to delete task from DB:", error);
-    alert("Could not delete task: " + error.message);
-    await syncAllSupabaseData();
-  }
-}
 
     function openSubtaskModal(parentTaskId) {
       document.getElementById('sub-parent-task-id').value = parentTaskId;
@@ -1582,64 +1708,67 @@
       renderTaskStack();
     }
 
+    /* ==========================================================================
+       SCHEDULE CALENDAR
+       ========================================================================== */
     function renderScheduleCalendar() {
-  const viewInput = document.getElementById('cal-view-date');
-  if (!viewInput.value) {
-    viewInput.value = formatDateLocal(new Date());
-  }
+      const viewInput = document.getElementById('cal-view-date');
+      if (!viewInput.value) {
+        viewInput.value = formatDateLocal(new Date());
+      }
 
-  const dateStr = (viewInput.value || '').split('T')[0];
-  const dateObj = new Date(dateStr + 'T00:00:00');
-  document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'short', 
-    day: 'numeric' 
-  });
+      const dateStr = (viewInput.value || '').split('T')[0];
+      const dateObj = new Date(dateStr + 'T00:00:00');
+      document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        month: 'short', 
+        day: 'numeric' 
+      });
 
-  const area = document.getElementById('calendar-render-area');
-  area.innerHTML = '';
+      const area = document.getElementById('calendar-render-area');
+      area.innerHTML = '';
 
-  const buckets = [
-    { id: 'morning', title: '🌅 Morning', subtitle: 'Till 12 PM' },
-    { id: 'afternoon', title: '☀️ Afternoon', subtitle: '12 PM - 4 PM' },
-    { id: 'evening', title: '🌆 Evening', subtitle: '4 PM - 8 PM' },
-    { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards' }
-  ];
+      const buckets = [
+        { id: 'morning', title: '🌅 Morning', subtitle: 'Till 12 PM' },
+        { id: 'afternoon', title: '☀️ Afternoon', subtitle: '12 PM - 4 PM' },
+        { id: 'evening', title: '🌆 Evening', subtitle: '4 PM - 8 PM' },
+        { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards' }
+      ];
 
-  const dayEvents = ALL_EVENTS.filter(e => {
-    if (!e.event_date) return false;
-    const cleanEventDate = String(e.event_date).split('T')[0];
-    return cleanEventDate === dateStr;
-  });
+      const dayEvents = ALL_EVENTS.filter(e => {
+        if (!e.event_date) return false;
+        const cleanEventDate = String(e.event_date).split('T')[0];
+        return cleanEventDate === dateStr;
+      });
 
-  let html = '<div class="schedule-bucket-grid">';
-  buckets.forEach(b => {
-    const bucketEvents = dayEvents.filter(e => getEventBucket(e) === b.id);
-    html += `
-      <div class="schedule-bucket-card">
-        <div class="schedule-bucket-header">
-          <div class="schedule-bucket-title">${b.title}</div>
-          <div class="schedule-bucket-subtitle">${b.subtitle} (${bucketEvents.length})</div>
-        </div>
-        <div class="schedule-bucket-items">
-          ${bucketEvents.length === 0 ? `<div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No blocks scheduled.</div>` : bucketEvents.map(evt => `
-            <div class="time-block-card ${evt.is_starred ? 'is-starred' : ''}">
-              <div style="flex:1;" onclick="${evt.task_id ? `navigateToSpecificTaskId(${evt.task_id})` : ''}">
-                <div style="font-weight:700; font-size:0.85rem;">${evt.is_starred ? '⭐ ' : ''}${escapeHtml(evt.title)}</div>
-                <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
-                  ${evt.start_time ? `${evt.start_time.slice(0,5)} ${evt.end_time ? '- ' + evt.end_time.slice(0,5) : ''} | ` : ''}${evt.project || 'General'}
-                </div>
-              </div>
-              <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem;" onclick="openCalendarEventModal(${evt.id})">Edit</button>
+      let html = '<div class="schedule-bucket-grid">';
+      buckets.forEach(b => {
+        const bucketEvents = dayEvents.filter(e => getEventBucket(e) === b.id);
+        html += `
+          <div class="schedule-bucket-card">
+            <div class="schedule-bucket-header">
+              <div class="schedule-bucket-title">${b.title}</div>
+              <div class="schedule-bucket-subtitle">${b.subtitle} (${bucketEvents.length})</div>
             </div>
-          `).join('')}
-        </div>
-      </div>
-    `;
-  });
-  html += '</div>';
-  area.innerHTML = html;
-}
+            <div class="schedule-bucket-items">
+              ${bucketEvents.length === 0 ? `<div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No blocks scheduled.</div>` : bucketEvents.map(evt => `
+                <div class="time-block-card ${evt.is_starred ? 'is-starred' : ''}">
+                  <div style="flex:1;" onclick="${evt.task_id ? `navigateToSpecificTaskId(${evt.task_id})` : ''}">
+                    <div style="font-weight:700; font-size:0.85rem;">${evt.is_starred ? '⭐ ' : ''}${escapeHtml(evt.title)}</div>
+                    <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
+                      ${evt.start_time ? `${evt.start_time.slice(0,5)} ${evt.end_time ? '- ' + evt.end_time.slice(0,5) : ''} | ` : ''}${evt.project || 'General'}
+                    </div>
+                  </div>
+                  <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem;" onclick="openCalendarEventModal(${evt.id})">Edit</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      area.innerHTML = html;
+    }
 
     function navigateToSpecificTaskId(taskId) {
       const numericId = Number(taskId);
@@ -1732,33 +1861,27 @@
     }
 
     async function deleteCalendarEvent() {
-  const editId = document.getElementById('cal-edit-id').value;
-  if (!editId) return;
+      const editId = document.getElementById('cal-edit-id').value;
+      if (!editId) return;
 
-  if (confirm("Delete this event block?")) {
-    const numericId = Number(editId);
+      if (confirm("Delete this event block?")) {
+        const numericId = Number(editId);
 
-    // 1. Close modal first
-    closeModal('calendar-modal');
+        closeModal('calendar-modal');
+        ALL_EVENTS = ALL_EVENTS.filter(e => Number(e.id) !== numericId);
+        renderScheduleCalendar();
 
-    // 2. Optimistically remove from memory immediately
-    ALL_EVENTS = ALL_EVENTS.filter(e => Number(e.id) !== numericId);
-
-    // 3. Instant UI re-render
-    renderScheduleCalendar();
-
-    // 4. Persist deletion in Supabase
-    const { error } = await db.from('schedule_events').delete().eq('id', numericId);
-    if (error) {
-      console.error("Failed to delete event from DB:", error);
-      alert("Could not delete event: " + error.message);
-      await syncAllSupabaseData();
+        const { error } = await db.from('schedule_events').delete().eq('id', numericId);
+        if (error) {
+          console.error("Failed to delete event from DB:", error);
+          alert("Could not delete event: " + error.message);
+          await syncAllSupabaseData();
+        }
+      }
     }
-  }
-}
 
     /* ==========================================================================
-       SIGNALS DATA ENGINE & BENTO VIEW (WITH COLLAPSIBLE IPO & SUPABASE ACTIONS)
+       SIGNALS DATA ENGINE & BENTO VIEW
        ========================================================================== */
     function signalMeter(score) {
       let bars = '';
@@ -2135,7 +2258,7 @@
     }
 
     /* ==========================================================================
-       LEARNING HUB
+       LEARNING HUB (WITH PATTERN NOTES EDITOR & COLLAPSIBLE HLD)
        ========================================================================== */
     function setLearningTrack(track, element) {
       activeLearningTrack = track;
@@ -2147,6 +2270,13 @@
     function setHldCategory(cat) {
       activeHldCategory = cat;
       renderLearningHub();
+    }
+
+    function toggleHldCategory(cardId) {
+      const card = document.getElementById(cardId);
+      if (card) {
+        card.classList.toggle('collapsed');
+      }
     }
 
     async function toggleHldModuleMastered(moduleId, isCompleted) {
@@ -2172,10 +2302,40 @@
       navigator.clipboard.writeText(code).then(() => alert('Java template copied!'));
     }
 
+    function openPatternNotesModal(patternName, currentUrl) {
+      document.getElementById('edit-pattern-key').value = patternName;
+      document.getElementById('edit-pattern-label').innerText = patternName;
+      document.getElementById('edit-pattern-url').value = currentUrl && currentUrl !== 'null' ? currentUrl : '';
+      document.getElementById('pattern-notes-modal').style.display = 'flex';
+    }
+
+    async function savePatternNotesUrl() {
+      const patternName = document.getElementById('edit-pattern-key').value;
+      const newUrl = document.getElementById('edit-pattern-url').value.trim();
+      closeModal('pattern-notes-modal');
+
+      if (CURRENT_DRILL) {
+        CURRENT_DRILL.article_url = newUrl;
+      }
+
+      renderLearningHub();
+
+      // Upsert to dsa_patterns table or update dsa_daily_drills by pattern_name
+      try {
+        await Promise.allSettled([
+          db.from('dsa_patterns').update({ article_url: newUrl }).eq('title', patternName),
+          db.from('dsa_daily_drills').update({ article_url: newUrl }).eq('pattern_name', patternName)
+        ]);
+      } catch (err) {
+        console.error("Failed to update pattern notes URL:", err);
+      }
+    }
+
     async function renderLearningHub() {
       const container = document.getElementById('learning-bento-container');
       if (!container) return;
 
+      // VIEW 1: HLD CURRICULUM (WITH COLLAPSIBLE CATEGORIES)
       if (activeLearningTrack === 'HLD') {
         container.innerHTML = `<div style="text-align:center; padding:36px; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Loading System Design Curriculum…</div>`;
         try {
@@ -2225,33 +2385,43 @@
               </div>
 
               <div class="bento-span-12" style="display:flex; flex-direction:column; gap:14px;">
-                ${Object.entries(grouped).map(([categoryName, items]) => `
-                  <div class="bento-card">
-                    <div style="font-size:0.85rem; font-weight:800; margin-bottom:10px; border-bottom:1px solid var(--border); padding-bottom:8px;">
-                      📌 ${escapeHtml(categoryName)} (${items.filter(i => i.status === 'completed' || i.status === 'mastered').length}/${items.length})
-                    </div>
-                    <div class="ladder-list">
-                      ${items.map(item => {
-                        const isDone = item.status === 'completed' || item.status === 'mastered';
-                        return `
-                          <div class="ladder-card-clean ${isDone ? 'solved' : ''}">
-                            <div class="ladder-top-row">
-                              <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleHldModuleMastered(${item.id}, this.checked)" class="ladder-checkbox">
-                              <div class="ladder-content">
-                                <span class="ladder-tier">${item.difficulty || 'Concept'}</span>
-                                <a href="${item.reference_url || '#'}" target="_blank" rel="noopener noreferrer" class="ladder-title-text">${escapeHtml(item.module_title)}</a>
+                ${Object.entries(grouped).map(([categoryName, items], catIndex) => {
+                  const doneCount = items.filter(i => i.status === 'completed' || i.status === 'mastered').length;
+                  const cardId = `hld-cat-card-${catIndex}`;
+                  return `
+                    <div class="bento-card hld-category-card" id="${cardId}">
+                      <div class="hld-category-header" onclick="toggleHldCategory('${cardId}')">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                          <span style="font-size:0.9rem; font-weight:800; color:var(--text);">📌 ${escapeHtml(categoryName)}</span>
+                          <span class="pill" style="background:var(--bg); font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted);">${doneCount}/${items.length}</span>
+                        </div>
+                        <span class="hld-chevron">▼</span>
+                      </div>
+                      <div class="hld-category-body">
+                        <div class="ladder-list">
+                          ${items.map(item => {
+                            const isDone = item.status === 'completed' || item.status === 'mastered';
+                            return `
+                              <div class="ladder-card-clean ${isDone ? 'solved' : ''}">
+                                <div class="ladder-top-row">
+                                  <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggleHldModuleMastered(${item.id}, this.checked)" class="ladder-checkbox">
+                                  <div class="ladder-content">
+                                    <span class="ladder-tier">${item.difficulty || 'Concept'}</span>
+                                    <a href="${item.reference_url || '#'}" target="_blank" rel="noopener noreferrer" class="ladder-title-text">${escapeHtml(item.module_title)}</a>
+                                  </div>
+                                </div>
+                                <div class="ladder-bottom-bar">
+                                  <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.65rem;" onclick="createGlobalTask({ title: 'Study HLD: ${escapeHtml(item.module_title).replace(/'/g, "\\'")}', project: 'Engineering', tags: ['hld', 'study'], source_type: 'hld' }); alert('Added to Tasks!')">+ Task</button>
+                                  ${item.reference_url ? `<a href="${item.reference_url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:3px 10px; font-size:0.7rem;">Read ↗</a>` : ''}
+                                </div>
                               </div>
-                            </div>
-                            <div class="ladder-bottom-bar">
-                              <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.65rem;" onclick="createGlobalTask({ title: 'Study HLD: ${escapeHtml(item.module_title).replace(/'/g, "\\'")}', project: 'Engineering', tags: ['hld', 'study'], source_type: 'hld' }); alert('Added to Tasks!')">+ Task</button>
-                              ${item.reference_url ? `<a href="${item.reference_url}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm" style="padding:3px 10px; font-size:0.7rem;">Read ↗</a>` : ''}
-                            </div>
-                          </div>
-                        `;
-                      }).join('')}
+                            `;
+                          }).join('')}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                `).join('')}
+                  `;
+                }).join('')}
               </div>
             </div>
           `;
@@ -2261,12 +2431,13 @@
         return;
       }
 
+      // VIEW 2: LLD TRACK
       if (activeLearningTrack === 'LLD') {
         container.innerHTML = `<div class="bento-card" style="text-align:center; padding:36px; color:var(--text-muted);"><h3 style="font-size:1rem; font-weight:800; color:var(--text);">Low-Level Design (LLD) Track</h3><p style="font-size:0.8rem;">Design Patterns and Machine Coding problems coming up next.</p></div>`;
         return;
       }
 
-      // DSA VIEW
+      // VIEW 3: DSA TRACK (WITH NOTES CARD & LINK EDITOR)
       try {
         const { data: drills } = await db.from('dsa_daily_drills').select('*').order('drill_date', { ascending: false }).limit(1);
         if (!drills || drills.length === 0) {
@@ -2274,12 +2445,16 @@
           return;
         }
 
-        const drill = drills[0];
-        const { data: questions } = await db.from('dsa_questions').select('*').in('id', drill.problem_ids);
+        CURRENT_DRILL = drills[0];
+        const drill = CURRENT_DRILL;
+        const { data: questions } = await db.from('dsa_questions').select('*').in('id', drill.problem_ids || []);
         const problemMap = new Map((questions || []).map(q => [q.id, q]));
+
+        const hasNotesUrl = drill.article_url && drill.article_url.trim().length > 0;
 
         container.innerHTML = `
           <div class="bento-grid">
+            <!-- 1. Left Hero: Pattern Info -->
             <div class="bento-card bento-span-5" style="display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
               <div>
                 <div style="font-family:var(--font-mono); font-size:0.7rem; color:var(--accent-primary); font-weight:700;">⚡ PATTERN OF THE DAY (${drill.drill_date})</div>
@@ -2296,6 +2471,7 @@
               </div>
             </div>
 
+            <!-- 2. Right Top: Java Code Skeleton -->
             <div class="bento-span-7" style="display:flex; flex-direction:column; gap:14px;">
               <div class="code-box">
                 <div class="code-box-header">
@@ -2306,10 +2482,30 @@
               </div>
             </div>
 
+            <!-- 3. DSA Notes Bento Card with UI Link Edit -->
+            <div class="bento-card bento-span-12" style="background:var(--surface); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+              <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:36px; height:36px; border-radius:10px; background:#eef2ff; color:var(--accent-primary); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">📖</div>
+                <div>
+                  <div style="font-size:0.7rem; font-weight:800; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase;">PATTERN NOTES & REFERENCE</div>
+                  <div style="font-size:0.88rem; font-weight:700; color:var(--text); margin-top:2px;">
+                    ${hasNotesUrl ? `<a href="${drill.article_url}" target="_blank" rel="noopener noreferrer" style="color:var(--accent-primary); text-decoration:underline; word-break:break-all;">${escapeHtml(drill.article_url)} ↗</a>` : `<span style="color:var(--text-muted); font-style:italic;">No notes link attached yet</span>`}
+                  </div>
+                </div>
+              </div>
+              <div class="flex-gap">
+                <button class="btn btn-secondary btn-sm" onclick="openPatternNotesModal('${escapeHtml(drill.pattern_name).replace(/'/g, "\\'")}', '${drill.article_url || ''}')">
+                  ${hasNotesUrl ? '✏️ Edit Link' : '+ Add Notes Link'}
+                </button>
+                ${hasNotesUrl ? `<a href="${drill.article_url}" target="_blank" rel="noopener noreferrer" class="btn btn-sm">Open Notes ↗</a>` : ''}
+              </div>
+            </div>
+
+            <!-- 4. Problem Ladder -->
             <div class="bento-card bento-span-12">
               <div style="font-size:0.72rem; font-weight:800; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase;">🪜 Problem Ladder</div>
               <div class="ladder-list">
-                ${drill.problem_ids.map((id, index) => {
+                ${(drill.problem_ids || []).map((id, index) => {
                   const q = problemMap.get(id);
                   if (!q) return '';
                   const isSolved = q.status === 'solved';
@@ -2500,32 +2696,29 @@
     function openProfileModal() { document.getElementById('profile-modal').style.display = 'flex'; }
 
     async function clearCompletedTasks() {
-  if (!confirm("Delete all completed tasks from Supabase?")) return;
+      if (!confirm("Delete all completed tasks from Supabase?")) return;
 
-  const completedIds = ALL_TASKS
-    .filter(t => t.status === 'done')
-    .map(t => Number(t.id));
+      const completedIds = ALL_TASKS
+        .filter(t => t.status === 'done')
+        .map(t => Number(t.id));
 
-  if (completedIds.length === 0) {
-    closeModal('profile-modal');
-    return;
-  }
+      if (completedIds.length === 0) {
+        closeModal('profile-modal');
+        return;
+      }
 
-  // 1. Optimistically remove all completed tasks and their subtasks
-  ALL_TASKS = ALL_TASKS.filter(t => t.status !== 'done' && !completedIds.includes(Number(t.parent_id)));
+      ALL_TASKS = ALL_TASKS.filter(t => t.status !== 'done' && !completedIds.includes(Number(t.parent_id)));
 
-  // 2. Instant UI re-render
-  renderTaskStack();
-  closeModal('profile-modal');
+      renderTaskStack();
+      closeModal('profile-modal');
 
-  // 3. Persist batch deletion in Supabase
-  const { error } = await db.from('tasks').delete().in('id', completedIds);
-  if (error) {
-    console.error("Failed to clear completed tasks:", error);
-    alert("Could not delete from DB: " + error.message);
-    await syncAllSupabaseData();
-  }
-}
+      const { error } = await db.from('tasks').delete().in('id', completedIds);
+      if (error) {
+        console.error("Failed to clear completed tasks:", error);
+        alert("Could not delete from DB: " + error.message);
+        await syncAllSupabaseData();
+      }
+    }
 
     function exportData() {
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ tasks: ALL_TASKS, events: ALL_EVENTS, meta: metaData }));
@@ -2699,82 +2892,79 @@
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     /* ==========================================================================
-   PULL DOWN TO REFRESH (SAFARI & CHROME MOBILE OPTIMIZED)
-   ========================================================================== */
-let touchStartY = 0;
-let isPulling = false;
-let pullDistance = 0;
-const ptrIndicator = document.getElementById('ptr-indicator');
-const mainScroll = document.getElementById('main-scroll-container');
+       PULL DOWN TO REFRESH (SAFARI & CHROME MOBILE OPTIMIZED)
+       ========================================================================== */
+    let touchStartY = 0;
+    let isPulling = false;
+    let pullDistance = 0;
+    const ptrIndicator = document.getElementById('ptr-indicator');
+    const mainScroll = document.getElementById('main-scroll-container');
 
-mainScroll.addEventListener('touchstart', (e) => {
-  // Allow pull if at the top (handles iOS sub-zero overscroll)
-  if (mainScroll.scrollTop <= 5) {
-    touchStartY = e.touches[0].clientY;
-    isPulling = true;
-    pullDistance = 0;
-  } else {
-    isPulling = false;
-  }
-}, { passive: true });
-
-mainScroll.addEventListener('touchmove', (e) => {
-  if (!isPulling) return;
-  const currentY = e.touches[0].clientY;
-  pullDistance = currentY - touchStartY;
-
-  if (pullDistance > 65) {
-    ptrIndicator.innerText = "↻ Release to refresh...";
-    ptrIndicator.classList.add('visible');
-  } else if (pullDistance > 20) {
-    ptrIndicator.innerText = "↓ Pull down to refresh";
-    ptrIndicator.classList.add('visible');
-  } else if (pullDistance < 0) {
-    ptrIndicator.classList.remove('visible');
-  }
-}, { passive: true });
-
-mainScroll.addEventListener('touchend', async () => {
-  if (!isPulling) return;
-  const triggered = pullDistance > 65;
-  isPulling = false;
-
-  if (triggered) {
-    ptrIndicator.innerText = "Syncing with Supabase...";
-    
-    try {
-      // 1. Fetch fresh data from Supabase
-      await Promise.all([
-        syncAllSupabaseData(),
-        fetchSupabaseSignals()
-      ]);
-
-      // 2. Identify the currently active tab and re-render its specific DOM view
-      const activeSection = document.querySelector('.content-section.active');
-      if (activeSection) {
-        const activeId = activeSection.id;
-        if (activeId === 'sec-calendar') renderScheduleCalendar();
-        if (activeId === 'sec-tasks') renderTaskStack();
-        if (activeId === 'sec-learning') renderLearningHub();
-        if (activeId === 'sec-signals') renderBentoSignals();
-        if (activeId === 'sec-reports') renderReports();
+    mainScroll.addEventListener('touchstart', (e) => {
+      if (mainScroll.scrollTop <= 5) {
+        touchStartY = e.touches[0].clientY;
+        isPulling = true;
+        pullDistance = 0;
+      } else {
+        isPulling = false;
       }
+    }, { passive: true });
 
-      ptrIndicator.innerText = "✓ Updated";
-    } catch (err) {
-      console.error("Pull-to-refresh sync failed:", err);
-      ptrIndicator.innerText = "Sync Error";
-    } finally {
-      setTimeout(() => {
+    mainScroll.addEventListener('touchmove', (e) => {
+      if (!isPulling) return;
+      const currentY = e.touches[0].clientY;
+      pullDistance = currentY - touchStartY;
+
+      if (pullDistance > 65) {
+        ptrIndicator.innerText = "↻ Release to refresh...";
+        ptrIndicator.classList.add('visible');
+      } else if (pullDistance > 20) {
+        ptrIndicator.innerText = "↓ Pull down to refresh";
+        ptrIndicator.classList.add('visible');
+      } else if (pullDistance < 0) {
+        ptrIndicator.classList.remove('visible');
+      }
+    }, { passive: true });
+
+    mainScroll.addEventListener('touchend', async () => {
+      if (!isPulling) return;
+      const triggered = pullDistance > 65;
+      isPulling = false;
+
+      if (triggered) {
+        ptrIndicator.innerText = "Syncing with Supabase...";
+        
+        try {
+          await Promise.all([
+            syncAllSupabaseData(),
+            fetchSupabaseSignals()
+          ]);
+
+          const activeSection = document.querySelector('.content-section.active');
+          if (activeSection) {
+            const activeId = activeSection.id;
+            if (activeId === 'sec-calendar') renderScheduleCalendar();
+            if (activeId === 'sec-tasks') renderTaskStack();
+            if (activeId === 'sec-learning') renderLearningHub();
+            if (activeId === 'sec-signals') renderBentoSignals();
+            if (activeId === 'sec-reports') renderReports();
+          }
+
+          ptrIndicator.innerText = "✓ Updated";
+        } catch (err) {
+          console.error("Pull-to-refresh sync failed:", err);
+          ptrIndicator.innerText = "Sync Error";
+        } finally {
+          setTimeout(() => {
+            ptrIndicator.classList.remove('visible');
+            pullDistance = 0;
+          }, 500);
+        }
+      } else {
         ptrIndicator.classList.remove('visible');
         pullDistance = 0;
-      }, 500);
-    }
-  } else {
-    ptrIndicator.classList.remove('visible');
-    pullDistance = 0;
-  }
-});
+      }
+    });
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
@@ -2786,6 +2976,27 @@ mainScroll.addEventListener('touchend', async () => {
     window.addEventListener('focus', () => {
       syncAllSupabaseData();
     });
+
+    // PWA Manifest Dynamic Generation
+    const manifestJson = {
+      name: "onespace",
+      short_name: "onespace",
+      start_url: ".",
+      display: "standalone",
+      background_color: "#f4f6f8",
+      theme_color: "#6366f1",
+      icons: [
+        {
+          src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E",
+          sizes: "512x512",
+          type: "image/svg+xml"
+        }
+      ]
+    };
+    const stringManifest = JSON.stringify(manifestJson);
+    const blobManifest = new Blob([stringManifest], {type: 'application/json'});
+    const manifestURL = URL.createObjectURL(blobManifest);
+    document.querySelector('#pwa-manifest').setAttribute('href', manifestURL);
 
     // INITIAL DATA FETCH & BOOTSTRAP
     syncAllSupabaseData();
