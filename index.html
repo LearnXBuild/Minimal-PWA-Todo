@@ -111,42 +111,54 @@
     .btn-danger { background: #ef4444; color: #fff; border: none; }
     .btn-sm { padding: 5px 12px; font-size: 0.75rem; border-radius: 99px; }
 
-   input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), 
-select, 
-textarea { 
-  border: 1px solid var(--border); 
-  border-radius: var(--radius-sm); 
-  padding: 9px 12px; 
-  font-size: 0.85rem; 
-  width: 100%; 
-  background: var(--surface); 
-  color: var(--text); 
-  outline: none; 
-  box-sizing: border-box; 
-  transition: border-color 0.2s ease; 
-}
+    input:not([type="checkbox"]):not([type="radio"]):not([type="color"]), 
+    select, 
+    textarea { 
+      border: 1px solid var(--border); 
+      border-radius: var(--radius-sm); 
+      padding: 9px 12px; 
+      font-size: 0.85rem; 
+      width: 100%; 
+      background: var(--surface); 
+      color: var(--text); 
+      outline: none; 
+      box-sizing: border-box; 
+      transition: border-color 0.2s ease; 
+    }
 
-input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus, 
-select:focus, 
-textarea:focus { 
-  border-color: var(--accent-primary); 
-}
+    input:not([type="checkbox"]):not([type="radio"]):not([type="color"]):focus, 
+    select:focus, 
+    textarea:focus { 
+      border-color: var(--accent-primary); 
+    }
 
-input[type="checkbox"] {
-  width: 16px !important;
-  height: 16px !important;
-  cursor: pointer;
-  accent-color: var(--accent-primary);
-  flex-shrink: 0;
-  margin: 0 !important;
-  padding: 0 !important;
-}
+    input[type="checkbox"] {
+      width: 16px !important;
+      height: 16px !important;
+      cursor: pointer;
+      accent-color: var(--accent-primary);
+      flex-shrink: 0;
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; background: var(--surface); padding: 14px 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-bento); }
     .filter-top-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
     .filter-chip { font-size: 0.72rem; font-weight: 700; padding: 5px 12px; border-radius: 99px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; transition: all 0.15s ease; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
     .filter-chip.active { background: var(--text); color: #fff; border-color: var(--text); }
-    .toggle-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select: none; white-space: nowrap; }
+    
+    .toggle-label { 
+      display: inline-flex; 
+      align-items: center; 
+      gap: 8px; 
+      font-size: 0.78rem; 
+      font-weight: 600; 
+      color: var(--text); 
+      cursor: pointer; 
+      user-select: none; 
+      white-space: nowrap; 
+    }
 
     .stack-sections { display: flex; flex-direction: column; gap: 16px; width: 100%; }
     .stack-section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-bento); overflow: hidden; }
@@ -177,7 +189,7 @@ input[type="checkbox"] {
 
     .reminder-actions { display: flex; gap: 4px; margin-left: auto; }
     .reminder-subtasks { margin-left: 28px; margin-top: 4px; border-left: 2px solid var(--border); padding-left: 10px; display: flex; flex-direction: column; gap: 4px; }
-    .sub-item { font-size: 0.78rem; display: flex; align-items: center; gap: 6px; color: var(--text); }
+    .sub-item { font-size: 0.78rem; display: flex; align-items: center; gap: 8px; color: var(--text); }
     .sub-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
     .bento-pill-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 14px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; }
@@ -777,6 +789,19 @@ input[type="checkbox"] {
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
+    function getContrastTextColor(hexColor) {
+      if (!hexColor) return '#1e293b';
+      let hex = hexColor.replace('#', '');
+      if (hex.length === 3) {
+        hex = hex.split('').map(c => c + c).join('');
+      }
+      const r = parseInt(hex.substring(0, 2), 16) || 0;
+      const g = parseInt(hex.substring(2, 4), 16) || 0;
+      const b = parseInt(hex.substring(4, 6), 16) || 0;
+      const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+      return yiq >= 140 ? '#1e293b' : '#ffffff';
+    }
+
     function formatDateLocal(dateObj) {
       const year = dateObj.getFullYear();
       const month = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -976,12 +1001,20 @@ input[type="checkbox"] {
       const existing = ALL_PROJECTS.find(p => p.name.toLowerCase() === name.toLowerCase());
 
       if (existing) {
-        await db.from('projects').update(payload).eq('id', existing.id);
+        const { error } = await db.from('projects').update(payload).eq('id', existing.id);
+        if (error) {
+          alert("Project update error: " + error.message);
+          return;
+        }
         const idx = ALL_PROJECTS.findIndex(p => p.id === existing.id);
         ALL_PROJECTS[idx] = { ...ALL_PROJECTS[idx], ...payload };
       } else {
         const { data, error } = await db.from('projects').insert([payload]).select();
-        if (!error && data && data[0]) {
+        if (error) {
+          alert("Project insert error: " + error.message);
+          return;
+        }
+        if (data && data[0]) {
           ALL_PROJECTS.push(data[0]);
         }
       }
@@ -1105,6 +1138,7 @@ input[type="checkbox"] {
         const status = task.status || 'todo';
         const projName = taskProj ? taskProj.name : (task.project || 'General');
         const projColor = taskProj ? taskProj.color : '#e2e8f0';
+        const textColor = getContrastTextColor(projColor);
         const subs = subtaskMap.get(Number(task.id)) || [];
 
         const card = document.createElement('div');
@@ -1121,7 +1155,7 @@ input[type="checkbox"] {
           </div>
 
           <div class="reminder-meta">
-            <span class="pill" style="background:${projColor}; color:var(--text); font-weight:800;">${escapeHtml(projName)}</span>
+            <span class="pill" style="background:${projColor}; color:${textColor}; font-weight:800;">${escapeHtml(projName)}</span>
             ${(task.tags || []).map(tg => `<span class="pill pill-tag" style="background:${metaData.tagColors[tg] || '#f1f5f9'};">#${escapeHtml(tg)}</span>`).join('')}
           </div>
 
@@ -2287,11 +2321,11 @@ input[type="checkbox"] {
         ALL_PROJECTS.forEach(proj => {
           const sec = currentWeekTimes[proj.name] || 0;
           const limit = proj.weekly_limit_hours;
+          const textColor = getContrastTextColor(proj.color);
           html += `
             <tr>
-              <td style="font-weight:700; display:flex; align-items:center; gap:6px;">
-                <span style="width:8px; height:8px; border-radius:50%; background:${proj.color};"></span>
-                ${escapeHtml(proj.name)}
+              <td style="font-weight:700;">
+                <span style="background:${proj.color}; color:${textColor}; padding:2px 8px; border-radius:99px; font-size:0.75rem; font-weight:800; margin-right:6px;">${escapeHtml(proj.name)}</span>
               </td>
               <td style="font-family:var(--font-mono);">${formatTime(sec)}</td>
               <td style="font-family:var(--font-mono);">${limit ? limit + 'h' : '—'}</td>
