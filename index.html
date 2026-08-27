@@ -6,7 +6,6 @@
   <title>onespace</title>
   <meta name="theme-color" content="#f4f6f8">
   
-  <!-- Modern Vector App Favicon & Apple Touch Icon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Crect x='110' y='110' width='292' height='292' rx='50' fill='none' stroke='%23ffffff' stroke-width='24' stroke-dasharray='380 40' stroke-linecap='round' opacity='0.35'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="manifest" id="pwa-manifest">
@@ -15,7 +14,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
   
-  <!-- Supabase JS Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -37,7 +35,6 @@
       --signal: #d97706;
       --signal-bar: #cbd5e1;
 
-      /* Newspaper Variables */
       --paper: #E8E5D9;
       --ink: #22261F;
       --ink-soft: #52564C;
@@ -53,7 +50,6 @@
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font-sans); }
     body { background: var(--bg); color: var(--text); display: flex; height: 100vh; height: 100dvh; overflow: hidden; flex-direction: row; }
 
-    /* Pull-to-Refresh Bubble */
     #ptr-indicator {
       position: fixed;
       top: -50px;
@@ -73,12 +69,8 @@
       opacity: 0;
       font-family: var(--font-mono);
     }
-    #ptr-indicator.visible {
-      top: 18px;
-      opacity: 1;
-    }
+    #ptr-indicator.visible { top: 18px; opacity: 1; }
 
-    /* Desktop Sidebar */
     aside { width: 240px; border-right: 1px solid var(--border); background: var(--surface); display: flex; flex-direction: column; padding: 20px 14px; flex-shrink: 0; }
     main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; background: var(--bg); padding-bottom: 90px; width: 100%; min-width: 0; scroll-behavior: smooth; }
     
@@ -112,7 +104,6 @@
     header.workspace-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border); gap: 12px; flex-wrap: wrap; }
     h1.section-title { font-size: 1.05rem; font-weight: 800; letter-spacing: -0.02em; text-transform: uppercase; color: var(--text); display: flex; align-items: center; gap: 8px; }
 
-    /* Standard Buttons & Inputs */
     .btn { background: var(--text); color: #fff; border: none; padding: 8px 16px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; transition: all 0.2s ease; box-shadow: var(--shadow-sm); text-decoration: none; }
     .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
     .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border-dark); }
@@ -123,7 +114,6 @@
     input, select, textarea { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 9px 12px; font-size: 0.85rem; width: 100%; background: var(--surface); color: var(--text); outline: none; box-sizing: border-box; transition: border-color 0.2s ease; }
     input:focus, select:focus, textarea:focus { border-color: var(--accent-primary); }
 
-    /* Bento Filter Bar */
     .filter-bar { display: flex; flex-direction: column; gap: 10px; margin-bottom: 18px; background: var(--surface); padding: 14px 16px; border-radius: var(--radius-lg); border: 1px solid var(--border); box-shadow: var(--shadow-bento); }
     .filter-top-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -131,7 +121,6 @@
     .filter-chip.active { background: var(--text); color: #fff; border-color: var(--text); }
     .toggle-label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); cursor: pointer; user-select: none; white-space: nowrap; }
 
-    /* Stacked Collapsible Sections (Tasks) */
     .stack-sections { display: flex; flex-direction: column; gap: 16px; width: 100%; }
     .stack-section-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-bento); overflow: hidden; }
     .stack-section-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; cursor: pointer; user-select: none; background: var(--surface); transition: background 0.15s ease; }
@@ -164,116 +153,22 @@
     .sub-item { font-size: 0.78rem; display: flex; align-items: center; gap: 6px; color: var(--text); }
     .sub-item.done span { text-decoration: line-through; color: var(--text-muted); }
 
-    /* Bento Common Styles */
-    .bento-pill-scroll {
-      display: flex;
-      gap: 8px;
-      overflow-x: auto;
-      padding: 4px 0 14px 0;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-      width: 100%;
-    }
+    .bento-pill-scroll { display: flex; gap: 8px; overflow-x: auto; padding: 4px 0 14px 0; scrollbar-width: none; -webkit-overflow-scrolling: touch; width: 100%; }
     .bento-pill-scroll::-webkit-scrollbar { display: none; }
-
-    .bento-signals-container {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      width: 100%;
-    }
-
-    .bento-signal-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      box-shadow: var(--shadow-sm);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      transition: border-color 0.2s ease;
-    }
+    .bento-signals-container { display: flex; flex-direction: column; gap: 16px; width: 100%; }
+    .bento-signal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 12px; transition: border-color 0.2s ease; }
     .bento-signal-card:hover { border-color: var(--border-dark); }
-
-    /* Collapsible IPO Specific Styles */
-    .bento-signal-card.ipo-card .ipo-expanded-body {
-      display: none;
-    }
-    .bento-signal-card.ipo-card.is-open .ipo-expanded-body {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .bento-signal-card.ipo-card.is-open .ipo-toggle-chevron {
-      transform: rotate(180deg);
-    }
-
-    .bento-meta-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.73rem;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-    }
-
-    .bento-headline {
-      font-size: 1.15rem;
-      font-weight: 800;
-      line-height: 1.35;
-      letter-spacing: -0.015em;
-      color: var(--text);
-      text-decoration: none;
-    }
+    .bento-signal-card.ipo-card .ipo-expanded-body { display: none; }
+    .bento-signal-card.ipo-card.is-open .ipo-expanded-body { display: flex; flex-direction: column; gap: 10px; }
+    .bento-signal-card.ipo-card.is-open .ipo-toggle-chevron { transform: rotate(180deg); }
+    .bento-meta-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.73rem; color: var(--text-muted); font-family: var(--font-mono); }
+    .bento-headline { font-size: 1.15rem; font-weight: 800; line-height: 1.35; letter-spacing: -0.015em; color: var(--text); text-decoration: none; }
     .bento-headline:hover { color: var(--accent-primary); }
-
-    .bento-body {
-      font-size: 0.92rem;
-      line-height: 1.7;
-      color: #334155;
-      display: -webkit-box;
-      -webkit-line-clamp: 4;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .bento-signal-card.expanded .bento-body {
-      display: block;
-      -webkit-line-clamp: unset;
-    }
-
-    .bento-expand-btn {
-      background: none;
-      border: none;
-      color: var(--accent-primary);
-      font-size: 0.78rem;
-      font-weight: 700;
-      cursor: pointer;
-      padding: 4px 0 0;
-      display: inline-block;
-    }
-
-    .bento-deep-dive {
-      background: #f8fafc;
-      border-left: 3px solid #0ea5e9;
-      padding: 10px 14px;
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      font-size: 0.82rem;
-      color: #0369a1;
-      line-height: 1.5;
-    }
-
-    .bento-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 6px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border);
-    }
-
+    .bento-body { font-size: 0.92rem; line-height: 1.7; color: #334155; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    .bento-signal-card.expanded .bento-body { display: block; -webkit-line-clamp: unset; }
+    .bento-expand-btn { background: none; border: none; color: var(--accent-primary); font-size: 0.78rem; font-weight: 700; cursor: pointer; padding: 4px 0 0; display: inline-block; }
+    .bento-deep-dive { background: #f8fafc; border-left: 3px solid #0ea5e9; padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.82rem; color: #0369a1; line-height: 1.5; }
+    .bento-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--border); }
     .signal-meter { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; vertical-align: middle; flex-shrink: 0; }
     .signal-meter .bar { width: 3px; background: var(--signal-bar); border-radius: 1px; }
     .signal-meter .bar:nth-child(1) { height: 4px; }
@@ -283,398 +178,74 @@
     .signal-meter .bar:nth-child(5) { height: 12px; }
     .signal-meter .bar.on { background: var(--signal); }
 
-    /* Bento Grid Layout */
-    .bento-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 14px;
-      width: 100%;
-    }
-    .bento-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-lg);
-      padding: 18px 20px;
-      box-shadow: var(--shadow-sm);
-      width: 100%;
-      box-sizing: border-box;
-    }
+    .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 14px; width: 100%; }
+    .bento-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 18px 20px; box-shadow: var(--shadow-sm); width: 100%; box-sizing: border-box; }
     .bento-span-5 { grid-column: span 5; }
     .bento-span-6 { grid-column: span 6; }
     .bento-span-7 { grid-column: span 7; }
     .bento-span-12 { grid-column: span 12; }
 
-    /* Collapsible HLD Card Specific Styles */
-    .hld-category-card {
-      padding: 0 !important;
-      overflow: hidden;
-      transition: border-color 0.2s ease;
-    }
-    .hld-category-header {
-      padding: 16px 20px;
-      cursor: pointer;
-      user-select: none;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--surface);
-      transition: background 0.15s ease;
-    }
-    .hld-category-header:hover {
-      background: var(--surface-hover);
-    }
-    .hld-category-card.collapsed .hld-category-body {
-      display: none;
-    }
-    .hld-category-card.collapsed .hld-chevron {
-      transform: rotate(-90deg);
-    }
-    .hld-chevron {
-      font-size: 0.75rem;
-      color: var(--text-muted);
-      transition: transform 0.2s ease;
-    }
-    .hld-category-body {
-      padding: 0 18px 18px 18px;
-      border-top: 1px solid var(--border);
-    }
+    .hld-category-card { padding: 0 !important; overflow: hidden; transition: border-color 0.2s ease; }
+    .hld-category-header { padding: 16px 20px; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; background: var(--surface); transition: background 0.15s ease; }
+    .hld-category-header:hover { background: var(--surface-hover); }
+    .hld-category-card.collapsed .hld-category-body { display: none; }
+    .hld-category-card.collapsed .hld-chevron { transform: rotate(-90deg); }
+    .hld-chevron { font-size: 0.75rem; color: var(--text-muted); transition: transform 0.2s ease; }
+    .hld-category-body { padding: 0 18px 18px 18px; border-top: 1px solid var(--border); }
 
     @media (max-width: 768px) {
-      .bento-span-5, .bento-span-6, .bento-span-7, .bento-span-12 {
-        grid-column: span 12 !important;
-      }
-      .bento-card {
-        padding: 16px 14px;
-      }
+      .bento-span-5, .bento-span-6, .bento-span-7, .bento-span-12 { grid-column: span 12 !important; }
+      .bento-card { padding: 16px 14px; }
     }
 
-    /* Fixed Code Box CSS */
-    .code-box {
-      background: #0f172a;
-      color: #f1f5f9;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border);
-      overflow: hidden;
-      font-family: var(--font-mono);
-      font-size: 0.78rem;
-      display: flex;
-      flex-direction: column;
-      height: 100%;
-    }
-    .code-box-header {
-      background: #1e293b;
-      padding: 10px 14px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #334155;
-      font-size: 0.72rem;
-      color: #94a3b8;
-      flex-shrink: 0;
-    }
-    .code-box pre {
-      margin: 0;
-      padding: 14px;
-      overflow-x: auto;
-      line-height: 1.55;
-      flex: 1;
-      max-height: 380px;
-    }
+    .code-box { background: #0f172a; color: #f1f5f9; border-radius: var(--radius-lg); border: 1px solid var(--border); overflow: hidden; font-family: var(--font-mono); font-size: 0.78rem; display: flex; flex-direction: column; height: 100%; }
+    .code-box-header { background: #1e293b; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; font-size: 0.72rem; color: #94a3b8; flex-shrink: 0; }
+    .code-box pre { margin: 0; padding: 14px; overflow-x: auto; line-height: 1.55; flex: 1; max-height: 380px; }
 
-    /* Problem Ladder & Learning Card Layout */
-    .ladder-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .ladder-card-clean {
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      padding: 12px 14px;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      transition: all 0.15s ease;
-    }
-    .ladder-card-clean:hover {
-      border-color: var(--border-dark);
-    }
-    .ladder-card-clean.solved {
-      background: #f0fdf4;
-      border-color: #bbf7d0;
-    }
-    .ladder-top-row {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      width: 100%;
-    }
-    .ladder-checkbox {
-      width: 19px;
-      height: 19px;
-      border-radius: 4px;
-      cursor: pointer;
-      accent-color: var(--accent-primary);
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-    .ladder-content {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      flex: 1;
-      min-width: 0;
-    }
-    .ladder-badge-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .ladder-tier {
-      font-size: 0.65rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      font-family: var(--font-mono);
-      padding: 2px 7px;
-      border-radius: 4px;
-      background: #e0e7ff;
-      color: #4338ca;
-      display: inline-block;
-      width: fit-content;
-    }
-    .ladder-title-text {
-      font-size: 0.92rem;
-      font-weight: 700;
-      color: var(--text);
-      text-decoration: none;
-      line-height: 1.4;
-      word-break: break-word;
-    }
-    .ladder-title-text:hover {
-      color: var(--accent-primary);
-    }
-    .ladder-card-clean.solved .ladder-title-text {
-      text-decoration: line-through;
-      color: var(--text-muted);
-    }
-    .ladder-bottom-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding-top: 8px;
-      border-top: 1px solid rgba(0, 0, 0, 0.05);
-      margin-top: 2px;
-    }
-    .ladder-subtext {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      font-family: var(--font-mono);
-    }
+    .ladder-list { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+    .ladder-card-clean { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 14px; background: var(--bg); display: flex; flex-direction: column; gap: 10px; transition: all 0.15s ease; }
+    .ladder-card-clean:hover { border-color: var(--border-dark); }
+    .ladder-card-clean.solved { background: #f0fdf4; border-color: #bbf7d0; }
+    .ladder-top-row { display: flex; align-items: flex-start; gap: 10px; width: 100%; }
+    .ladder-checkbox { width: 19px; height: 19px; border-radius: 4px; cursor: pointer; accent-color: var(--accent-primary); flex-shrink: 0; margin-top: 2px; }
+    .ladder-content { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 0; }
+    .ladder-tier { font-size: 0.65rem; font-weight: 800; text-transform: uppercase; font-family: var(--font-mono); padding: 2px 7px; border-radius: 4px; background: #e0e7ff; color: #4338ca; display: inline-block; width: fit-content; }
+    .ladder-title-text { font-size: 0.92rem; font-weight: 700; color: var(--text); text-decoration: none; line-height: 1.4; word-break: break-word; }
+    .ladder-title-text:hover { color: var(--accent-primary); }
+    .ladder-card-clean.solved .ladder-title-text { text-decoration: line-through; color: var(--text-muted); }
+    .ladder-bottom-bar { display: flex; justify-content: space-between; align-items: center; padding-top: 8px; border-top: 1px solid rgba(0, 0, 0, 0.05); margin-top: 2px; }
+    .ladder-subtext { font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); }
 
-    /* Newspaper Overlay */
-    .newspaper-overlay {
-      position: fixed;
-      inset: 0;
-      background: var(--paper);
-      color: var(--ink);
-      z-index: 500;
-      overflow-y: auto;
-      display: none;
-      padding: 1.5rem 1.25rem 6rem;
-      font-family: 'Source Serif 4', Georgia, serif;
-      line-height: 1.65;
-      -webkit-font-smoothing: antialiased;
-    }
-    .newspaper-wrap {
-      max-width: 680px;
-      margin: 0 auto;
-    }
-    .news-top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.25rem;
-    }
-    #news-issue-date {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-    }
-    .news-exit-btn {
-      background: transparent;
-      border: 1px solid var(--rule);
-      font-size: 14px;
-      padding: 4px 8px;
-      border-radius: 4px;
-      color: var(--ink);
-      cursor: pointer;
-      line-height: 1;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    h1.news-title {
-      font-family: 'Fraunces', Georgia, serif;
-      font-size: clamp(3rem, 11vw, 4.4rem);
-      font-weight: 600;
-      letter-spacing: -0.03em;
-      text-align: center;
-      line-height: 0.95;
-      color: var(--ink);
-      margin: 0.5rem 0 0.4rem;
-    }
-    .news-tagline {
-      text-align: center;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10.5px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-      margin-bottom: 1.5rem;
-    }
-    .news-rule-thick {
-      border: none;
-      border-top: 3px solid var(--rule-strong);
-      margin: 0 0 0.5rem;
-    }
-    div.news-tabs-bar {
-      display: flex !important;
-      flex-direction: row !important;
-      align-items: center;
-      border-bottom: 1px solid var(--rule-strong);
-      margin-bottom: 2rem;
-      overflow-x: auto;
-      scrollbar-width: none;
-      -webkit-overflow-scrolling: touch;
-      gap: 0;
-      width: 100%;
-    }
+    .newspaper-overlay { position: fixed; inset: 0; background: var(--paper); color: var(--ink); z-index: 500; overflow-y: auto; display: none; padding: 1.5rem 1.25rem 6rem; font-family: 'Source Serif 4', Georgia, serif; line-height: 1.65; -webkit-font-smoothing: antialiased; }
+    .newspaper-wrap { max-width: 680px; margin: 0 auto; }
+    .news-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+    #news-issue-date { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-faint); }
+    .news-exit-btn { background: transparent; border: 1px solid var(--rule); font-size: 14px; padding: 4px 8px; border-radius: 4px; color: var(--ink); cursor: pointer; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+    h1.news-title { font-family: 'Fraunces', Georgia, serif; font-size: clamp(3rem, 11vw, 4.4rem); font-weight: 600; letter-spacing: -0.03em; text-align: center; line-height: 0.95; color: var(--ink); margin: 0.5rem 0 0.4rem; }
+    .news-tagline { text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); margin-bottom: 1.5rem; }
+    .news-rule-thick { border: none; border-top: 3px solid var(--rule-strong); margin: 0 0 0.5rem; }
+    div.news-tabs-bar { display: flex !important; flex-direction: row !important; align-items: center; border-bottom: 1px solid var(--rule-strong); margin-bottom: 2rem; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; gap: 0; width: 100%; }
     div.news-tabs-bar::-webkit-scrollbar { display: none; }
-    div.news-tabs-bar .tab-btn {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-      background: none !important;
-      border: none !important;
-      border-radius: 0 !important;
-      box-shadow: none !important;
-      padding: 0.75rem 1.1rem;
-      cursor: pointer;
-      white-space: nowrap;
-      border-bottom: 2.5px solid transparent !important;
-      margin-bottom: -1px;
-      flex-shrink: 0;
-      width: auto !important;
-    }
+    div.news-tabs-bar .tab-btn { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-soft); background: none !important; border: none !important; border-radius: 0 !important; box-shadow: none !important; padding: 0.75rem 1.1rem; cursor: pointer; white-space: nowrap; border-bottom: 2.5px solid transparent !important; margin-bottom: -1px; flex-shrink: 0; width: auto !important; }
     div.news-tabs-bar .tab-btn .count { color: var(--ink-faint); margin-left: 5px; font-size: 10px; }
     div.news-tabs-bar .tab-btn.active { color: var(--ink) !important; font-weight: 700; border-bottom: 2.5px solid var(--signal-gold) !important; }
-
-    .news-article-item {
-      padding: 1.75rem 0;
-      border-top: 1px solid var(--rule);
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
+    .news-article-item { padding: 1.75rem 0; border-top: 1px solid var(--rule); display: flex; flex-direction: column; gap: 0.75rem; }
     .news-article-item:first-of-type { border-top: none; padding-top: 0; }
-    .news-article-meta {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.04em;
-      color: var(--ink-soft);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 0.2rem;
-    }
+    .news-article-meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.04em; color: var(--ink-soft); display: flex; align-items: center; gap: 10px; margin-bottom: 0.2rem; }
     .news-source-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--ink); font-weight: 500; }
     .news-date-label { color: var(--ink-soft); }
-    .news-mark-read-btn {
-      background: none;
-      border: none;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--ink-faint);
-      cursor: pointer;
-      margin-left: auto;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-      white-space: nowrap;
-      padding: 0;
-    }
+    .news-mark-read-btn { background: none; border: none; font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); cursor: pointer; margin-left: auto; text-decoration: underline; text-underline-offset: 2px; white-space: nowrap; padding: 0; }
     .news-mark-read-btn:hover { color: var(--ink); }
-    .news-headline {
-      font-family: 'Fraunces', Georgia, serif;
-      font-size: clamp(1.45rem, 5.2vw, 1.95rem);
-      font-weight: 600;
-      line-height: 1.18;
-      letter-spacing: -0.015em;
-      color: var(--ink);
-      text-decoration: none;
-    }
+    .news-headline { font-family: 'Fraunces', Georgia, serif; font-size: clamp(1.45rem, 5.2vw, 1.95rem); font-weight: 600; line-height: 1.18; letter-spacing: -0.015em; color: var(--ink); text-decoration: none; }
     .news-headline:hover { color: var(--signal-gold); }
-    .news-body {
-      font-size: 1.05rem;
-      line-height: 1.7;
-      color: var(--ink);
-      display: -webkit-box;
-      -webkit-line-clamp: 4;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .news-article-item.expanded .news-body {
-      display: block;
-      -webkit-line-clamp: unset;
-    }
-    .news-read-more-btn {
-      background: none;
-      border: none;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11.5px;
-      letter-spacing: 0.04em;
-      color: var(--signal-gold);
-      cursor: pointer;
-      padding: 6px 0 0;
-      display: inline-block;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-    .news-deep-dive-box {
-      margin-top: 0.4rem;
-      padding: 0.85rem 1.1rem;
-      background: var(--teal-bg);
-      border-left: 3.5px solid var(--teal);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      color: var(--teal);
-      line-height: 1.6;
-    }
+    .news-body { font-size: 1.05rem; line-height: 1.7; color: var(--ink); display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+    .news-article-item.expanded .news-body { display: block; -webkit-line-clamp: unset; }
+    .news-read-more-btn { background: none; border: none; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.04em; color: var(--signal-gold); cursor: pointer; padding: 6px 0 0; display: inline-block; text-decoration: underline; text-underline-offset: 2px; }
+    .news-deep-dive-box { margin-top: 0.4rem; padding: 0.85rem 1.1rem; background: var(--teal-bg); border-left: 3.5px solid var(--teal); font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--teal); line-height: 1.6; }
     .news-deep-dive-box strong { color: var(--teal); font-weight: 700; }
-    .news-source-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11.5px;
-      letter-spacing: 0.04em;
-      color: var(--signal-gold);
-      text-decoration: none;
-      border-bottom: 1px solid var(--signal-dim);
-      padding-bottom: 1px;
-      margin-top: 0.4rem;
-      width: fit-content;
-    }
+    .news-source-link { display: inline-flex; align-items: center; gap: 5px; font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; letter-spacing: 0.04em; color: var(--signal-gold); text-decoration: none; border-bottom: 1px solid var(--signal-dim); padding-bottom: 1px; margin-top: 0.4rem; width: fit-content; }
     .news-source-link:hover { border-bottom-color: var(--signal-gold); }
 
-    /* Schedule Bucket Grid */
     .schedule-bucket-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
     .schedule-bucket-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-bento); display: flex; flex-direction: column; min-height: 160px; }
     .schedule-bucket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
@@ -685,44 +256,22 @@
     .time-block-card:hover { transform: translateY(-1px); }
     .time-block-card.is-starred { border-left-color: #f59e0b; background: #fffdf5; }
 
-    /* Focus Desk HUD */
     .desk-hud-overlay { position: fixed; inset: 0; background: #0f172a; color: #ffffff; z-index: 200; display: none; flex-direction: column; padding: 24px; box-sizing: border-box; }
     .hud-header-fixed { display: flex; flex-direction: column; align-items: center; padding-bottom: 16px; border-bottom: 1px solid #1e293b; flex-shrink: 0; width: 100%; position: relative; }
     .hud-top-bar { display: flex; justify-content: flex-start; width: 100%; margin-bottom: 4px; }
     .hud-title-wrapper { display: flex; align-items: center; justify-content: center; position: relative; width: 100%; }
-    .hud-header-select {
-      background: transparent;
-      border: none;
-      color: #94a3b8;
-      font-size: 0.88rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      text-align: center;
-      text-align-last: center;
-      cursor: pointer;
-      outline: none;
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      padding: 4px 12px;
-      transition: color 0.15s ease;
-      width: auto;
-      max-width: 90%;
-    }
+    .hud-header-select { background: transparent; border: none; color: #94a3b8; font-size: 0.88rem; font-weight: 800; letter-spacing: 0.05em; text-transform: uppercase; text-align: center; text-align-last: center; cursor: pointer; outline: none; appearance: none; -webkit-appearance: none; -moz-appearance: none; padding: 4px 12px; transition: color 0.15s ease; width: auto; max-width: 90%; }
     .hud-header-select:hover { color: #38bdf8; }
     .hud-clock { font-family: var(--font-mono); font-size: 3.5rem; font-weight: 700; margin: 4px 0; letter-spacing: -0.03em; color: #38bdf8; }
     .hud-scroll-body { flex: 1; overflow-y: auto; padding: 20px 0; display: flex; flex-direction: column; gap: 16px; }
     .hud-hero-card { background: #1e293b; border: 1px solid #334155; border-radius: var(--radius-lg); padding: 20px; width: 100%; box-sizing: border-box; }
     .hud-footer-fixed { display: flex; gap: 12px; justify-content: center; padding-top: 16px; border-top: 1px solid #1e293b; flex-shrink: 0; }
 
-    /* Reports Table */
     .report-table-wrapper { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius); }
     .report-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 520px; }
     .report-table th, .report-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
     .report-table th { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; background: var(--bg); }
 
-    /* Modals */
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
     .modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 460px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; }
     .modal-body-scroll { overflow-y: auto; flex: 1; padding-right: 4px; }
@@ -748,7 +297,6 @@
 </head>
 <body>
 
-  <!-- PULL TO REFRESH BUBBLE -->
   <div id="ptr-indicator">↓ Pull down to refresh</div>
 
   <!-- DESKTOP SIDEBAR -->
@@ -844,7 +392,6 @@
       </div>
 
       <div class="stack-sections">
-        <!-- 1. FOCUS / IN PROGRESS -->
         <div class="stack-section-card" id="card-section-focus">
           <div class="stack-section-header" onclick="toggleSectionCollapse('focus')">
             <div class="stack-title-group">
@@ -856,7 +403,6 @@
           <div class="stack-content" id="list-focus"></div>
         </div>
 
-        <!-- 2. BACKLOG / TO DO -->
         <div class="stack-section-card" id="card-section-backlog">
           <div class="stack-section-header" onclick="toggleSectionCollapse('backlog')">
             <div class="stack-title-group">
@@ -868,7 +414,6 @@
           <div class="stack-content" id="list-backlog"></div>
         </div>
 
-        <!-- 3. COMPLETED DRAWER -->
         <div class="stack-section-card collapsed" id="card-section-completed">
           <div class="stack-section-header" onclick="toggleSectionCollapse('completed')">
             <div class="stack-title-group">
@@ -903,7 +448,7 @@
       <div id="learning-bento-container"></div>
     </section>
 
-    <!-- 4. SIGNALS FEED TAB (BENTO CARDS & COLLAPSIBLE IPO HUB) -->
+    <!-- 4. SIGNALS FEED TAB -->
     <section id="sec-signals" class="content-section">
       <header class="workspace-header">
         <h1 class="section-title">
@@ -930,7 +475,6 @@
         </h1>
         <div class="flex-gap">
           <button class="btn btn-secondary" onclick="openManualTimeModal()">+ Log Time</button>
-          <button class="btn btn-secondary" onclick="openProjectLimitModal()">Limits</button>
         </div>
       </header>
       <div id="report-container" class="space-y"></div>
@@ -966,14 +510,10 @@
       </div>
       <h1 class="news-title">The Signal</h1>
       <div class="news-tagline">ENGINEERING, FILTERED. NO NOISE, JUST WHAT MOVED.</div>
-      
       <hr class="news-rule-thick">
-
       <div class="news-tabs-bar" id="news-tabs-bar"></div>
-
       <div id="news-loading" style="text-align:center; padding:4rem 1rem; color:var(--ink-soft); font-family:var(--font-mono); font-size:12px;">Loading today's issue…</div>
       <div id="news-empty" style="display:none; text-align:center; padding:4rem 1rem; color:var(--ink-soft); font-family:var(--font-mono); font-size:12px;">Nothing cleared the signal threshold in this track today.</div>
-
       <div id="news-content-list"></div>
     </div>
   </div>
@@ -1038,17 +578,18 @@
     </div>
   </div>
 
-  <!-- MANAGE PROJECTS MODAL -->
+  <!-- MANAGE PROJECTS MODAL (SUPABASE CONNECTED) -->
   <div class="modal-overlay" id="project-mgr-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Manage Projects</h2>
       <div class="modal-body-scroll">
         <div class="space-y" style="margin-bottom: 18px;">
-          <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">+ CREATE NEW PROJECT</div>
+          <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted);">+ CREATE OR UPDATE PROJECT</div>
           <div class="flex-gap">
-            <input type="text" id="new-local-proj-name" placeholder="Project Name">
-            <input type="color" id="new-local-proj-color" value="#6366f1" style="width: 44px; padding: 2px; height: 38px; cursor: pointer; border-radius:var(--radius-sm);">
-            <button class="btn btn-sm" onclick="createLocalProject()">Add</button>
+            <input type="text" id="new-proj-name" placeholder="Project Name">
+            <input type="color" id="new-proj-color" value="#6366f1" style="width: 44px; padding: 2px; height: 38px; cursor: pointer; border-radius:var(--radius-sm);">
+            <input type="number" id="new-proj-limit" placeholder="Limit (hrs)" style="width: 90px;" min="0" step="0.5">
+            <button class="btn btn-sm" onclick="saveSupabaseProject()">Save</button>
           </div>
         </div>
         <div style="font-size: 0.75rem; font-weight: 800; color: var(--text-muted); margin-bottom: 8px;">EXISTING PROJECTS</div>
@@ -1072,15 +613,7 @@
           
           <div>
             <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">PROJECT:</label>
-            <select id="t-project" onchange="onTaskModalProjectSelect()"></select>
-          </div>
-
-          <div id="t-new-proj-box" style="display:none; background:var(--bg); padding:10px; border-radius:var(--radius-sm); border:1px solid var(--border);">
-            <div style="font-size:0.72rem; font-weight:700; margin-bottom:4px;">NEW PROJECT DETAILS:</div>
-            <div class="flex-gap">
-              <input type="text" id="t-custom-proj-name" placeholder="Project Name">
-              <input type="color" id="t-custom-proj-color" value="#6366f1" style="width:44px; padding:2px; height:38px; cursor:pointer;">
-            </div>
+            <select id="t-project"></select>
           </div>
 
           <div>
@@ -1193,32 +726,13 @@
     </div>
   </div>
 
-  <!-- PROJECT LIMITS MODAL -->
-  <div class="modal-overlay" id="limit-modal">
-    <div class="modal">
-      <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Set Project Time Limit</h2>
-      <div class="modal-body-scroll">
-        <div class="space-y">
-          <div>
-            <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">SELECT PROJECT:</label>
-            <select id="p-limit-project-select"></select>
-          </div>
-          <input type="number" id="p-limit" placeholder="Weekly Limit in Hours">
-        </div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn btn-secondary" onclick="closeModal('limit-modal')">Cancel</button>
-        <button class="btn" onclick="saveProjectLimit()">Save Limit</button>
-      </div>
-    </div>
-  </div>
-
   <script>
     /* SUPABASE INITIALIZATION */
     const SUPABASE_URL = 'https://srfhubczkyqgryphkpfb.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_WNpgnNEFi329sp-lnqRPdg_huw4yojT';
     const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    let ALL_PROJECTS = [];
     let ALL_TASKS = [];
     let ALL_EVENTS = [];
     let ALL_ARTICLES = [];
@@ -1283,17 +797,10 @@
       if (saved) {
         try { return JSON.parse(saved); } catch(e) {}
       }
-      return {
-        projectLimits: {},
-        projectColors: { 'General': '#6366f1', 'Finance': '#10b981', 'Engineering': '#0ea5e9' },
-        tagColors: {},
-        manualProjectTimes: {},
-        weeklySummaries: {}
-      };
+      return { tagColors: {}, manualProjectTimes: {}, weeklySummaries: {} };
     }
 
     let metaData = loadMeta();
-
     function saveMeta() {
       localStorage.setItem('onespace_meta_data', JSON.stringify(metaData));
     }
@@ -1303,10 +810,20 @@
       isPaused: false,
       startTime: null,
       accumulatedSec: 0,
-      targetProj: 'Unscheduled',
+      targetProjId: null,
       timerId: null,
       lastTickTime: Date.now()
     };
+
+    function getProjectById(projId) {
+      if (!projId) return null;
+      return ALL_PROJECTS.find(p => Number(p.id) === Number(projId)) || null;
+    }
+
+    function getProjectByName(projName) {
+      if (!projName) return null;
+      return ALL_PROJECTS.find(p => p.name.toLowerCase() === String(projName).toLowerCase()) || null;
+    }
 
     async function switchTab(tab, element) {
       document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
@@ -1333,15 +850,17 @@
     }
 
     /* ==========================================================================
-       SUPABASE DATA SYNC (TASKS & SCHEDULES)
+       SUPABASE DATA SYNC (PROJECTS, TASKS & SCHEDULES)
        ========================================================================== */
     async function syncAllSupabaseData() {
       try {
-        const [tasksRes, eventsRes] = await Promise.all([
+        const [projectsRes, tasksRes, eventsRes] = await Promise.all([
+          db.from('projects').select('*').order('name', { ascending: true }),
           db.from('tasks').select('*').order('id', { ascending: false }),
           db.from('schedule_events').select('*').order('start_time', { ascending: true })
         ]);
 
+        if (projectsRes.data) ALL_PROJECTS = projectsRes.data;
         if (tasksRes.data) ALL_TASKS = tasksRes.data;
         if (eventsRes.data) ALL_EVENTS = eventsRes.data;
 
@@ -1355,11 +874,31 @@
     }
 
     /* Universal Task Creation Engine */
-    async function createGlobalTask({ title, description = '', project = 'General', status = 'todo', tags = [], parent_id = null, source_type = 'manual' }) {
+    async function createGlobalTask({ title, description = '', project_id = null, project = null, status = 'todo', tags = [], parent_id = null, source_type = 'manual' }) {
+      let resolvedProjectId = project_id ? Number(project_id) : null;
+      let resolvedProjectName = project;
+
+      if (!resolvedProjectId && project) {
+        const p = getProjectByName(project);
+        if (p) {
+          resolvedProjectId = p.id;
+          resolvedProjectName = p.name;
+        }
+      } else if (resolvedProjectId && !resolvedProjectName) {
+        const p = getProjectById(resolvedProjectId);
+        if (p) resolvedProjectName = p.name;
+      }
+
+      if (!resolvedProjectId && ALL_PROJECTS.length > 0) {
+        resolvedProjectId = ALL_PROJECTS[0].id;
+        resolvedProjectName = ALL_PROJECTS[0].name;
+      }
+
       const cleanPayload = {
         title: String(title).trim(),
         description: description ? String(description).trim() : null,
-        project: project || 'General',
+        project_id: resolvedProjectId,
+        project: resolvedProjectName || 'General',
         status: status || 'todo',
         tags: Array.isArray(tags) ? tags : [tags].filter(Boolean),
         parent_id: parent_id ? Number(parent_id) : null,
@@ -1368,8 +907,7 @@
 
       const { data, error } = await db.from('tasks').insert([cleanPayload]).select();
       if (error) {
-        alert("Supabase Insert Failed: " + error.message + (error.details ? " | " + error.details : ""));
-        console.error('Task insertion failed:', error);
+        alert("Supabase Insert Failed: " + error.message);
         return null;
       }
 
@@ -1383,7 +921,118 @@
     }
 
     /* ==========================================================================
-       TASKS ENGINE (OPTIMISTIC STATE UPDATES & TYPE-SAFE MUTATIONS)
+       PROJECTS MANAGEMENT (SUPABASE-BACKED)
+       ========================================================================== */
+    function openProjectManagerModal() {
+      renderProjectManagerList();
+      document.getElementById('project-mgr-modal').style.display = 'flex';
+    }
+
+    async function saveSupabaseProject() {
+      const nameInput = document.getElementById('new-proj-name');
+      const colorInput = document.getElementById('new-proj-color');
+      const limitInput = document.getElementById('new-proj-limit');
+
+      const name = nameInput.value.trim();
+      const color = colorInput.value;
+      const weekly_limit_hours = limitInput.value ? parseFloat(limitInput.value) : null;
+
+      if (!name) return;
+
+      const payload = {
+        name,
+        color,
+        weekly_limit_hours,
+        updated_at: new Date().toISOString()
+      };
+
+      const existing = ALL_PROJECTS.find(p => p.name.toLowerCase() === name.toLowerCase());
+
+      if (existing) {
+        await db.from('projects').update(payload).eq('id', existing.id);
+        const idx = ALL_PROJECTS.findIndex(p => p.id === existing.id);
+        ALL_PROJECTS[idx] = { ...ALL_PROJECTS[idx], ...payload };
+      } else {
+        const { data, error } = await db.from('projects').insert([payload]).select();
+        if (!error && data && data[0]) {
+          ALL_PROJECTS.push(data[0]);
+        }
+      }
+
+      nameInput.value = '';
+      limitInput.value = '';
+      renderProjectManagerList();
+      updateProjectDropdowns();
+      renderTaskStack();
+      renderReports();
+    }
+
+    async function deleteSupabaseProject(projectId, projName) {
+      if (!confirm(`Delete project "${projName}"? Linked tasks will remain unassigned.`)) return;
+
+      ALL_PROJECTS = ALL_PROJECTS.filter(p => Number(p.id) !== Number(projectId));
+      renderProjectManagerList();
+      updateProjectDropdowns();
+      renderTaskStack();
+      renderReports();
+
+      await db.from('projects').delete().eq('id', projectId);
+    }
+
+    function renderProjectManagerList() {
+      const wrapper = document.getElementById('project-list-wrapper');
+      wrapper.innerHTML = '';
+
+      if (ALL_PROJECTS.length === 0) {
+        wrapper.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">No projects found in DB.</div>`;
+        return;
+      }
+
+      ALL_PROJECTS.forEach(proj => {
+        const taskCount = ALL_TASKS.filter(t => Number(t.project_id) === Number(proj.id) || t.project === proj.name).length;
+        const item = document.createElement('div');
+        item.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm);";
+        item.innerHTML = `
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="width:12px; height:12px; border-radius:50%; background:${proj.color};"></span>
+            <div>
+              <div style="font-weight:700; font-size:0.85rem;">${escapeHtml(proj.name)}</div>
+              <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono);">${taskCount} tasks ${proj.weekly_limit_hours ? `• Limit: ${proj.weekly_limit_hours}h/wk` : ''}</div>
+            </div>
+          </div>
+          <button class="btn btn-danger btn-sm" onclick="deleteSupabaseProject(${proj.id}, '${escapeHtml(proj.name)}')">Delete</button>
+        `;
+        wrapper.appendChild(item);
+      });
+    }
+
+    function updateProjectDropdowns() {
+      const taskProj = document.getElementById('task-project-filter');
+      const calProj = document.getElementById('cal-project-select');
+      const mProj = document.getElementById('m-project-select');
+      const tModalProj = document.getElementById('t-project');
+
+      const currTaskFilter = taskProj ? taskProj.value : 'ALL';
+
+      let filterOpts = '<option value="ALL">ALL PROJECTS</option>';
+      let selectOpts = '';
+
+      ALL_PROJECTS.forEach(p => {
+        filterOpts += `<option value="${p.id}">${escapeHtml(p.name.toUpperCase())}</option>`;
+        selectOpts += `<option value="${p.id}">${escapeHtml(p.name)}</option>`;
+      });
+
+      if (taskProj) {
+        taskProj.innerHTML = filterOpts;
+        taskProj.value = currTaskFilter;
+      }
+      if (calProj) calProj.innerHTML = selectOpts;
+      if (mProj) mProj.innerHTML = selectOpts;
+      if (tModalProj) tModalProj.innerHTML = selectOpts;
+    }
+
+    /* ==========================================================================
+       TASKS ENGINE
        ========================================================================== */
     function toggleSectionCollapse(sectionId) {
       const card = document.getElementById(`card-section-${sectionId}`);
@@ -1392,8 +1041,8 @@
 
     function renderTaskStack() {
       const searchQuery = document.getElementById('search-input').value.toLowerCase();
-      const selectedProject = document.getElementById('task-project-filter').value;
-      const isAll = !selectedProject || selectedProject === 'ALL';
+      const selectedFilter = document.getElementById('task-project-filter').value;
+      const isAll = !selectedFilter || selectedFilter === 'ALL';
 
       const focusList = document.getElementById('list-focus');
       const backlogList = document.getElementById('list-backlog');
@@ -1414,7 +1063,10 @@
       });
 
       rootTasks.forEach(task => {
-        if (!isAll && task.project !== selectedProject) return;
+        const taskProj = getProjectById(task.project_id) || getProjectByName(task.project);
+        const taskProjId = taskProj ? String(taskProj.id) : null;
+
+        if (!isAll && taskProjId !== selectedFilter) return;
 
         const matchesSearch = task.title.toLowerCase().includes(searchQuery) ||
           (task.tags || []).some(tg => tg.toLowerCase().includes(searchQuery));
@@ -1424,7 +1076,8 @@
         if (!matchesSearch || !matchesTags) return;
 
         const status = task.status || 'todo';
-        const projColor = metaData.projectColors[task.project] || '#e2e8f0';
+        const projName = taskProj ? taskProj.name : (task.project || 'General');
+        const projColor = taskProj ? taskProj.color : '#e2e8f0';
         const subs = subtaskMap.get(Number(task.id)) || [];
 
         const card = document.createElement('div');
@@ -1434,14 +1087,14 @@
             <div class="reminder-circle" onclick="toggleTaskStatus(${task.id})"></div>
             <div class="reminder-title-text">${escapeHtml(task.title)}</div>
             <div class="reminder-actions">
-              <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" title="Schedule Task" onclick="scheduleTaskToCalendar(${task.id}, '${escapeHtml(task.title).replace(/'/g, "\\'")}', '${escapeHtml(task.project || '')}', '${escapeHtml(task.description || '').replace(/'/g, "\\'")}')">📅</button>
+              <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" title="Schedule Task" onclick="scheduleTaskToCalendar(${task.id}, '${escapeHtml(task.title).replace(/'/g, "\\'")}', ${task.project_id || (taskProj ? taskProj.id : 'null')}, '${escapeHtml(task.description || '').replace(/'/g, "\\'")}')">📅</button>
               <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" title="Edit Task" onclick="openTaskModal(${task.id})">✏️</button>
               <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.68rem;" title="Delete" onclick="deleteTask(${task.id})">✕</button>
             </div>
           </div>
 
           <div class="reminder-meta">
-            ${task.project ? `<span class="pill" style="background:${projColor}; color:var(--text);">${escapeHtml(task.project)}</span>` : ''}
+            <span class="pill" style="background:${projColor}; color:var(--text); font-weight:800;">${escapeHtml(projName)}</span>
             ${(task.tags || []).map(tg => `<span class="pill pill-tag" style="background:${metaData.tagColors[tg] || '#f1f5f9'};">#${escapeHtml(tg)}</span>`).join('')}
           </div>
 
@@ -1498,10 +1151,7 @@
       renderTaskStack();
 
       const { error } = await db.from('tasks').update({ status: nextStatus, updated_at: new Date().toISOString() }).eq('id', numericId);
-      if (error) {
-        console.error(error);
-        syncAllSupabaseData();
-      }
+      if (error) syncAllSupabaseData();
     }
 
     async function toggleSubtaskStatus(subId) {
@@ -1513,10 +1163,7 @@
       renderTaskStack();
 
       const { error } = await db.from('tasks').update({ status: nextStatus, updated_at: new Date().toISOString() }).eq('id', numericId);
-      if (error) {
-        console.error(error);
-        syncAllSupabaseData();
-      }
+      if (error) syncAllSupabaseData();
     }
 
     async function moveTask(taskId, newStatus) {
@@ -1527,23 +1174,20 @@
       renderTaskStack();
 
       const { error } = await db.from('tasks').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', numericId);
-      if (error) {
-        console.error(error);
-        syncAllSupabaseData();
-      }
+      if (error) syncAllSupabaseData();
     }
 
-    function scheduleTaskToCalendar(taskId, title, proj, desc) {
+    function scheduleTaskToCalendar(taskId, title, projectId, desc) {
       openCalendarEventModal(null);
       document.getElementById('cal-title').value = title;
       document.getElementById('cal-desc').value = desc || '';
-      document.getElementById('cal-project-select').value = proj || 'General';
+      if (projectId) document.getElementById('cal-project-select').value = projectId;
       document.getElementById('cal-linked-task-id').value = taskId;
       document.getElementById('cal-date').value = document.getElementById('cal-view-date').value || formatDateLocal(new Date());
     }
 
     function openTaskModal(taskId = null) {
-      populateTaskModalProjects();
+      updateProjectDropdowns();
       if (taskId) {
         const numericId = Number(taskId);
         const task = ALL_TASKS.find(t => Number(t.id) === numericId);
@@ -1551,7 +1195,7 @@
         document.getElementById('edit-task-id').value = task.id;
         document.getElementById('t-title').value = task.title;
         document.getElementById('t-desc').value = task.description || '';
-        document.getElementById('t-project').value = task.project || 'General';
+        document.getElementById('t-project').value = task.project_id || (ALL_PROJECTS[0] ? ALL_PROJECTS[0].id : '');
         document.getElementById('t-status').value = task.status || 'todo';
         document.getElementById('t-tags').value = (task.tags || []).join(', ');
       } else {
@@ -1560,28 +1204,11 @@
         document.getElementById('t-title').value = '';
         document.getElementById('t-desc').value = '';
         const currFilter = document.getElementById('task-project-filter').value;
-        document.getElementById('t-project').value = (currFilter && currFilter !== 'ALL') ? currFilter : 'General';
+        document.getElementById('t-project').value = (currFilter && currFilter !== 'ALL') ? currFilter : (ALL_PROJECTS[0] ? ALL_PROJECTS[0].id : '');
         document.getElementById('t-status').value = 'in_progress';
         document.getElementById('t-tags').value = '';
       }
-      document.getElementById('t-new-proj-box').style.display = 'none';
       document.getElementById('task-modal').style.display = 'flex';
-    }
-
-    function populateTaskModalProjects() {
-      const select = document.getElementById('t-project');
-      select.innerHTML = '';
-      const allProjects = Object.keys(metaData.projectColors || {});
-      allProjects.forEach(p => {
-        select.innerHTML += `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`;
-      });
-      select.innerHTML += `<option value="__NEW__">+ Create New Project…</option>`;
-    }
-
-    function onTaskModalProjectSelect() {
-      const select = document.getElementById('t-project');
-      const box = document.getElementById('t-new-proj-box');
-      box.style.display = (select.value === '__NEW__') ? 'block' : 'none';
     }
 
     async function saveTask() {
@@ -1591,19 +1218,9 @@
       const status = document.getElementById('t-status').value;
       const tags = document.getElementById('t-tags').value.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
       const description = document.getElementById('t-desc').value;
-
-      let project = document.getElementById('t-project').value;
-      if (project === '__NEW__') {
-        const newProjName = document.getElementById('t-custom-proj-name').value.trim();
-        const newProjColor = document.getElementById('t-custom-proj-color').value;
-        if (newProjName) {
-          project = newProjName;
-          metaData.projectColors[newProjName] = newProjColor;
-          saveMeta();
-        } else {
-          project = 'General';
-        }
-      }
+      const project_id = Number(document.getElementById('t-project').value);
+      const projObj = getProjectById(project_id);
+      const project = projObj ? projObj.name : 'General';
 
       if (editId) {
         const numericId = Number(editId);
@@ -1611,6 +1228,7 @@
         if (task) {
           task.title = title;
           task.description = description;
+          task.project_id = project_id;
           task.project = project;
           task.status = status;
           task.tags = tags;
@@ -1619,39 +1237,27 @@
         renderTaskStack();
         closeModal('task-modal');
         await db.from('tasks').update({
-          title, description, project, status, tags, updated_at: new Date().toISOString()
+          title, description, project_id, project, status, tags, updated_at: new Date().toISOString()
         }).eq('id', numericId);
       } else {
         closeModal('task-modal');
-        await createGlobalTask({ title, description, project, status, tags });
+        await createGlobalTask({ title, description, project_id, project, status, tags });
       }
-      updateProjectDropdowns();
       renderTagFilters();
     }
 
     async function deleteTask(id) {
       if (!confirm("Delete this task?")) return;
-      
       const numericId = Number(id);
 
       ALL_TASKS = ALL_TASKS.filter(t => Number(t.id) !== numericId && Number(t.parent_id) !== numericId);
-      
-      ALL_EVENTS = ALL_EVENTS.map(e => {
-        if (Number(e.task_id) === numericId) {
-          return { ...e, task_id: null };
-        }
-        return e;
-      });
+      ALL_EVENTS = ALL_EVENTS.map(e => Number(e.task_id) === numericId ? { ...e, task_id: null } : e);
 
       renderTaskStack();
       renderScheduleCalendar();
 
       const { error } = await db.from('tasks').delete().eq('id', numericId);
-      if (error) {
-        console.error("Failed to delete task from DB:", error);
-        alert("Could not delete task: " + error.message);
-        await syncAllSupabaseData();
-      }
+      if (error) syncAllSupabaseData();
     }
 
     function openSubtaskModal(parentTaskId) {
@@ -1670,6 +1276,7 @@
 
       await createGlobalTask({
         title,
+        project_id: parentTask ? parentTask.project_id : null,
         project: parentTask ? parentTask.project : 'General',
         status: 'todo',
         parent_id: parentId,
@@ -1713,17 +1320,11 @@
        ========================================================================== */
     function renderScheduleCalendar() {
       const viewInput = document.getElementById('cal-view-date');
-      if (!viewInput.value) {
-        viewInput.value = formatDateLocal(new Date());
-      }
+      if (!viewInput.value) viewInput.value = formatDateLocal(new Date());
 
       const dateStr = (viewInput.value || '').split('T')[0];
       const dateObj = new Date(dateStr + 'T00:00:00');
-      document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { 
-        weekday: 'long', 
-        month: 'short', 
-        day: 'numeric' 
-      });
+      document.getElementById('cal-day-label').innerText = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
       const area = document.getElementById('calendar-render-area');
       area.innerHTML = '';
@@ -1735,11 +1336,7 @@
         { id: 'others', title: '🌙 Others', subtitle: '8 PM onwards' }
       ];
 
-      const dayEvents = ALL_EVENTS.filter(e => {
-        if (!e.event_date) return false;
-        const cleanEventDate = String(e.event_date).split('T')[0];
-        return cleanEventDate === dateStr;
-      });
+      const dayEvents = ALL_EVENTS.filter(e => e.event_date && String(e.event_date).split('T')[0] === dateStr);
 
       let html = '<div class="schedule-bucket-grid">';
       buckets.forEach(b => {
@@ -1751,17 +1348,21 @@
               <div class="schedule-bucket-subtitle">${b.subtitle} (${bucketEvents.length})</div>
             </div>
             <div class="schedule-bucket-items">
-              ${bucketEvents.length === 0 ? `<div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No blocks scheduled.</div>` : bucketEvents.map(evt => `
-                <div class="time-block-card ${evt.is_starred ? 'is-starred' : ''}">
-                  <div style="flex:1;" onclick="${evt.task_id ? `navigateToSpecificTaskId(${evt.task_id})` : ''}">
-                    <div style="font-weight:700; font-size:0.85rem;">${evt.is_starred ? '⭐ ' : ''}${escapeHtml(evt.title)}</div>
-                    <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
-                      ${evt.start_time ? `${evt.start_time.slice(0,5)} ${evt.end_time ? '- ' + evt.end_time.slice(0,5) : ''} | ` : ''}${evt.project || 'General'}
+              ${bucketEvents.length === 0 ? `<div style="font-size:0.75rem; color:var(--text-muted); padding:10px 0;">No blocks scheduled.</div>` : bucketEvents.map(evt => {
+                const proj = getProjectById(evt.project_id) || getProjectByName(evt.project);
+                const projName = proj ? proj.name : (evt.project || 'General');
+                return `
+                  <div class="time-block-card ${evt.is_starred ? 'is-starred' : ''}">
+                    <div style="flex:1;" onclick="${evt.task_id ? `navigateToSpecificTaskId(${evt.task_id})` : ''}">
+                      <div style="font-weight:700; font-size:0.85rem;">${evt.is_starred ? '⭐ ' : ''}${escapeHtml(evt.title)}</div>
+                      <div style="font-size:0.7rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:2px;">
+                        ${evt.start_time ? `${evt.start_time.slice(0,5)} ${evt.end_time ? '- ' + evt.end_time.slice(0,5) : ''} | ` : ''}${escapeHtml(projName)}
+                      </div>
                     </div>
+                    <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem;" onclick="openCalendarEventModal(${evt.id})">Edit</button>
                   </div>
-                  <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.7rem;" onclick="openCalendarEventModal(${evt.id})">Edit</button>
-                </div>
-              `).join('')}
+                `;
+              }).join('')}
             </div>
           </div>
         `;
@@ -1796,7 +1397,7 @@
           document.getElementById('cal-bucket-select').value = evt.time_bucket || 'morning';
           document.getElementById('cal-start-time').value = evt.start_time || '';
           document.getElementById('cal-end-time').value = evt.end_time || '';
-          document.getElementById('cal-project-select').value = evt.project || 'General';
+          document.getElementById('cal-project-select').value = evt.project_id || (ALL_PROJECTS[0] ? ALL_PROJECTS[0].id : '');
           document.getElementById('cal-starred').checked = !!evt.is_starred;
           delBtn.style.display = 'inline-flex';
         }
@@ -1826,7 +1427,9 @@
       const time_bucket = document.getElementById('cal-bucket-select').value;
       const start_time = document.getElementById('cal-start-time').value || null;
       const end_time = document.getElementById('cal-end-time').value || null;
-      const project = document.getElementById('cal-project-select').value || 'General';
+      const project_id = Number(document.getElementById('cal-project-select').value);
+      const projObj = getProjectById(project_id);
+      const project = projObj ? projObj.name : 'General';
       const is_starred = document.getElementById('cal-starred').checked;
       const description = document.getElementById('cal-desc').value;
 
@@ -1839,6 +1442,7 @@
         time_bucket,
         start_time,
         end_time,
+        project_id,
         project,
         is_starred,
         task_id: linkedTaskId ? Number(linkedTaskId) : null,
@@ -1866,28 +1470,21 @@
 
       if (confirm("Delete this event block?")) {
         const numericId = Number(editId);
-
         closeModal('calendar-modal');
         ALL_EVENTS = ALL_EVENTS.filter(e => Number(e.id) !== numericId);
         renderScheduleCalendar();
 
         const { error } = await db.from('schedule_events').delete().eq('id', numericId);
-        if (error) {
-          console.error("Failed to delete event from DB:", error);
-          alert("Could not delete event: " + error.message);
-          await syncAllSupabaseData();
-        }
+        if (error) syncAllSupabaseData();
       }
     }
 
     /* ==========================================================================
-       SIGNALS DATA ENGINE & BENTO VIEW
+       SIGNALS FEED & NEWSPAPER OVERLAY
        ========================================================================== */
     function signalMeter(score) {
       let bars = '';
-      for (let i = 1; i <= 5; i++) {
-        bars += `<span class="bar ${i <= score ? 'on' : ''}"></span>`;
-      }
+      for (let i = 1; i <= 5; i++) bars += `<span class="bar ${i <= score ? 'on' : ''}"></span>`;
       return `<span class="signal-meter" aria-label="Signal ${score}/5">${bars}</span>`;
     }
 
@@ -1921,18 +1518,14 @@
     async function hideIpoCard(symbol, event) {
       if (event) event.stopPropagation();
       if (!confirm('Hide this IPO from your signals feed?')) return;
-
       ALL_IPOS = ALL_IPOS.filter(item => item.symbol !== symbol);
       renderBentoSignals();
-
       await db.from('ipo_evaluations').update({ is_hidden: true }).eq('symbol', symbol);
     }
 
     function toggleIpoExpand(index) {
       const card = document.getElementById(`ipo-card-${index}`);
-      if (card) {
-        card.classList.toggle('is-open');
-      }
+      if (card) card.classList.toggle('is-open');
     }
 
     function renderBentoSignals() {
@@ -1955,15 +1548,10 @@
 
       dynamicTracks.forEach(track => {
         let count = 0;
-        if (track === 'IPOs') {
-          count = ALL_IPOS.length;
-        } else if (track === 'Archived') {
-          count = archivedSignals.length;
-        } else if (track === 'All') {
-          count = ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)).length;
-        } else {
-          count = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id)).length;
-        }
+        if (track === 'IPOs') count = ALL_IPOS.length;
+        else if (track === 'Archived') count = archivedSignals.length;
+        else if (track === 'All') count = ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)).length;
+        else count = ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id)).length;
 
         const chip = document.createElement('span');
         chip.className = `filter-chip ${activeTrack === track ? 'active' : ''}`;
@@ -1975,7 +1563,6 @@
         pillBox.appendChild(chip);
       });
 
-      // VIEW A: COLLAPSIBLE IPO VIEW
       if (activeTrack === 'IPOs') {
         if (ALL_IPOS.length === 0) {
           container.innerHTML = `<div style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem;">No evaluated IPOs found in database.</div>`;
@@ -1997,73 +1584,34 @@
             <div onclick="toggleIpoExpand(${idx})" style="display:flex; flex-direction:column; gap:8px;">
               <div class="bento-meta-bar">
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="pill" style="${verdictBg} font-weight:800; font-size:0.7rem;">
-                    ${escapeHtml(ipo.verdict || 'EVALUATED')}
-                  </span>
+                  <span class="pill" style="${verdictBg} font-weight:800; font-size:0.7rem;">${escapeHtml(ipo.verdict || 'EVALUATED')}</span>
                   <span><strong>Score: ${ipo.score || 0}/100</strong></span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                   <button class="btn btn-secondary btn-sm" style="padding:2px 6px; font-size:0.65rem; color:var(--text-muted);" title="Hide IPO" onclick="hideIpoCard('${escapeHtml(ipo.symbol)}', event)">✕ Hide</button>
-                  <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">
-                    ${ipo.evaluated_at ? new Date(ipo.evaluated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}
-                  </span>
+                  <span style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">${ipo.evaluated_at ? new Date(ipo.evaluated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</span>
                   <span class="ipo-toggle-chevron" style="font-size:0.75rem; color:var(--text-muted); transition:transform 0.2s ease;">▼</span>
                 </div>
               </div>
 
               <div>
-                <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:4px; color:var(--text);">
-                  ${escapeHtml(ipo.company_name)}
-                </h3>
+                <h3 style="font-size:1.15rem; font-weight:800; margin-bottom:4px; color:var(--text);">${escapeHtml(ipo.company_name)}</h3>
                 <div style="display:flex; flex-wrap:wrap; gap:8px; font-size:0.78rem; font-family:var(--font-mono);">
-                  <span style="background:var(--bg); padding:3px 8px; border-radius:4px; border:1px solid var(--border);">
-                    Band: <strong>₹${ipo.issue_price || 0}</strong>
-                  </span>
-                  <span style="background:var(--bg); padding:3px 8px; border-radius:4px; border:1px solid var(--border); color:${gmpColor};">
-                    GMP: <strong>₹${ipo.gmp || 0} (+${ipo.gmp_percent || 0}%)</strong>
-                  </span>
+                  <span style="background:var(--bg); padding:3px 8px; border-radius:4px; border:1px solid var(--border);">Band: <strong>₹${ipo.issue_price || 0}</strong></span>
+                  <span style="background:var(--bg); padding:3px 8px; border-radius:4px; border:1px solid var(--border); color:${gmpColor};">GMP: <strong>₹${ipo.gmp || 0} (+${ipo.gmp_percent || 0}%)</strong></span>
                 </div>
               </div>
             </div>
 
             <div class="ipo-expanded-body" style="margin-top:8px;">
-              ${ipo.anchor_quality ? `
-                <div style="font-size:0.78rem; font-family:var(--font-mono); background:var(--bg); padding:6px 10px; border-radius:var(--radius-sm); border:1px solid var(--border);">
-                  Structure: <strong>${escapeHtml(ipo.anchor_quality)}</strong>
-                </div>
-              ` : ''}
-
-              ${ipo.sector_analysis ? `
-                <div style="background:#f8fafc; border-left:3px solid var(--accent-primary); padding:8px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; font-size:0.84rem; line-height:1.5;">
-                  <strong>Sector & Model:</strong> ${escapeHtml(ipo.sector_analysis)}
-                </div>
-              ` : ''}
-
-              ${ipo.governance_risks ? `
-                <div style="background:#fef2f2; border-left:3px solid #ef4444; padding:8px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; color:#991b1b; font-size:0.84rem; line-height:1.5;">
-                  <strong>Risks & Governance:</strong> ${escapeHtml(ipo.governance_risks)}
-                </div>
-              ` : ''}
-
-              ${ipo.llm_verdict ? `
-                <div class="bento-deep-dive">
-                  <strong>Analyst Take:</strong> ${escapeHtml(ipo.llm_verdict)}
-                </div>
-              ` : ''}
-
-              ${reasonsList.length > 0 ? `
-                <div style="display:flex; gap:6px; flex-wrap:wrap;">
-                  ${reasonsList.map(r => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.7rem;">${escapeHtml(r)}</span>`).join('')}
-                </div>
-              ` : ''}
-
+              ${ipo.anchor_quality ? `<div style="font-size:0.78rem; font-family:var(--font-mono); background:var(--bg); padding:6px 10px; border-radius:var(--radius-sm); border:1px solid var(--border);">Structure: <strong>${escapeHtml(ipo.anchor_quality)}</strong></div>` : ''}
+              ${ipo.sector_analysis ? `<div style="background:#f8fafc; border-left:3px solid var(--accent-primary); padding:8px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; font-size:0.84rem; line-height:1.5;"><strong>Sector & Model:</strong> ${escapeHtml(ipo.sector_analysis)}</div>` : ''}
+              ${ipo.governance_risks ? `<div style="background:#fef2f2; border-left:3px solid #ef4444; padding:8px 12px; border-radius:0 var(--radius-sm) var(--radius-sm) 0; color:#991b1b; font-size:0.84rem; line-height:1.5;"><strong>Risks & Governance:</strong> ${escapeHtml(ipo.governance_risks)}</div>` : ''}
+              ${ipo.llm_verdict ? `<div class="bento-deep-dive"><strong>Analyst Take:</strong> ${escapeHtml(ipo.llm_verdict)}</div>` : ''}
+              ${reasonsList.length > 0 ? `<div style="display:flex; gap:6px; flex-wrap:wrap;">${reasonsList.map(r => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.7rem;">${escapeHtml(r)}</span>`).join('')}</div>` : ''}
               <div class="bento-footer" onclick="event.stopPropagation()">
-                <button class="btn btn-secondary btn-sm" onclick="createGlobalTask({ title: 'Apply IPO: ${escapeHtml(ipo.company_name).replace(/'/g, "\\'")}', project: 'Finance', tags: ['ipo', 'finance'], source_type: 'ipo' }); alert('Added to Tasks!')">
-                  + Add Reminder to Apply
-                </button>
-                <a class="btn btn-secondary btn-sm" href="https://www.google.com/search?q=${encodeURIComponent(ipo.company_name + ' IPO DRHP Chittorgarh')}" target="_blank" rel="noopener noreferrer">
-                  DRHP / Review ↗
-                </a>
+                <button class="btn btn-secondary btn-sm" onclick="createGlobalTask({ title: 'Apply IPO: ${escapeHtml(ipo.company_name).replace(/'/g, "\\'")}', project: 'Finance', tags: ['ipo', 'finance'], source_type: 'ipo' }); alert('Added to Tasks!')">+ Add Reminder to Apply</button>
+                <a class="btn btn-secondary btn-sm" href="https://www.google.com/search?q=${encodeURIComponent(ipo.company_name + ' IPO DRHP Chittorgarh')}" target="_blank" rel="noopener noreferrer">DRHP / Review ↗</a>
               </div>
             </div>
           `;
@@ -2072,7 +1620,6 @@
         return;
       }
 
-      // VIEW B: STANDARD ARTICLES STREAM
       let filtered = (activeTrack === 'Archived') ? ALL_ARTICLES.filter(a => archivedSignals.includes(a.id)) : (activeTrack === 'All') 
         ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)) 
         : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeTrack.toLowerCase()) && !archivedSignals.includes(a.id));
@@ -2100,14 +1647,10 @@
               <span>·</span>
               <span>${article.date || ''}</span>
             </div>
-            <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.68rem;" onclick="toggleArchiveArticle(${article.id})">
-              ${isArchived ? '↩ Unarchive' : '✓ Mark Read'}
-            </button>
+            <button class="btn btn-secondary btn-sm" style="padding:2px 8px; font-size:0.68rem;" onclick="toggleArchiveArticle(${article.id})">${isArchived ? '↩ Unarchive' : '✓ Mark Read'}</button>
           </div>
 
-          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="bento-headline">
-            ${escapeHtml(article.headline)}
-          </a>
+          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="bento-headline">${escapeHtml(article.headline)}</a>
 
           <div>
             <p class="bento-body">${escapeHtml(article.body)}</p>
@@ -2116,11 +1659,7 @@
 
           ${article.deep_dive ? `<div class="bento-deep-dive"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
 
-          ${tagsList.length > 0 ? `
-            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">
-              ${tagsList.map(t => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.65rem;">#${escapeHtml(t)}</span>`).join('')}
-            </div>
-          ` : ''}
+          ${tagsList.length > 0 ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">${tagsList.map(t => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.65rem;">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
 
           <div class="bento-footer">
             <button class="btn btn-secondary btn-sm" onclick="createGlobalTask({ title: '${escapeHtml(article.headline).replace(/'/g, "\\'")}', project: '${escapeHtml(article.track || 'General')}', tags: ['signal', '${escapeHtml((article.track || 'general').toLowerCase())}'], source_type: 'signal' }); alert('Added as Task!')">+ Add as Task</button>
@@ -2140,19 +1679,13 @@
     }
 
     function toggleArchiveArticle(articleId) {
-      if (archivedSignals.includes(articleId)) {
-        archivedSignals = archivedSignals.filter(id => id !== articleId);
-      } else {
-        archivedSignals.push(articleId);
-      }
+      if (archivedSignals.includes(articleId)) archivedSignals = archivedSignals.filter(id => id !== articleId);
+      else archivedSignals.push(articleId);
       localStorage.setItem('the_signal_archived_ids', JSON.stringify(archivedSignals));
       renderBentoSignals();
       renderNewspaperContent();
     }
 
-    /* ==========================================================================
-       NEWSPAPER OVERLAY ENGINE
-       ========================================================================== */
     function openNewspaperOverlay() {
       document.getElementById('newspaper-overlay').style.display = 'block';
       renderNewspaperContent();
@@ -2178,7 +1711,6 @@
       const newsEmpty = document.getElementById('news-empty');
 
       if (newsLoading) newsLoading.style.display = 'none';
-
       tabsContainer.innerHTML = '';
       container.innerHTML = '';
 
@@ -2207,7 +1739,7 @@
 
       let filtered = (activeTrack === 'Archived') ? ALL_ARTICLES.filter(a => archivedSignals.includes(a.id)) : (activeTrack === 'All') 
         ? ALL_ARTICLES.filter(a => !archivedSignals.includes(a.id)) 
-        : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(activeTrack.toLowerCase()) && !archivedSignals.includes(a.id));
+        : ALL_ARTICLES.filter(a => (a.track || '').toLowerCase().includes(track.toLowerCase()) && !archivedSignals.includes(a.id));
 
       if (filtered.length === 0) {
         if (newsEmpty) newsEmpty.style.display = 'block';
@@ -2229,36 +1761,26 @@
             ${signalMeter(article.relevance || 3)}
             <span class="news-source-label">${escapeHtml(article.source || 'Signal')}</span>
             <span class="news-date-label">${article.date || ''}</span>
-            <button class="news-mark-read-btn" onclick="toggleArchiveArticle(${article.id})">
-              ${isArchived ? '✓ Unarchive' : '✓ Mark Read'}
-            </button>
+            <button class="news-mark-read-btn" onclick="toggleArchiveArticle(${article.id})">${isArchived ? '✓ Unarchive' : '✓ Mark Read'}</button>
           </div>
 
-          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="news-headline">
-            ${escapeHtml(article.headline)}
-          </a>
+          <a href="${targetUrl}" target="_blank" rel="noopener noreferrer" class="news-headline">${escapeHtml(article.headline)}</a>
 
           <div>
             <p class="news-body">${escapeHtml(article.body)}</p>
             ${isLong ? `<button class="news-read-more-btn" onclick="toggleNewsExpand(${article.id}, this)">Read full summary ↓</button>` : ''}
           </div>
 
-          ${article.deep_dive ? `
-            <div class="news-deep-dive-box">
-              <strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}
-            </div>
-          ` : ''}
+          ${article.deep_dive ? `<div class="news-deep-dive-box"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
 
-          <a class="news-source-link" href="${targetUrl}" target="_blank" rel="noopener noreferrer">
-            Read original source →
-          </a>
+          <a class="news-source-link" href="${targetUrl}" target="_blank" rel="noopener noreferrer">Read original source →</a>
         `;
         container.appendChild(card);
       });
     }
 
     /* ==========================================================================
-       LEARNING HUB (WITH PATTERN NOTES EDITOR & COLLAPSIBLE HLD)
+       LEARNING HUB
        ========================================================================== */
     function setLearningTrack(track, element) {
       activeLearningTrack = track;
@@ -2274,26 +1796,18 @@
 
     function toggleHldCategory(cardId) {
       const card = document.getElementById(cardId);
-      if (card) {
-        card.classList.toggle('collapsed');
-      }
+      if (card) card.classList.toggle('collapsed');
     }
 
     async function toggleHldModuleMastered(moduleId, isCompleted) {
       const newStatus = isCompleted ? 'completed' : 'todo';
-      await db.from('hld_modules').update({
-        status: newStatus,
-        completed_at: isCompleted ? new Date().toISOString() : null
-      }).eq('id', moduleId);
+      await db.from('hld_modules').update({ status: newStatus, completed_at: isCompleted ? new Date().toISOString() : null }).eq('id', moduleId);
       renderLearningHub();
     }
 
     async function toggleProblemSolved(problemId, isCompleted) {
       const newStatus = isCompleted ? 'solved' : 'todo';
-      await db.from('dsa_questions').update({
-        status: newStatus,
-        last_attempted_at: isCompleted ? new Date().toISOString() : null
-      }).eq('id', problemId);
+      await db.from('dsa_questions').update({ status: newStatus, last_attempted_at: isCompleted ? new Date().toISOString() : null }).eq('id', problemId);
       renderLearningHub();
     }
 
@@ -2314,13 +1828,9 @@
       const newUrl = document.getElementById('edit-pattern-url').value.trim();
       closeModal('pattern-notes-modal');
 
-      if (CURRENT_DRILL) {
-        CURRENT_DRILL.article_url = newUrl;
-      }
-
+      if (CURRENT_DRILL) CURRENT_DRILL.article_url = newUrl;
       renderLearningHub();
 
-      // Upsert to dsa_patterns table or update dsa_daily_drills by pattern_name
       try {
         await Promise.allSettled([
           db.from('dsa_patterns').update({ article_url: newUrl }).eq('title', patternName),
@@ -2335,7 +1845,6 @@
       const container = document.getElementById('learning-bento-container');
       if (!container) return;
 
-      // VIEW 1: HLD CURRICULUM (WITH COLLAPSIBLE CATEGORIES)
       if (activeLearningTrack === 'HLD') {
         container.innerHTML = `<div style="text-align:center; padding:36px; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Loading System Design Curriculum…</div>`;
         try {
@@ -2378,9 +1887,7 @@
 
               <div class="bento-span-12">
                 <div class="bento-pill-scroll">
-                  ${categories.map(cat => `
-                    <span class="filter-chip ${activeHldCategory === cat ? 'active' : ''}" onclick="setHldCategory('${cat}')">${cat}</span>
-                  `).join('')}
+                  ${categories.map(cat => `<span class="filter-chip ${activeHldCategory === cat ? 'active' : ''}" onclick="setHldCategory('${cat}')">${cat}</span>`).join('')}
                 </div>
               </div>
 
@@ -2431,13 +1938,11 @@
         return;
       }
 
-      // VIEW 2: LLD TRACK
       if (activeLearningTrack === 'LLD') {
         container.innerHTML = `<div class="bento-card" style="text-align:center; padding:36px; color:var(--text-muted);"><h3 style="font-size:1rem; font-weight:800; color:var(--text);">Low-Level Design (LLD) Track</h3><p style="font-size:0.8rem;">Design Patterns and Machine Coding problems coming up next.</p></div>`;
         return;
       }
 
-      // VIEW 3: DSA TRACK (WITH NOTES CARD & LINK EDITOR)
       try {
         const { data: drills } = await db.from('dsa_daily_drills').select('*').order('drill_date', { ascending: false }).limit(1);
         if (!drills || drills.length === 0) {
@@ -2449,12 +1954,10 @@
         const drill = CURRENT_DRILL;
         const { data: questions } = await db.from('dsa_questions').select('*').in('id', drill.problem_ids || []);
         const problemMap = new Map((questions || []).map(q => [q.id, q]));
-
         const hasNotesUrl = drill.article_url && drill.article_url.trim().length > 0;
 
         container.innerHTML = `
           <div class="bento-grid">
-            <!-- 1. Left Hero: Pattern Info -->
             <div class="bento-card bento-span-5" style="display:flex; flex-direction:column; justify-content:space-between; gap:12px;">
               <div>
                 <div style="font-family:var(--font-mono); font-size:0.7rem; color:var(--accent-primary); font-weight:700;">⚡ PATTERN OF THE DAY (${drill.drill_date})</div>
@@ -2471,7 +1974,6 @@
               </div>
             </div>
 
-            <!-- 2. Right Top: Java Code Skeleton -->
             <div class="bento-span-7" style="display:flex; flex-direction:column; gap:14px;">
               <div class="code-box">
                 <div class="code-box-header">
@@ -2482,7 +1984,6 @@
               </div>
             </div>
 
-            <!-- 3. DSA Notes Bento Card with UI Link Edit -->
             <div class="bento-card bento-span-12" style="background:var(--surface); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
               <div style="display:flex; align-items:center; gap:12px;">
                 <div style="width:36px; height:36px; border-radius:10px; background:#eef2ff; color:var(--accent-primary); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0;">📖</div>
@@ -2501,7 +2002,6 @@
               </div>
             </div>
 
-            <!-- 4. Problem Ladder -->
             <div class="bento-card bento-span-12">
               <div style="font-size:0.72rem; font-weight:800; font-family:var(--font-mono); color:var(--text-muted); text-transform:uppercase;">🪜 Problem Ladder</div>
               <div class="ladder-list">
@@ -2544,35 +2044,31 @@
     function autoDetectCurrentScheduleSlot() {
       const todayStr = formatDateLocal(new Date());
       const currentBucket = getCurrentSystemBucket();
-      const todayEvents = ALL_EVENTS.filter(e => {
-        if (!e.event_date) return false;
-        return String(e.event_date).split('T')[0] === todayStr;
-      });
+      const todayEvents = ALL_EVENTS.filter(e => e.event_date && String(e.event_date).split('T')[0] === todayStr);
 
       const starredInBucket = todayEvents.find(e => getEventBucket(e) === currentBucket && e.is_starred);
-      if (starredInBucket) return { proj: starredInBucket.project || 'General', title: starredInBucket.title };
+      if (starredInBucket) return { projId: starredInBucket.project_id, title: starredInBucket.title };
 
       const anyInBucket = todayEvents.find(e => getEventBucket(e) === currentBucket);
-      if (anyInBucket) return { proj: anyInBucket.project || 'General', title: anyInBucket.title };
+      if (anyInBucket) return { projId: anyInBucket.project_id, title: anyInBucket.title };
 
       return null;
     }
 
     function openDeskHud() {
       const select = document.getElementById('hud-project-select');
-      select.innerHTML = '<option value="Unscheduled">⚡ UNSCHEDULED FOCUS</option>';
-      const allProjects = Object.keys(metaData.projectColors || {});
-      allProjects.forEach(p => {
-        select.innerHTML += `<option value="${escapeHtml(p)}">📂 ${escapeHtml(p).toUpperCase()}</option>`;
+      select.innerHTML = '<option value="">⚡ UNSCHEDULED FOCUS</option>';
+      ALL_PROJECTS.forEach(p => {
+        select.innerHTML += `<option value="${p.id}">📂 ${escapeHtml(p.name).toUpperCase()}</option>`;
       });
 
       const detected = autoDetectCurrentScheduleSlot();
-      if (detected) {
-        trackingState.targetProj = detected.proj;
-        select.value = detected.proj;
+      if (detected && detected.projId) {
+        trackingState.targetProjId = detected.projId;
+        select.value = detected.projId;
       } else {
-        trackingState.targetProj = 'Unscheduled';
-        select.value = 'Unscheduled';
+        trackingState.targetProjId = null;
+        select.value = '';
       }
 
       document.getElementById('hud-clock-text').innerText = formatTime(trackingState.accumulatedSec);
@@ -2581,8 +2077,8 @@
     }
 
     function onHudProjectChange() {
-      const select = document.getElementById('hud-project-select');
-      trackingState.targetProj = select.value;
+      const val = document.getElementById('hud-project-select').value;
+      trackingState.targetProjId = val ? Number(val) : null;
       renderHudBody();
     }
 
@@ -2590,23 +2086,25 @@
       const container = document.getElementById('hud-scroll-body');
       container.innerHTML = '';
 
-      const proj = trackingState.targetProj;
-      const relevantTasks = ALL_TASKS.filter(t => t.project === proj && t.status !== 'done' && !t.parent_id);
+      const projId = trackingState.targetProjId;
+      const projObj = getProjectById(projId);
 
-      if (proj === 'Unscheduled') {
+      if (!projId || !projObj) {
         container.innerHTML = `
           <div class="hud-hero-card" style="text-align:center;">
             <div style="font-size:1.1rem; font-weight:800; margin-bottom:6px;">⚡ Ad-hoc Focus Mode</div>
-            <div style="font-size:0.85rem; color:#94a3b8;">No scheduled slot active. Tap the title above to switch project or hit 'Start Focus'.</div>
+            <div style="font-size:0.85rem; color:#94a3b8;">No specific project selected. Tap the title above to bind to a project.</div>
           </div>
         `;
         return;
       }
 
+      const relevantTasks = ALL_TASKS.filter(t => (Number(t.project_id) === Number(projId) || t.project === projObj.name) && t.status !== 'done' && !t.parent_id);
+
       if (relevantTasks.length === 0) {
         container.innerHTML = `
           <div class="hud-hero-card" style="text-align:center;">
-            <div style="font-size:1.1rem; font-weight:800; margin-bottom:6px;">📂 ${escapeHtml(proj)}</div>
+            <div style="font-size:1.1rem; font-weight:800; margin-bottom:6px;">📂 ${escapeHtml(projObj.name)}</div>
             <div style="font-size:0.85rem; color:#94a3b8;">No pending tasks for this project. Ready to track focused deep work!</div>
           </div>
         `;
@@ -2672,9 +2170,11 @@
     function stopAndSaveTracking() {
       if (!trackingState.isRunning && trackingState.accumulatedSec === 0) return;
       clearInterval(trackingState.timerId);
-      const proj = trackingState.targetProj || 'General';
+      const projObj = getProjectById(trackingState.targetProjId);
+      const projName = projObj ? projObj.name : 'General';
+
       if (!metaData.manualProjectTimes) metaData.manualProjectTimes = {};
-      metaData.manualProjectTimes[proj] = (metaData.manualProjectTimes[proj] || 0) + trackingState.accumulatedSec;
+      metaData.manualProjectTimes[projName] = (metaData.manualProjectTimes[projName] || 0) + trackingState.accumulatedSec;
 
       const savedSec = trackingState.accumulatedSec;
       trackingState.isRunning = false;
@@ -2687,41 +2187,30 @@
       saveMeta();
       closeDeskHud();
       renderReports();
-      alert(`Saved ${formatTime(savedSec)} to ${proj}!`);
+      alert(`Saved ${formatTime(savedSec)} to ${projName}!`);
     }
 
     /* ==========================================================================
-       REPORTS & PROJECT MODALS
+       REPORTS
        ========================================================================== */
     function openProfileModal() { document.getElementById('profile-modal').style.display = 'flex'; }
 
     async function clearCompletedTasks() {
       if (!confirm("Delete all completed tasks from Supabase?")) return;
-
-      const completedIds = ALL_TASKS
-        .filter(t => t.status === 'done')
-        .map(t => Number(t.id));
-
+      const completedIds = ALL_TASKS.filter(t => t.status === 'done').map(t => Number(t.id));
       if (completedIds.length === 0) {
         closeModal('profile-modal');
         return;
       }
-
       ALL_TASKS = ALL_TASKS.filter(t => t.status !== 'done' && !completedIds.includes(Number(t.parent_id)));
-
       renderTaskStack();
       closeModal('profile-modal');
-
       const { error } = await db.from('tasks').delete().in('id', completedIds);
-      if (error) {
-        console.error("Failed to clear completed tasks:", error);
-        alert("Could not delete from DB: " + error.message);
-        await syncAllSupabaseData();
-      }
+      if (error) syncAllSupabaseData();
     }
 
     function exportData() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ tasks: ALL_TASKS, events: ALL_EVENTS, meta: metaData }));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({ projects: ALL_PROJECTS, tasks: ALL_TASKS, events: ALL_EVENTS, meta: metaData }));
       const a = document.createElement('a');
       a.setAttribute("href", dataStr);
       a.setAttribute("download", `onespace_backup_${Date.now()}.json`);
@@ -2730,120 +2219,24 @@
       a.remove();
     }
 
-    function openProjectManagerModal() {
-      renderProjectManagerList();
-      document.getElementById('project-mgr-modal').style.display = 'flex';
-    }
-
-    function createLocalProject() {
-      const name = document.getElementById('new-local-proj-name').value.trim();
-      const color = document.getElementById('new-local-proj-color').value;
-      if (name) {
-        metaData.projectColors[name] = color;
-        saveMeta();
-        document.getElementById('new-local-proj-name').value = '';
-        renderProjectManagerList();
-        updateProjectDropdowns();
-        renderTaskStack();
-      }
-    }
-
-    function deleteProject(projName) {
-      if (confirm(`Delete project "${projName}"?`)) {
-        delete metaData.projectColors[projName];
-        delete metaData.projectLimits[projName];
-        delete metaData.manualProjectTimes[projName];
-        saveMeta();
-        renderProjectManagerList();
-        updateProjectDropdowns();
-        renderTaskStack();
-        renderReports();
-      }
-    }
-
-    function renderProjectManagerList() {
-      const wrapper = document.getElementById('project-list-wrapper');
-      wrapper.innerHTML = '';
-      const allProjects = Object.keys(metaData.projectColors || {});
-      if (allProjects.length === 0) {
-        wrapper.innerHTML = `<div style="font-size:0.8rem; color:var(--text-muted);">No projects created.</div>`;
-        return;
-      }
-      allProjects.forEach(proj => {
-        const color = metaData.projectColors[proj] || '#e2e8f0';
-        const taskCount = ALL_TASKS.filter(t => t.project === proj).length;
-        const item = document.createElement('div');
-        item.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm);";
-        item.innerHTML = `
-          <div style="display:flex; align-items:center; gap:8px;">
-            <span style="width:12px; height:12px; border-radius:50%; background:${color};"></span>
-            <span style="font-weight:700; font-size:0.85rem;">${escapeHtml(proj)}</span>
-            <span style="font-size:0.7rem; color:var(--text-muted);">(${taskCount} tasks)</span>
-          </div>
-          <button class="btn btn-danger btn-sm" onclick="deleteProject('${escapeHtml(proj)}')">Delete</button>
-        `;
-        wrapper.appendChild(item);
-      });
-    }
-
-    function updateProjectDropdowns() {
-      const taskProj = document.getElementById('task-project-filter');
-      const calProj = document.getElementById('cal-project-select');
-      const mProj = document.getElementById('m-project-select');
-      const lProj = document.getElementById('p-limit-project-select');
-
-      const allProjects = Object.keys(metaData.projectColors || {});
-      const curr = taskProj.value || 'ALL';
-
-      let taskOpts = '<option value="ALL">ALL PROJECTS</option>';
-      let genericOpts = '';
-
-      allProjects.forEach(p => {
-        taskOpts += `<option value="${escapeHtml(p)}">${escapeHtml(p.toUpperCase())}</option>`;
-        genericOpts += `<option value="${escapeHtml(p)}">${escapeHtml(p)}</option>`;
-      });
-
-      taskProj.innerHTML = taskOpts;
-      taskProj.value = curr;
-      if (calProj) calProj.innerHTML = genericOpts;
-      if (mProj) mProj.innerHTML = genericOpts;
-      if (lProj) lProj.innerHTML = genericOpts;
-    }
-
     function openManualTimeModal() {
       updateProjectDropdowns();
       document.getElementById('manual-time-modal').style.display = 'flex';
     }
 
     function saveManualTime() {
-      const proj = document.getElementById('m-project-select').value;
+      const projId = document.getElementById('m-project-select').value;
+      const projObj = getProjectById(projId);
+      const projName = projObj ? projObj.name : 'General';
       const hrs = parseFloat(document.getElementById('m-hours').value) || 0;
       const mins = parseFloat(document.getElementById('m-minutes').value) || 0;
       const totalSec = (hrs * 3600) + (mins * 60);
-      if (proj) {
-        if (!metaData.manualProjectTimes) metaData.manualProjectTimes = {};
-        metaData.manualProjectTimes[proj] = (metaData.manualProjectTimes[proj] || 0) + totalSec;
-        saveMeta();
-        closeModal('manual-time-modal');
-        renderReports();
-      }
-    }
 
-    function openProjectLimitModal() {
-      updateProjectDropdowns();
-      document.getElementById('limit-modal').style.display = 'flex';
-    }
-
-    function saveProjectLimit() {
-      const proj = document.getElementById('p-limit-project-select').value;
-      const limit = parseFloat(document.getElementById('p-limit').value);
-      if (proj && !isNaN(limit)) {
-        if (!metaData.projectLimits) metaData.projectLimits = {};
-        metaData.projectLimits[proj] = limit;
-        saveMeta();
-        closeModal('limit-modal');
-        renderReports();
-      }
+      if (!metaData.manualProjectTimes) metaData.manualProjectTimes = {};
+      metaData.manualProjectTimes[projName] = (metaData.manualProjectTimes[projName] || 0) + totalSec;
+      saveMeta();
+      closeModal('manual-time-modal');
+      renderReports();
     }
 
     function renderReports() {
@@ -2851,7 +2244,6 @@
       container.innerHTML = '';
       const currentWeekKey = getISOWeekKey(new Date());
       const currentWeekTimes = (metaData.weeklySummaries && metaData.weeklySummaries[currentWeekKey]) || metaData.manualProjectTimes || {};
-      const allProjects = Object.keys(metaData.projectColors || {});
 
       let html = `
         <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; background:var(--surface); box-shadow:var(--shadow-bento);">
@@ -2862,15 +2254,18 @@
               <tbody>
       `;
 
-      if (allProjects.length === 0) {
-        html += `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No projects logged this week.</td></tr>`;
+      if (ALL_PROJECTS.length === 0) {
+        html += `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No projects created.</td></tr>`;
       } else {
-        allProjects.forEach(proj => {
-          const sec = currentWeekTimes[proj] || 0;
-          const limit = metaData.projectLimits ? metaData.projectLimits[proj] : null;
+        ALL_PROJECTS.forEach(proj => {
+          const sec = currentWeekTimes[proj.name] || 0;
+          const limit = proj.weekly_limit_hours;
           html += `
             <tr>
-              <td style="font-weight:700;">${escapeHtml(proj)}</td>
+              <td style="font-weight:700; display:flex; align-items:center; gap:6px;">
+                <span style="width:8px; height:8px; border-radius:50%; background:${proj.color};"></span>
+                ${escapeHtml(proj.name)}
+              </td>
               <td style="font-family:var(--font-mono);">${formatTime(sec)}</td>
               <td style="font-family:var(--font-mono);">${limit ? limit + 'h' : '—'}</td>
               <td>${limit ? (sec/3600 >= limit ? '<span style="color:#ef4444; font-weight:700;">Limit Reached</span>' : '<span style="color:#22c55e; font-weight:700;">On Track</span>') : '<span style="color:var(--text-muted);">Logged</span>'}</td>
@@ -2892,7 +2287,7 @@
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     /* ==========================================================================
-       PULL DOWN TO REFRESH (SAFARI & CHROME MOBILE OPTIMIZED)
+       PULL DOWN TO REFRESH
        ========================================================================== */
     let touchStartY = 0;
     let isPulling = false;
@@ -2933,7 +2328,6 @@
 
       if (triggered) {
         ptrIndicator.innerText = "Syncing with Supabase...";
-        
         try {
           await Promise.all([
             syncAllSupabaseData(),
@@ -2949,10 +2343,8 @@
             if (activeId === 'sec-signals') renderBentoSignals();
             if (activeId === 'sec-reports') renderReports();
           }
-
           ptrIndicator.innerText = "✓ Updated";
         } catch (err) {
-          console.error("Pull-to-refresh sync failed:", err);
           ptrIndicator.innerText = "Sync Error";
         } finally {
           setTimeout(() => {
@@ -2977,7 +2369,6 @@
       syncAllSupabaseData();
     });
 
-    // PWA Manifest Dynamic Generation
     const manifestJson = {
       name: "onespace",
       short_name: "onespace",
@@ -2985,20 +2376,15 @@
       display: "standalone",
       background_color: "#f4f6f8",
       theme_color: "#6366f1",
-      icons: [
-        {
-          src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E",
-          sizes: "512x512",
-          type: "image/svg+xml"
-        }
-      ]
+      icons: [{
+        src: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E",
+        sizes: "512x512",
+        type: "image/svg+xml"
+      }]
     };
-    const stringManifest = JSON.stringify(manifestJson);
-    const blobManifest = new Blob([stringManifest], {type: 'application/json'});
-    const manifestURL = URL.createObjectURL(blobManifest);
-    document.querySelector('#pwa-manifest').setAttribute('href', manifestURL);
+    const blobManifest = new Blob([JSON.stringify(manifestJson)], {type: 'application/json'});
+    document.querySelector('#pwa-manifest').setAttribute('href', URL.createObjectURL(blobManifest));
 
-    // INITIAL DATA FETCH & BOOTSTRAP
     syncAllSupabaseData();
     fetchSupabaseSignals();
   </script>
