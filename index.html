@@ -496,13 +496,15 @@
         </h1>
         <div class="flex-gap">
           <button class="btn btn-secondary btn-sm" onclick="openNewspaperOverlay()">📰 Reader Mode</button>
-          <button class="btn btn-secondary btn-sm" onclick="fetchSupabaseSignals()">↻ Refresh</button>
+          <button class="btn btn-secondary btn-sm" onclick="refreshSignalsFromTop()">↻ Refresh</button>
         </div>
       </header>
 
       <div class="bento-pill-scroll" id="bento-track-pills"></div>
       <div id="bento-loading" style="text-align:center; padding:40px; color:var(--text-muted); font-size:0.85rem; font-family:var(--font-mono);">Connecting to live signals stream…</div>
       <div id="bento-signals-container" class="bento-signals-container"></div>
+      <div id="signals-scroll-sentinel" style="height: 20px; margin: 10px 0;"></div>
+      <div id="signals-load-more" style="display:none; text-align:center; padding:16px; color:var(--text-muted); font-size:0.75rem; font-family:var(--font-mono);">Loading more signals…</div>
     </section>
 
     <!-- 5. REPORTS TAB -->
@@ -617,7 +619,7 @@
     </div>
   </div>
 
-  <!-- MANAGE PROJECTS MODAL (SUPABASE CONNECTED) -->
+  <!-- MANAGE PROJECTS MODAL -->
   <div class="modal-overlay" id="project-mgr-modal">
     <div class="modal">
       <h2 style="font-size: 1rem; font-weight:800; margin-bottom: 12px;">Manage Projects</h2>
@@ -778,6 +780,12 @@
     let ALL_IPOS = [];
     let CURRENT_DRILL = null;
 
+    /* PAGINATION STATE FOR SIGNALS */
+    const SIGNALS_PAGE_SIZE = 5;
+    let signalsOffset = 0;
+    let signalsHasMore = true;
+    let isFetchingSignals = false;
+
     let activeTrack = "All";
     let activeLearningTrack = "DSA";
     let activeHldCategory = "All";
@@ -893,7 +901,10 @@
       if (tab === 'calendar') renderScheduleCalendar();
       if (tab === 'tasks') renderTaskStack();
       if (tab === 'learning') renderLearningHub();
-      if (tab === 'signals') renderBentoSignals();
+      if (tab === 'signals') {
+        if (ALL_ARTICLES.length === 0) fetchSupabaseSignals(true);
+        else renderBentoSignals();
+      }
       if (tab === 'reports') renderReports();
 
       if (tab === 'tasks' || tab === 'calendar') {
@@ -902,7 +913,7 @@
     }
 
     /* ==========================================================================
-       SUPABASE DATA SYNC (PROJECTS, TASKS & SCHEDULES)
+       SUPABASE DATA SYNC
        ========================================================================== */
     async function syncAllSupabaseData() {
       try {
@@ -925,12 +936,10 @@
       }
     }
 
-    /* Universal Task Creation Engine (Fixed Default to General) */
     async function createGlobalTask({ title, description = '', project_id = null, project = null, status = 'todo', tags = [], parent_id = null, source_type = 'manual' }) {
       let resolvedProjectId = project_id ? Number(project_id) : null;
       let resolvedProjectName = project;
 
-      // 1. Resolve project by ID or Name if explicitly provided
       if (!resolvedProjectId && project) {
         const p = getProjectByName(project);
         if (p) {
@@ -942,7 +951,6 @@
         if (p) resolvedProjectName = p.name;
       }
 
-      // 2. Strict fallback: Always default to 'General' project if unresolved
       if (!resolvedProjectId) {
         const generalProj = getProjectByName('General') || (ALL_PROJECTS.length > 0 ? ALL_PROJECTS[0] : null);
         if (generalProj) {
@@ -980,7 +988,7 @@
     }
 
     /* ==========================================================================
-       PROJECTS MANAGEMENT (SUPABASE-BACKED)
+       PROJECTS MANAGEMENT
        ========================================================================== */
     function openProjectManagerModal() {
       renderProjectManagerList();
@@ -998,13 +1006,7 @@
 
       if (!name) return;
 
-      const payload = {
-        name,
-        color,
-        weekly_limit_hours,
-        updated_at: new Date().toISOString()
-      };
-
+      const payload = { name, color, weekly_limit_hours, updated_at: new Date().toISOString() };
       const existing = ALL_PROJECTS.find(p => p.name.toLowerCase() === name.toLowerCase());
 
       if (existing) {
@@ -1080,7 +1082,6 @@
       const tModalProj = document.getElementById('t-project');
 
       const currTaskFilter = taskProj ? taskProj.value : 'ALL';
-
       let filterOpts = '<option value="ALL">ALL PROJECTS</option>';
       let selectOpts = '';
 
@@ -1120,7 +1121,6 @@
       completedList.innerHTML = '';
 
       let focusCount = 0, backlogCount = 0, completedCount = 0;
-
       const rootTasks = ALL_TASKS.filter(t => !t.parent_id);
       const subtaskMap = new Map();
       ALL_TASKS.filter(t => t.parent_id).forEach(sub => {
@@ -1274,7 +1274,6 @@
         document.getElementById('edit-task-id').value = '';
         document.getElementById('t-title').value = '';
         document.getElementById('t-desc').value = '';
-        // Always default to 'General' project for new tasks
         document.getElementById('t-project').value = defaultProjId;
         document.getElementById('t-status').value = 'in_progress';
         document.getElementById('t-tags').value = '';
@@ -1551,7 +1550,7 @@
     }
 
     /* ==========================================================================
-       SIGNALS FEED & NEWSPAPER OVERLAY
+       SIGNALS FEED (PAGINATED 5-BATCH & BIDIRECTIONAL SCROLL ENGINE)
        ========================================================================== */
     function signalMeter(score) {
       let bars = '';
@@ -1559,20 +1558,50 @@
       return `<span class="signal-meter" aria-label="Signal ${score}/5">${bars}</span>`;
     }
 
-    async function fetchSupabaseSignals() {
+    async function fetchSupabaseSignals(isReset = false) {
+      if (isFetchingSignals) return;
+      if (!isReset && !signalsHasMore) return;
+
+      isFetchingSignals = true;
       const bentoLoader = document.getElementById('bento-loading');
-      if (bentoLoader) bentoLoader.style.display = 'block';
+      const loadMoreIndicator = document.getElementById('signals-load-more');
+
+      if (isReset) {
+        signalsOffset = 0;
+        signalsHasMore = true;
+        if (bentoLoader) bentoLoader.style.display = 'block';
+      } else {
+        if (loadMoreIndicator) loadMoreIndicator.style.display = 'block';
+      }
 
       try {
+        const from = signalsOffset;
+        const to = signalsOffset + SIGNALS_PAGE_SIZE - 1;
+
         const [articlesRes, iposRes] = await Promise.all([
-          db.from('articles').select('*').order('id', { ascending: false }),
-          db.from('ipo_evaluations').select('*').neq('is_hidden', true).order('score', { ascending: false })
+          db.from('articles').select('*').order('date', { ascending: false }).order('id', { ascending: false }).range(from, to),
+          isReset ? db.from('ipo_evaluations').select('*').neq('is_hidden', true).order('score', { ascending: false }) : Promise.resolve({ data: null })
         ]);
 
-        ALL_ARTICLES = articlesRes.data || [];
-        ALL_IPOS = iposRes.data || [];
+        const fetchedArticles = articlesRes.data || [];
+
+        if (isReset) {
+          ALL_ARTICLES = fetchedArticles;
+          if (iposRes.data) ALL_IPOS = iposRes.data;
+        } else {
+          const existingIds = new Set(ALL_ARTICLES.map(a => a.id));
+          const newUnique = fetchedArticles.filter(a => !existingIds.has(a.id));
+          ALL_ARTICLES = ALL_ARTICLES.concat(newUnique);
+        }
+
+        if (fetchedArticles.length < SIGNALS_PAGE_SIZE) {
+          signalsHasMore = false;
+        } else {
+          signalsOffset += SIGNALS_PAGE_SIZE;
+        }
 
         if (bentoLoader) bentoLoader.style.display = 'none';
+        if (loadMoreIndicator) loadMoreIndicator.style.display = 'none';
 
         if (ALL_ARTICLES.length > 0) {
           const latestDate = ALL_ARTICLES[0].date || new Date().toISOString().split('T')[0];
@@ -1583,7 +1612,14 @@
         renderNewspaperContent();
       } catch (err) {
         if (bentoLoader) bentoLoader.textContent = 'Error connecting to database: ' + err.message;
+        if (loadMoreIndicator) loadMoreIndicator.style.display = 'none';
+      } finally {
+        isFetchingSignals = false;
       }
+    }
+
+    async function refreshSignalsFromTop() {
+      await fetchSupabaseSignals(true);
     }
 
     async function hideIpoCard(symbol, event) {
@@ -1852,7 +1888,7 @@
 
     /* ==========================================================================
        LEARNING HUB
-       ========================================================================= */
+       ========================================================================== */
     function setLearningTrack(track, element) {
       activeLearningTrack = track;
       document.querySelectorAll('#learning-track-pills .filter-chip').forEach(c => c.classList.remove('active'));
@@ -2358,7 +2394,7 @@
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     /* ==========================================================================
-       PULL DOWN TO REFRESH
+       PULL DOWN TO REFRESH & INFINITE BOTTOM SCROLL
        ========================================================================== */
     let touchStartY = 0;
     let isPulling = false;
@@ -2400,12 +2436,14 @@
       if (triggered) {
         ptrIndicator.innerText = "Syncing with Supabase...";
         try {
+          const activeSection = document.querySelector('.content-section.active');
+          const isSignalsActive = activeSection && activeSection.id === 'sec-signals';
+
           await Promise.all([
             syncAllSupabaseData(),
-            fetchSupabaseSignals()
+            fetchSupabaseSignals(true)
           ]);
 
-          const activeSection = document.querySelector('.content-section.active');
           if (activeSection) {
             const activeId = activeSection.id;
             if (activeId === 'sec-calendar') renderScheduleCalendar();
@@ -2429,10 +2467,23 @@
       }
     });
 
+    /* INFINITE SCROLL OBSERVER (BOTTOM SCROLL) */
+    const sentinel = document.getElementById('signals-scroll-sentinel');
+    const scrollObserver = new IntersectionObserver((entries) => {
+      const activeSection = document.querySelector('.content-section.active');
+      if (activeSection && activeSection.id === 'sec-signals') {
+        if (entries[0].isIntersecting && !isFetchingSignals && signalsHasMore && activeTrack !== 'IPOs' && activeTrack !== 'Archived') {
+          fetchSupabaseSignals(false);
+        }
+      }
+    }, { root: mainScroll, threshold: 0.1 });
+
+    if (sentinel) scrollObserver.observe(sentinel);
+
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
         syncAllSupabaseData();
-        fetchSupabaseSignals();
+        fetchSupabaseSignals(true);
       }
     });
 
@@ -2457,7 +2508,7 @@
     document.querySelector('#pwa-manifest').setAttribute('href', URL.createObjectURL(blobManifest));
 
     syncAllSupabaseData();
-    fetchSupabaseSignals();
+    fetchSupabaseSignals(true);
   </script>
 </body>
 </html>
