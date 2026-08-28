@@ -206,7 +206,7 @@
     .bento-body { font-size: 0.92rem; line-height: 1.7; color: #334155; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
     .bento-signal-card.expanded .bento-body { display: block; -webkit-line-clamp: unset; }
     .bento-expand-btn { background: none; border: none; color: var(--accent-primary); font-size: 0.78rem; font-weight: 700; cursor: pointer; padding: 4px 0 0; display: inline-block; }
-    .bento-deep-dive { background: #f8fafc; border-left: 3px solid #0ea5e9; padding: 10px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.82rem; color: #0369a1; line-height: 1.5; }
+    .bento-deep-dive { background: #f0f9ff; border-left: 3.5px solid #0284c7; padding: 12px 14px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; font-size: 0.82rem; color: #0369a1; line-height: 1.5; }
     .bento-footer { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 6px; padding-top: 12px; border-top: 1px solid var(--border); }
     .signal-meter { display: inline-flex; align-items: flex-end; gap: 2px; height: 12px; vertical-align: middle; flex-shrink: 0; }
     .signal-meter .bar { width: 3px; background: var(--signal-bar); border-radius: 1px; }
@@ -795,6 +795,32 @@
     function escapeHtml(str) {
       if (!str) return '';
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    /* Markdown Text Formatter */
+    function renderMarkdownText(rawText) {
+      if (!rawText) return '';
+
+      if (rawText.includes('**')) {
+        const parts = rawText.split(/(?=\*\*[^*]+\*\*)/g).filter(p => p.trim());
+        
+        return parts.map(part => {
+          const match = part.match(/^\*\*([^*]+)\*\*[:\s-]*(.*)/s);
+          if (match) {
+            const title = escapeHtml(match[1].trim());
+            const body = escapeHtml(match[2].trim());
+            return `
+              <div style="margin-bottom: 6px; line-height: 1.55;">
+                <strong style="font-weight: 800; color: #0284c7; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.02em;">${title}:</strong>
+                <span style="color: #334155; margin-left: 4px;">${body}</span>
+              </div>
+            `;
+          }
+          return `<div style="margin-bottom: 4px;">${escapeHtml(part.trim())}</div>`;
+        }).join('');
+      }
+
+      return `<div>${escapeHtml(rawText).replace(/\n/g, '<br>')}</div>`;
     }
 
     function getContrastTextColor(hexColor) {
@@ -1632,7 +1658,9 @@
 
     function toggleIpoExpand(index) {
       const card = document.getElementById(`ipo-card-${index}`);
-      if (card) card.classList.toggle('is-open');
+      if (card) {
+        card.classList.toggle('is-open');
+      }
     }
 
     function renderBentoSignals() {
@@ -1764,7 +1792,12 @@
             ${isLong ? `<button class="bento-expand-btn" onclick="toggleBentoExpand(${article.id}, this)">Read full summary ↓</button>` : ''}
           </div>
 
-          ${article.deep_dive ? `<div class="bento-deep-dive"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
+          ${article.deep_dive ? `
+            <div class="bento-deep-dive" style="display:flex; flex-direction:column; gap:4px; padding:12px 14px; background:#f0f9ff; border-left:3.5px solid #0284c7; border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
+              <div style="font-family:var(--font-mono); font-size:0.7rem; font-weight:800; color:#0284c7; text-transform:uppercase; margin-bottom:4px;">🔍 DEEP DIVE INSIGHTS</div>
+              ${renderMarkdownText(article.deep_dive)}
+            </div>
+          ` : ''}
 
           ${tagsList.length > 0 ? `<div style="display:flex; gap:6px; flex-wrap:wrap; margin-top:2px;">${tagsList.map(t => `<span class="pill pill-tag" style="background:var(--bg); font-size:0.65rem;">#${escapeHtml(t)}</span>`).join('')}</div>` : ''}
 
@@ -1878,7 +1911,12 @@
             ${isLong ? `<button class="news-read-more-btn" onclick="toggleNewsExpand(${article.id}, this)">Read full summary ↓</button>` : ''}
           </div>
 
-          ${article.deep_dive ? `<div class="news-deep-dive-box"><strong>Deep Dive:</strong> ${escapeHtml(article.deep_dive)}</div>` : ''}
+          ${article.deep_dive ? `
+            <div class="news-deep-dive-box" style="display:flex; flex-direction:column; gap:6px;">
+              <div style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; font-weight:800; color:var(--teal); text-transform:uppercase;">🔍 DEEP DIVE</div>
+              ${renderMarkdownText(article.deep_dive)}
+            </div>
+          ` : ''}
 
           <a class="news-source-link" href="${targetUrl}" target="_blank" rel="noopener noreferrer">Read original source →</a>
         `;
