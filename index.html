@@ -556,6 +556,8 @@
       <div id="news-loading" style="text-align:center; padding:4rem 1rem; color:var(--ink-soft); font-family:var(--font-mono); font-size:12px;">Loading today's issue…</div>
       <div id="news-empty" style="display:none; text-align:center; padding:4rem 1rem; color:var(--ink-soft); font-family:var(--font-mono); font-size:12px;">Nothing cleared the signal threshold in this track today.</div>
       <div id="news-content-list"></div>
+      <div id="news-scroll-sentinel" style="height: 20px; margin: 10px 0;"></div>
+      <div id="news-load-more" style="display:none; text-align:center; padding:16px; color:var(--ink-soft); font-family:var(--font-mono); font-size:11px;">Loading earlier articles…</div>
     </div>
   </div>
 
@@ -797,7 +799,7 @@
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
-    /* Markdown Text Formatter */
+    /* Structured Markdown Text Parser */
     function renderMarkdownText(rawText) {
       if (!rawText) return '';
 
@@ -1591,6 +1593,7 @@
       isFetchingSignals = true;
       const bentoLoader = document.getElementById('bento-loading');
       const loadMoreIndicator = document.getElementById('signals-load-more');
+      const newsLoadMoreIndicator = document.getElementById('news-load-more');
 
       if (isReset) {
         signalsOffset = 0;
@@ -1598,6 +1601,7 @@
         if (bentoLoader) bentoLoader.style.display = 'block';
       } else {
         if (loadMoreIndicator) loadMoreIndicator.style.display = 'block';
+        if (newsLoadMoreIndicator) newsLoadMoreIndicator.style.display = 'block';
       }
 
       try {
@@ -1628,6 +1632,7 @@
 
         if (bentoLoader) bentoLoader.style.display = 'none';
         if (loadMoreIndicator) loadMoreIndicator.style.display = 'none';
+        if (newsLoadMoreIndicator) newsLoadMoreIndicator.style.display = 'none';
 
         if (ALL_ARTICLES.length > 0) {
           const latestDate = ALL_ARTICLES[0].date || new Date().toISOString().split('T')[0];
@@ -1639,6 +1644,7 @@
       } catch (err) {
         if (bentoLoader) bentoLoader.textContent = 'Error connecting to database: ' + err.message;
         if (loadMoreIndicator) loadMoreIndicator.style.display = 'none';
+        if (newsLoadMoreIndicator) newsLoadMoreIndicator.style.display = 'none';
       } finally {
         isFetchingSignals = false;
       }
@@ -1793,7 +1799,7 @@
           </div>
 
           ${article.deep_dive ? `
-            <div class="bento-deep-dive" style="display:flex; flex-direction:column; gap:4px; padding:12px 14px; background:#f0f9ff; border-left:3.5px solid #0284c7; border-radius:0 var(--radius-sm) var(--radius-sm) 0;">
+            <div class="bento-deep-dive">
               <div style="font-family:var(--font-mono); font-size:0.7rem; font-weight:800; color:#0284c7; text-transform:uppercase; margin-bottom:4px;">🔍 DEEP DIVE INSIGHTS</div>
               ${renderMarkdownText(article.deep_dive)}
             </div>
@@ -1912,8 +1918,8 @@
           </div>
 
           ${article.deep_dive ? `
-            <div class="news-deep-dive-box" style="display:flex; flex-direction:column; gap:6px;">
-              <div style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; font-weight:800; color:var(--teal); text-transform:uppercase;">🔍 DEEP DIVE</div>
+            <div class="news-deep-dive-box">
+              <div style="font-family:'IBM Plex Mono', monospace; font-size:10.5px; font-weight:800; color:var(--teal); text-transform:uppercase; margin-bottom:4px;">🔍 DEEP DIVE</div>
               ${renderMarkdownText(article.deep_dive)}
             </div>
           ` : ''}
@@ -2432,7 +2438,7 @@
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
     /* ==========================================================================
-       PULL DOWN TO REFRESH & INFINITE BOTTOM SCROLL
+       PULL DOWN TO REFRESH & BIDIRECTIONAL INFINITE SCROLL
        ========================================================================== */
     let touchStartY = 0;
     let isPulling = false;
@@ -2505,18 +2511,32 @@
       }
     });
 
-    /* INFINITE SCROLL OBSERVER (BOTTOM SCROLL) */
+    /* DUAL INFINITE SCROLL OBSERVERS (BENTO MAIN & READER OVERLAY) */
     const sentinel = document.getElementById('signals-scroll-sentinel');
-    const scrollObserver = new IntersectionObserver((entries) => {
-      const activeSection = document.querySelector('.content-section.active');
-      if (activeSection && activeSection.id === 'sec-signals') {
-        if (entries[0].isIntersecting && !isFetchingSignals && signalsHasMore && activeTrack !== 'IPOs' && activeTrack !== 'Archived') {
-          fetchSupabaseSignals(false);
+    if (sentinel) {
+      const scrollObserver = new IntersectionObserver((entries) => {
+        const activeSection = document.querySelector('.content-section.active');
+        if (activeSection && activeSection.id === 'sec-signals') {
+          if (entries[0].isIntersecting && !isFetchingSignals && signalsHasMore && activeTrack !== 'IPOs' && activeTrack !== 'Archived') {
+            fetchSupabaseSignals(false);
+          }
         }
-      }
-    }, { root: mainScroll, threshold: 0.1 });
+      }, { root: mainScroll, threshold: 0.1 });
+      scrollObserver.observe(sentinel);
+    }
 
-    if (sentinel) scrollObserver.observe(sentinel);
+    const newsOverlay = document.getElementById('newspaper-overlay');
+    const newsSentinel = document.getElementById('news-scroll-sentinel');
+    if (newsSentinel && newsOverlay) {
+      const newsObserver = new IntersectionObserver((entries) => {
+        if (newsOverlay.style.display === 'block') {
+          if (entries[0].isIntersecting && !isFetchingSignals && signalsHasMore && activeTrack !== 'Archived') {
+            fetchSupabaseSignals(false);
+          }
+        }
+      }, { root: newsOverlay, threshold: 0.1 });
+      newsObserver.observe(newsSentinel);
+    }
 
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible') {
