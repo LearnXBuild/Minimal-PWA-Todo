@@ -311,6 +311,23 @@
     .report-table th, .report-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
     .report-table th { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; background: var(--bg); }
 
+    /* Visual Analytics & Charts */
+    .analytics-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; margin-bottom: 16px; }
+    @media (max-width: 640px) {
+      .analytics-grid { grid-template-columns: 1fr; }
+    }
+    .donut-chart-container { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; }
+    .donut-legend { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; width: 100%; }
+    .legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; color: var(--text); }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+    .gantt-chart-container { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .gantt-row { display: flex; align-items: center; gap: 10px; }
+    .gantt-day-label { width: 32px; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--text-muted); }
+    .gantt-bar-track { flex: 1; height: 18px; background: var(--bg); border-radius: 4px; display: flex; overflow: hidden; border: 1px solid var(--border); }
+    .gantt-segment { height: 100%; transition: width 0.3s ease; }
+    .gantt-time-label { width: 55px; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-align: right; }
+
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
     .modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 460px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 20px 40px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column; }
     .modal-body-scroll { overflow-y: auto; flex: 1; padding-right: 4px; }
@@ -523,7 +540,7 @@
     </section>
   </main>
 
-  <!-- MOBILE NAVIGATION -->
+  <!-- MOBILE NAVIGATION (4 BUTTONS) -->
   <div class="mobile-nav">
     <button class="nav-btn active" onclick="switchTab('calendar', this)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -865,10 +882,15 @@
       const day = d.getDay();
       const diffToMon = d.getDate() - day + (day === 0 ? -6 : 1);
       const monday = new Date(d.setDate(diffToMon));
-      const sunday = new Date(monday.getTime() + 6 * 86400000);
+      const days = [];
+      for (let i = 0; i < 7; i++) {
+        const nextDay = new Date(monday.getTime() + i * 86400000);
+        days.push(formatDateLocal(nextDay));
+      }
       return {
-        startDate: formatDateLocal(monday),
-        endDate: formatDateLocal(sunday)
+        startDate: days[0],
+        endDate: days[6],
+        allDays: days
       };
     }
 
@@ -2347,7 +2369,6 @@
       document.getElementById('hud-clock-text').innerText = '00:00:00';
       closeDeskHud();
 
-      // Persist log entry directly into Supabase
       if (projId && savedSec > 0) {
         const { error } = await db.from('project_time_logs').insert([{
           project_id: projId,
@@ -2366,7 +2387,7 @@
     }
 
     /* ==========================================================================
-       REPORTS & SUPABASE TIME AGGREGATION
+       REPORTS & VISUAL CHARTS (DONUT & GANTT)
        ========================================================================== */
     function openProfileModal() { document.getElementById('profile-modal').style.display = 'flex'; }
 
@@ -2431,35 +2452,136 @@
 
     async function renderReports() {
       const container = document.getElementById('report-container');
-      container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Loading real-time time logs…</div>';
+      container.innerHTML = '<div style="text-align:center; padding:36px; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Loading real-time time logs from Supabase…</div>';
 
       const currentWeekKey = getISOWeekKey(new Date());
-      const { startDate, endDate } = getISOWeekDates(new Date());
+      const { startDate, endDate, allDays } = getISOWeekDates(new Date());
 
-      // Fetch aggregated time logs for current week from Supabase
       let aggregatedTimes = {};
+      let dailyDistribution = {}; // { 'YYYY-MM-DD': { projId: sec } }
+      allDays.forEach(d => { dailyDistribution[d] = {}; });
+
       try {
         const { data: logs, error } = await db
           .from('project_time_logs')
-          .select('project_id, duration_seconds')
+          .select('project_id, duration_seconds, log_date')
           .gte('log_date', startDate)
           .lte('log_date', endDate);
 
         if (!error && logs) {
           logs.forEach(l => {
             const pId = Number(l.project_id);
-            aggregatedTimes[pId] = (aggregatedTimes[pId] || 0) + (l.duration_seconds || 0);
+            const sec = Number(l.duration_seconds) || 0;
+            const dateStr = String(l.log_date).split('T')[0];
+
+            aggregatedTimes[pId] = (aggregatedTimes[pId] || 0) + sec;
+            if (dailyDistribution[dateStr]) {
+              dailyDistribution[dateStr][pId] = (dailyDistribution[dateStr][pId] || 0) + sec;
+            }
           });
         }
       } catch (err) {
         console.error("Error loading time logs:", err);
       }
 
+      const totalWeeklySec = Object.values(aggregatedTimes).reduce((a, b) => a + b, 0);
+
+      // 1. Build SVG Donut Chart Slices
+      let donutSvg = '';
+      let donutLegend = '';
+      const radius = 60;
+      const circumference = 2 * Math.PI * radius;
+      let strokeOffset = 0;
+
+      if (totalWeeklySec > 0) {
+        ALL_PROJECTS.forEach(p => {
+          const sec = aggregatedTimes[p.id] || 0;
+          if (sec > 0) {
+            const percent = sec / totalWeeklySec;
+            const dashLength = percent * circumference;
+            donutSvg += `
+              <circle cx="90" cy="90" r="${radius}" fill="transparent"
+                stroke="${p.color}" stroke-width="26"
+                stroke-dasharray="${dashLength} ${circumference - dashLength}"
+                stroke-dashoffset="${-strokeOffset}"
+                transform="rotate(-90 90 90)" />
+            `;
+            strokeOffset += dashLength;
+            donutLegend += `
+              <div class="legend-item">
+                <span class="legend-dot" style="background:${p.color};"></span>
+                <span>${escapeHtml(p.name)} (${Math.round(percent * 100)}%)</span>
+              </div>
+            `;
+          }
+        });
+      } else {
+        donutSvg = `<circle cx="90" cy="90" r="${radius}" fill="transparent" stroke="#e2e8f0" stroke-width="26" />`;
+        donutLegend = `<div style="font-size:0.75rem; color:var(--text-muted);">No focus time logged this week.</div>`;
+      }
+
+      // 2. Build 7-Day Gantt / Daily Distribution
+      const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      let maxDailySec = 0;
+      allDays.forEach(d => {
+        const dTotal = Object.values(dailyDistribution[d] || {}).reduce((a, b) => a + b, 0);
+        if (dTotal > maxDailySec) maxDailySec = dTotal;
+      });
+      if (maxDailySec === 0) maxDailySec = 3600; // default benchmark 1h
+
+      let ganttRows = '';
+      allDays.forEach((dStr, idx) => {
+        const dayMap = dailyDistribution[dStr] || {};
+        const dayTotal = Object.values(dayMap).reduce((a, b) => a + b, 0);
+        let segments = '';
+
+        Object.entries(dayMap).forEach(([pId, sec]) => {
+          const proj = getProjectById(pId);
+          const color = proj ? proj.color : '#6366f1';
+          const widthPct = (sec / maxDailySec) * 100;
+          segments += `<div class="gantt-segment" style="width:${widthPct}%; background:${color};" title="${proj ? proj.name : ''}: ${formatTime(sec)}"></div>`;
+        });
+
+        ganttRows += `
+          <div class="gantt-row">
+            <span class="gantt-day-label">${dayNames[idx]}</span>
+            <div class="gantt-bar-track">${segments}</div>
+            <span class="gantt-time-label">${dayTotal > 0 ? formatTime(dayTotal) : '—'}</span>
+          </div>
+        `;
+      });
+
       let html = `
+        <div class="analytics-grid">
+          <!-- PIE / DONUT CHART -->
+          <div class="bento-card donut-chart-container">
+            <div style="font-weight:800; font-size:0.85rem; width:100%; text-align:left;">🥧 PROJECT SHARE</div>
+            <div style="position:relative; width:180px; height:180px; display:flex; align-items:center; justify-content:center;">
+              <svg width="180" height="180" viewBox="0 0 180 180">
+                ${donutSvg}
+              </svg>
+              <div style="position:absolute; text-align:center;">
+                <div style="font-family:var(--font-mono); font-size:1.1rem; font-weight:800; color:var(--text);">${formatTime(totalWeeklySec)}</div>
+                <div style="font-size:0.68rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Total</div>
+              </div>
+            </div>
+            <div class="donut-legend">${donutLegend}</div>
+          </div>
+
+          <!-- GANTT DAILY TIMELINE -->
+          <div class="bento-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+              <div style="font-weight:800; font-size:0.85rem;">📊 7-DAY GANTT TIMELINE</div>
+              <div style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted);">${startDate} → ${endDate}</div>
+            </div>
+            <div class="gantt-chart-container">${ganttRows}</div>
+          </div>
+        </div>
+
+        <!-- TABLE SUMMARY -->
         <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; background:var(--surface); box-shadow:var(--shadow-bento);">
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <div style="font-weight:800; font-size:0.9rem;">📊 CURRENT WEEK ALLOCATION (${currentWeekKey})</div>
-            <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">${startDate} → ${endDate}</div>
+            <div style="font-weight:800; font-size:0.9rem;">📋 WEEKLY ALLOCATION SUMMARY (${currentWeekKey})</div>
           </div>
           <div class="report-table-wrapper">
             <table class="report-table">
@@ -2479,7 +2601,7 @@
               <td style="font-weight:700;">
                 <span style="background:${proj.color}; color:${textColor}; padding:2px 8px; border-radius:99px; font-size:0.75rem; font-weight:800; margin-right:6px;">${escapeHtml(proj.name)}</span>
               </td>
-              <td style="font-family:var(--font-mono);">${formatTime(sec)}</td>
+              <td style="font-family:var(--font-mono); font-weight:700;">${formatTime(sec)}</td>
               <td style="font-family:var(--font-mono);">${limit ? limit + 'h' : '—'}</td>
               <td>${limit ? (sec/3600 >= limit ? '<span style="color:#ef4444; font-weight:700;">Limit Reached</span>' : '<span style="color:#22c55e; font-weight:700;">On Track</span>') : '<span style="color:var(--text-muted);">Logged</span>'}</td>
             </tr>
@@ -2542,12 +2664,12 @@
       if (triggered) {
         ptrIndicator.innerText = "Syncing with Supabase...";
         try {
+          const activeSection = document.querySelector('.content-section.active');
           await Promise.all([
             syncAllSupabaseData(),
             fetchSupabaseSignals(true)
           ]);
 
-          const activeSection = document.querySelector('.content-section.active');
           if (activeSection) {
             const activeId = activeSection.id;
             if (activeId === 'sec-calendar') renderScheduleCalendar();
