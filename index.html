@@ -6,7 +6,7 @@
   <title>onespace</title>
   <meta name="theme-color" content="#f4f6f8">
   
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Crect x='110' y='110' width='292' height='292' rx='50' fill='none' stroke='%23ffffff' stroke-width='24' stroke-dasharray='380 40' stroke-linecap='round' opacity='0.35'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="manifest" id="pwa-manifest">
 
@@ -311,8 +311,8 @@
     .report-table th, .report-table td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; }
     .report-table th { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; background: var(--bg); }
 
-    /* Visual Analytics & Charts */
-    .analytics-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 14px; margin-bottom: 16px; }
+    /* Visual Analytics & 24H Gantt Chart */
+    .analytics-grid { display: grid; grid-template-columns: 1fr 1.55fr; gap: 14px; margin-bottom: 16px; }
     @media (max-width: 640px) {
       .analytics-grid { grid-template-columns: 1fr; }
     }
@@ -322,10 +322,12 @@
     .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
 
     .gantt-chart-container { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+    .gantt-time-scale { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-muted); margin-left: 36px; margin-right: 60px; padding-bottom: 4px; border-bottom: 1px dashed var(--border); }
     .gantt-row { display: flex; align-items: center; gap: 10px; }
-    .gantt-day-label { width: 32px; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--text-muted); }
-    .gantt-bar-track { flex: 1; height: 18px; background: var(--bg); border-radius: 4px; display: flex; overflow: hidden; border: 1px solid var(--border); }
-    .gantt-segment { height: 100%; transition: width 0.3s ease; }
+    .gantt-day-label { width: 28px; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--text-muted); }
+    .gantt-bar-track { flex: 1; height: 20px; background: var(--bg); border-radius: 4px; position: relative; overflow: hidden; border: 1px solid var(--border); }
+    .gantt-block { position: absolute; top: 0; bottom: 0; border-radius: 3px; cursor: pointer; transition: opacity 0.15s ease; opacity: 0.9; }
+    .gantt-block:hover { opacity: 1; z-index: 2; outline: 1px solid #000; }
     .gantt-time-label { width: 55px; font-family: var(--font-mono); font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-align: right; }
 
     .modal-overlay { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 100; padding: 16px; }
@@ -775,6 +777,16 @@
             <select id="m-project-select"></select>
           </div>
           <div class="flex-gap">
+            <div style="flex:1;">
+              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">START TIME (optional):</label>
+              <input type="time" id="m-start-time">
+            </div>
+            <div style="flex:1;">
+              <label style="font-size: 0.72rem; font-weight:700; color: var(--text-muted); display: block; margin-bottom: 4px;">END TIME (optional):</label>
+              <input type="time" id="m-end-time">
+            </div>
+          </div>
+          <div class="flex-gap">
             <input type="number" id="m-hours" placeholder="Hours" min="0" step="0.1">
             <input type="number" id="m-minutes" placeholder="Minutes" min="0" max="59">
           </div>
@@ -862,6 +874,12 @@
       return `${year}-${month}-${day}`;
     }
 
+    function formatTime24H(dateObj) {
+      const h = String(dateObj.getHours()).padStart(2, '0');
+      const m = String(dateObj.getMinutes()).padStart(2, '0');
+      return `${h}:${m}`;
+    }
+
     function formatEditorialDate(dateStr) {
       if (!dateStr) return 'WEDNESDAY, AUGUST 26, 2026';
       const d = new Date(dateStr.includes('T') ? dateStr : dateStr + 'T00:00:00');
@@ -931,6 +949,7 @@
       isRunning: false,
       isPaused: false,
       startTime: null,
+      sessionStartTimestamp: null,
       accumulatedSec: 0,
       targetProjId: null,
       timerId: null,
@@ -2224,7 +2243,7 @@
     }
 
     /* ==========================================================================
-       FOCUS DESK HUD (WITH SUPABASE TIME LOGGING)
+       FOCUS DESK HUD (WITH 24H EXACT BLOCK TIMESTAMPS)
        ========================================================================== */
     function autoDetectCurrentScheduleSlot() {
       const todayStr = formatDateLocal(new Date());
@@ -2326,6 +2345,9 @@
         trackingState.isRunning = true;
         trackingState.isPaused = false;
         trackingState.lastTickTime = Date.now();
+        if (!trackingState.sessionStartTimestamp) {
+          trackingState.sessionStartTimestamp = new Date();
+        }
         trackingState.timerId = setInterval(() => {
           if (!trackingState.isRunning || trackingState.isPaused) return;
           const now = Date.now();
@@ -2360,9 +2382,15 @@
       const projId = projObj ? projObj.id : (ALL_PROJECTS[0] ? ALL_PROJECTS[0].id : null);
       const savedSec = trackingState.accumulatedSec;
 
+      const now = new Date();
+      const startDateTime = trackingState.sessionStartTimestamp || new Date(now.getTime() - savedSec * 1000);
+      const startTimeFormatted = formatTime24H(startDateTime);
+      const endTimeFormatted = formatTime24H(now);
+
       trackingState.isRunning = false;
       trackingState.isPaused = false;
       trackingState.accumulatedSec = 0;
+      trackingState.sessionStartTimestamp = null;
       trackingState.timerId = null;
 
       document.getElementById('hud-pause-text').innerText = '▶ Start Focus';
@@ -2374,7 +2402,9 @@
           project_id: projId,
           duration_seconds: savedSec,
           source: 'focus_mode',
-          log_date: formatDateLocal(new Date())
+          log_date: formatDateLocal(now),
+          start_time: startTimeFormatted,
+          end_time: endTimeFormatted
         }]);
 
         if (error) {
@@ -2383,11 +2413,11 @@
       }
 
       renderReports();
-      alert(`Saved ${formatTime(savedSec)} to ${projName}!`);
+      alert(`Saved ${formatTime(savedSec)} (${startTimeFormatted} – ${endTimeFormatted}) to ${projName}!`);
     }
 
     /* ==========================================================================
-       REPORTS & VISUAL CHARTS (DONUT & GANTT)
+       REPORTS & 24-HOUR BLOCK GANTT
        ========================================================================== */
     function openProfileModal() { document.getElementById('profile-modal').style.display = 'flex'; }
 
@@ -2426,18 +2456,33 @@
       const projName = projObj ? projObj.name : 'General';
       const hrs = parseFloat(document.getElementById('m-hours').value) || 0;
       const mins = parseFloat(document.getElementById('m-minutes').value) || 0;
-      const totalSec = Math.round((hrs * 3600) + (mins * 60));
+      let totalSec = Math.round((hrs * 3600) + (mins * 60));
+
+      const startTime = document.getElementById('m-start-time').value || null;
+      const endTime = document.getElementById('m-end-time').value || null;
+
+      if (startTime && endTime && totalSec === 0) {
+        const [sh, sm] = startTime.split(':').map(Number);
+        const [eh, em] = endTime.split(':').map(Number);
+        let diff = (eh * 60 + em) - (sh * 60 + sm);
+        if (diff < 0) diff += 1440;
+        totalSec = diff * 60;
+      }
 
       if (projId && totalSec > 0) {
         closeModal('manual-time-modal');
         document.getElementById('m-hours').value = '';
         document.getElementById('m-minutes').value = '';
+        document.getElementById('m-start-time').value = '';
+        document.getElementById('m-end-time').value = '';
 
         const { error } = await db.from('project_time_logs').insert([{
           project_id: projId,
           duration_seconds: totalSec,
           source: 'manual',
-          log_date: formatDateLocal(new Date())
+          log_date: formatDateLocal(new Date()),
+          start_time: startTime,
+          end_time: endTime
         }]);
 
         if (error) {
@@ -2450,6 +2495,12 @@
       }
     }
 
+    function timeStringToMinutes(timeStr) {
+      if (!timeStr) return null;
+      const parts = timeStr.split(':').map(Number);
+      return parts[0] * 60 + parts[1];
+    }
+
     async function renderReports() {
       const container = document.getElementById('report-container');
       container.innerHTML = '<div style="text-align:center; padding:36px; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Loading real-time time logs from Supabase…</div>';
@@ -2458,13 +2509,13 @@
       const { startDate, endDate, allDays } = getISOWeekDates(new Date());
 
       let aggregatedTimes = {};
-      let dailyDistribution = {}; // { 'YYYY-MM-DD': { projId: sec } }
-      allDays.forEach(d => { dailyDistribution[d] = {}; });
+      let rawDayLogs = {}; // { 'YYYY-MM-DD': [ { project_id, duration_seconds, start_time, end_time } ] }
+      allDays.forEach(d => { rawDayLogs[d] = []; });
 
       try {
         const { data: logs, error } = await db
           .from('project_time_logs')
-          .select('project_id, duration_seconds, log_date')
+          .select('project_id, duration_seconds, log_date, start_time, end_time, logged_at')
           .gte('log_date', startDate)
           .lte('log_date', endDate);
 
@@ -2475,8 +2526,8 @@
             const dateStr = String(l.log_date).split('T')[0];
 
             aggregatedTimes[pId] = (aggregatedTimes[pId] || 0) + sec;
-            if (dailyDistribution[dateStr]) {
-              dailyDistribution[dateStr][pId] = (dailyDistribution[dateStr][pId] || 0) + sec;
+            if (rawDayLogs[dateStr]) {
+              rawDayLogs[dateStr].push(l);
             }
           });
         }
@@ -2520,40 +2571,56 @@
         donutLegend = `<div style="font-size:0.75rem; color:var(--text-muted);">No focus time logged this week.</div>`;
       }
 
-      // 2. Build 7-Day Gantt / Daily Distribution
+      // 2. Build 24-Hour Gantt Timeline
       const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      let maxDailySec = 0;
-      allDays.forEach(d => {
-        const dTotal = Object.values(dailyDistribution[d] || {}).reduce((a, b) => a + b, 0);
-        if (dTotal > maxDailySec) maxDailySec = dTotal;
-      });
-      if (maxDailySec === 0) maxDailySec = 3600; // default benchmark 1h
-
       let ganttRows = '';
-      allDays.forEach((dStr, idx) => {
-        const dayMap = dailyDistribution[dStr] || {};
-        const dayTotal = Object.values(dayMap).reduce((a, b) => a + b, 0);
-        let segments = '';
 
-        Object.entries(dayMap).forEach(([pId, sec]) => {
-          const proj = getProjectById(pId);
+      allDays.forEach((dStr, idx) => {
+        const dayLogs = rawDayLogs[dStr] || [];
+        const dayTotalSec = dayLogs.reduce((acc, l) => acc + (Number(l.duration_seconds) || 0), 0);
+        let blocksHtml = '';
+
+        dayLogs.forEach(log => {
+          const proj = getProjectById(log.project_id);
           const color = proj ? proj.color : '#6366f1';
-          const widthPct = (sec / maxDailySec) * 100;
-          segments += `<div class="gantt-segment" style="width:${widthPct}%; background:${color};" title="${proj ? proj.name : ''}: ${formatTime(sec)}"></div>`;
+          const projName = proj ? proj.name : 'General';
+          const durationMins = Math.max(1, Math.round((Number(log.duration_seconds) || 0) / 60));
+
+          let startMin = timeStringToMinutes(log.start_time);
+          if (startMin === null && log.logged_at) {
+            const createdAt = new Date(log.logged_at);
+            startMin = createdAt.getHours() * 60 + createdAt.getMinutes() - durationMins;
+            if (startMin < 0) startMin = 0;
+          }
+          if (startMin === null) startMin = 540; // Default fallback to 09:00 AM
+
+          const leftPercent = Math.max(0, Math.min(100, (startMin / 1440) * 100));
+          const widthPercent = Math.max(0.7, Math.min(100 - leftPercent, (durationMins / 1440) * 100));
+
+          const startStr = `${String(Math.floor(startMin / 60)).padStart(2, '0')}:${String(startMin % 60).padStart(2, '0')}`;
+          const endMin = Math.min(1440, startMin + durationMins);
+          const endStr = `${String(Math.floor(endMin / 60)).padStart(2, '0')}:${String(endMin % 60).padStart(2, '0')}`;
+
+          blocksHtml += `
+            <div class="gantt-block" 
+                 style="left: ${leftPercent}%; width: ${widthPercent}%; background: ${color};" 
+                 title="${escapeHtml(projName)}: ${startStr} – ${endStr} (${formatTime(log.duration_seconds)})">
+            </div>
+          `;
         });
 
         ganttRows += `
           <div class="gantt-row">
             <span class="gantt-day-label">${dayNames[idx]}</span>
-            <div class="gantt-bar-track">${segments}</div>
-            <span class="gantt-time-label">${dayTotal > 0 ? formatTime(dayTotal) : '—'}</span>
+            <div class="gantt-bar-track">${blocksHtml}</div>
+            <span class="gantt-time-label">${dayTotalSec > 0 ? formatTime(dayTotalSec) : '—'}</span>
           </div>
         `;
       });
 
       let html = `
         <div class="analytics-grid">
-          <!-- PIE / DONUT CHART -->
+          <!-- DONUT PIE CHART -->
           <div class="bento-card donut-chart-container">
             <div style="font-weight:800; font-size:0.85rem; width:100%; text-align:left;">🥧 PROJECT SHARE</div>
             <div style="position:relative; width:180px; height:180px; display:flex; align-items:center; justify-content:center;">
@@ -2568,13 +2635,22 @@
             <div class="donut-legend">${donutLegend}</div>
           </div>
 
-          <!-- GANTT DAILY TIMELINE -->
+          <!-- 24-HOUR GANTT TIMELINE -->
           <div class="bento-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-              <div style="font-weight:800; font-size:0.85rem;">📊 7-DAY GANTT TIMELINE</div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+              <div style="font-weight:800; font-size:0.85rem;">📊 24-HOUR GANTT TIMELINE</div>
               <div style="font-family:var(--font-mono); font-size:0.7rem; color:var(--text-muted);">${startDate} → ${endDate}</div>
             </div>
-            <div class="gantt-chart-container">${ganttRows}</div>
+            
+            <div class="gantt-time-scale">
+              <span>00:00</span>
+              <span>06:00</span>
+              <span>12:00</span>
+              <span>18:00</span>
+              <span>24:00</span>
+            </div>
+
+            <div class="gantt-chart-container" style="margin-top:6px;">${ganttRows}</div>
           </div>
         </div>
 
