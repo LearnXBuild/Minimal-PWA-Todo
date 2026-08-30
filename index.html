@@ -516,6 +516,7 @@
         </h1>
         <div class="flex-gap">
           <button class="btn btn-secondary" onclick="openManualTimeModal()">+ Log Time</button>
+          <button class="btn btn-secondary btn-sm" onclick="renderReports()">↻ Refresh</button>
         </div>
       </header>
       <div id="report-container" class="space-y"></div>
@@ -799,7 +800,6 @@
       return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
     }
 
-    /* Structured Markdown Text Parser */
     function renderMarkdownText(rawText) {
       if (!rawText) return '';
 
@@ -860,6 +860,18 @@
       return `${date.getFullYear()}-W${String(weekNum).padStart(2, '0')}`;
     }
 
+    function getISOWeekDates(dateObj) {
+      const d = new Date(dateObj.getTime());
+      const day = d.getDay();
+      const diffToMon = d.getDate() - day + (day === 0 ? -6 : 1);
+      const monday = new Date(d.setDate(diffToMon));
+      const sunday = new Date(monday.getTime() + 6 * 86400000);
+      return {
+        startDate: formatDateLocal(monday),
+        endDate: formatDateLocal(sunday)
+      };
+    }
+
     function getEventBucket(evt) {
       if (evt.time_bucket) return evt.time_bucket.toLowerCase();
       if (evt.start_time) {
@@ -885,7 +897,7 @@
       if (saved) {
         try { return JSON.parse(saved); } catch(e) {}
       }
-      return { tagColors: {}, manualProjectTimes: {}, weeklySummaries: {} };
+      return { tagColors: {} };
     }
 
     let metaData = loadMeta();
@@ -1578,7 +1590,7 @@
     }
 
     /* ==========================================================================
-       SIGNALS FEED (PAGINATED 5-BATCH & BIDIRECTIONAL SCROLL ENGINE)
+       SIGNALS FEED
        ========================================================================== */
     function signalMeter(score) {
       let bars = '';
@@ -2190,7 +2202,7 @@
     }
 
     /* ==========================================================================
-       FOCUS DESK HUD
+       FOCUS DESK HUD (WITH SUPABASE TIME LOGGING)
        ========================================================================== */
     function autoDetectCurrentScheduleSlot() {
       const todayStr = formatDateLocal(new Date());
@@ -2318,16 +2330,14 @@
       document.getElementById('hud-clock-text').innerText = formatTime(trackingState.accumulatedSec);
     }
 
-    function stopAndSaveTracking() {
+    async function stopAndSaveTracking() {
       if (!trackingState.isRunning && trackingState.accumulatedSec === 0) return;
       clearInterval(trackingState.timerId);
       const projObj = getProjectById(trackingState.targetProjId);
       const projName = projObj ? projObj.name : 'General';
-
-      if (!metaData.manualProjectTimes) metaData.manualProjectTimes = {};
-      metaData.manualProjectTimes[projName] = (metaData.manualProjectTimes[projName] || 0) + trackingState.accumulatedSec;
-
+      const projId = projObj ? projObj.id : (ALL_PROJECTS[0] ? ALL_PROJECTS[0].id : null);
       const savedSec = trackingState.accumulatedSec;
+
       trackingState.isRunning = false;
       trackingState.isPaused = false;
       trackingState.accumulatedSec = 0;
@@ -2335,14 +2345,28 @@
 
       document.getElementById('hud-pause-text').innerText = '▶ Start Focus';
       document.getElementById('hud-clock-text').innerText = '00:00:00';
-      saveMeta();
       closeDeskHud();
+
+      // Persist log entry directly into Supabase
+      if (projId && savedSec > 0) {
+        const { error } = await db.from('project_time_logs').insert([{
+          project_id: projId,
+          duration_seconds: savedSec,
+          source: 'focus_mode',
+          log_date: formatDateLocal(new Date())
+        }]);
+
+        if (error) {
+          console.error("Failed to save focus time log to DB:", error);
+        }
+      }
+
       renderReports();
       alert(`Saved ${formatTime(savedSec)} to ${projName}!`);
     }
 
     /* ==========================================================================
-       REPORTS
+       REPORTS & SUPABASE TIME AGGREGATION
        ========================================================================== */
     function openProfileModal() { document.getElementById('profile-modal').style.display = 'flex'; }
 
@@ -2375,30 +2399,68 @@
       document.getElementById('manual-time-modal').style.display = 'flex';
     }
 
-    function saveManualTime() {
-      const projId = document.getElementById('m-project-select').value;
+    async function saveManualTime() {
+      const projId = Number(document.getElementById('m-project-select').value);
       const projObj = getProjectById(projId);
       const projName = projObj ? projObj.name : 'General';
       const hrs = parseFloat(document.getElementById('m-hours').value) || 0;
       const mins = parseFloat(document.getElementById('m-minutes').value) || 0;
-      const totalSec = (hrs * 3600) + (mins * 60);
+      const totalSec = Math.round((hrs * 3600) + (mins * 60));
 
-      if (!metaData.manualProjectTimes) metaData.manualProjectTimes = {};
-      metaData.manualProjectTimes[projName] = (metaData.manualProjectTimes[projName] || 0) + totalSec;
-      saveMeta();
-      closeModal('manual-time-modal');
-      renderReports();
+      if (projId && totalSec > 0) {
+        closeModal('manual-time-modal');
+        document.getElementById('m-hours').value = '';
+        document.getElementById('m-minutes').value = '';
+
+        const { error } = await db.from('project_time_logs').insert([{
+          project_id: projId,
+          duration_seconds: totalSec,
+          source: 'manual',
+          log_date: formatDateLocal(new Date())
+        }]);
+
+        if (error) {
+          alert("Failed to log time: " + error.message);
+          return;
+        }
+
+        renderReports();
+        alert(`Logged ${formatTime(totalSec)} to ${projName}!`);
+      }
     }
 
-    function renderReports() {
+    async function renderReports() {
       const container = document.getElementById('report-container');
-      container.innerHTML = '';
+      container.innerHTML = '<div style="text-align:center; padding:24px; color:var(--text-muted); font-size:0.8rem; font-family:var(--font-mono);">Loading real-time time logs…</div>';
+
       const currentWeekKey = getISOWeekKey(new Date());
-      const currentWeekTimes = (metaData.weeklySummaries && metaData.weeklySummaries[currentWeekKey]) || metaData.manualProjectTimes || {};
+      const { startDate, endDate } = getISOWeekDates(new Date());
+
+      // Fetch aggregated time logs for current week from Supabase
+      let aggregatedTimes = {};
+      try {
+        const { data: logs, error } = await db
+          .from('project_time_logs')
+          .select('project_id, duration_seconds')
+          .gte('log_date', startDate)
+          .lte('log_date', endDate);
+
+        if (!error && logs) {
+          logs.forEach(l => {
+            const pId = Number(l.project_id);
+            aggregatedTimes[pId] = (aggregatedTimes[pId] || 0) + (l.duration_seconds || 0);
+          });
+        }
+      } catch (err) {
+        console.error("Error loading time logs:", err);
+      }
 
       let html = `
         <div style="border:1px solid var(--border); border-radius:var(--radius-lg); padding:16px; background:var(--surface); box-shadow:var(--shadow-bento);">
-          <div style="font-weight:800; font-size:0.9rem; margin-bottom:12px;">📊 CURRENT WEEK ALLOCATION (${currentWeekKey})</div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <div style="font-weight:800; font-size:0.9rem;">📊 CURRENT WEEK ALLOCATION (${currentWeekKey})</div>
+            <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--text-muted);">${startDate} → ${endDate}</div>
+          </div>
           <div class="report-table-wrapper">
             <table class="report-table">
               <thead><tr><th>Project</th><th>Tracked Time</th><th>Weekly Limit</th><th>Status</th></tr></thead>
@@ -2409,7 +2471,7 @@
         html += `<tr><td colspan="4" style="text-align:center; color:var(--text-muted);">No projects created.</td></tr>`;
       } else {
         ALL_PROJECTS.forEach(proj => {
-          const sec = currentWeekTimes[proj.name] || 0;
+          const sec = aggregatedTimes[Number(proj.id)] || 0;
           const limit = proj.weekly_limit_hours;
           const textColor = getContrastTextColor(proj.color);
           html += `
@@ -2480,14 +2542,12 @@
       if (triggered) {
         ptrIndicator.innerText = "Syncing with Supabase...";
         try {
-          const activeSection = document.querySelector('.content-section.active');
-          const isSignalsActive = activeSection && activeSection.id === 'sec-signals';
-
           await Promise.all([
             syncAllSupabaseData(),
             fetchSupabaseSignals(true)
           ]);
 
+          const activeSection = document.querySelector('.content-section.active');
           if (activeSection) {
             const activeId = activeSection.id;
             if (activeId === 'sec-calendar') renderScheduleCalendar();
@@ -2511,7 +2571,7 @@
       }
     });
 
-    /* DUAL INFINITE SCROLL OBSERVERS (BENTO MAIN & READER OVERLAY) */
+    /* DUAL INFINITE SCROLL OBSERVERS */
     const sentinel = document.getElementById('signals-scroll-sentinel');
     if (sentinel) {
       const scrollObserver = new IntersectionObserver((entries) => {
