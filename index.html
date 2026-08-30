@@ -6,7 +6,7 @@
   <title>onespace</title>
   <meta name="theme-color" content="#f4f6f8">
   
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Crect x='110' y='110' width='292' height='292' rx='50' fill='none' stroke='%23ffffff' stroke-width='24' stroke-dasharray='380 40' stroke-linecap='round' opacity='0.35'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='p' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%234338ca'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='130' fill='url(%23p)'/%3E%3Ccircle cx='256' cy='256' r='64' fill='%23ffffff'/%3E%3Cpath d='M256 160v60M256 292v60M160 256h60M292 256h60' stroke='%23ffffff' stroke-width='20' stroke-linecap='round'/%3E%3C/svg%3E">
   <link rel="manifest" id="pwa-manifest">
 
@@ -542,7 +542,7 @@
     </section>
   </main>
 
-  <!-- MOBILE NAVIGATION (4 BUTTONS) -->
+  <!-- MOBILE NAVIGATION -->
   <div class="mobile-nav">
     <button class="nav-btn active" onclick="switchTab('calendar', this)">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
@@ -2243,7 +2243,7 @@
     }
 
     /* ==========================================================================
-       FOCUS DESK HUD (WITH 24H EXACT BLOCK TIMESTAMPS)
+       FOCUS DESK HUD
        ========================================================================== */
     function autoDetectCurrentScheduleSlot() {
       const todayStr = formatDateLocal(new Date());
@@ -2417,7 +2417,7 @@
     }
 
     /* ==========================================================================
-       REPORTS & 24-HOUR BLOCK GANTT
+       REPORTS & VISUAL CHARTS (168-HOUR PROPORTIONAL CIRCLE + 24H GANTT)
        ========================================================================== */
     function openProfileModal() { document.getElementById('profile-modal').style.display = 'flex'; }
 
@@ -2509,7 +2509,7 @@
       const { startDate, endDate, allDays } = getISOWeekDates(new Date());
 
       let aggregatedTimes = {};
-      let rawDayLogs = {}; // { 'YYYY-MM-DD': [ { project_id, duration_seconds, start_time, end_time } ] }
+      let rawDayLogs = {};
       allDays.forEach(d => { rawDayLogs[d] = []; });
 
       try {
@@ -2537,39 +2537,55 @@
 
       const totalWeeklySec = Object.values(aggregatedTimes).reduce((a, b) => a + b, 0);
 
-      // 1. Build SVG Donut Chart Slices
-      let donutSvg = '';
-      let donutLegend = '';
-      const radius = 60;
+      // 1. Build Proportional Donut Circle (Total 168 Hours Capacity)
+      const TOTAL_WEEK_CAPACITY_SEC = 7 * 24 * 3600; // 168 Hours = 604,800s
+      const unscheduledSec = Math.max(0, TOTAL_WEEK_CAPACITY_SEC - totalWeeklySec);
+
+      const radius = 68;
       const circumference = 2 * Math.PI * radius;
       let strokeOffset = 0;
+      let donutSvg = '';
+      let donutLegend = '';
 
-      if (totalWeeklySec > 0) {
-        ALL_PROJECTS.forEach(p => {
-          const sec = aggregatedTimes[p.id] || 0;
-          if (sec > 0) {
-            const percent = sec / totalWeeklySec;
-            const dashLength = percent * circumference;
-            donutSvg += `
-              <circle cx="90" cy="90" r="${radius}" fill="transparent"
-                stroke="${p.color}" stroke-width="26"
-                stroke-dasharray="${dashLength} ${circumference - dashLength}"
-                stroke-dashoffset="${-strokeOffset}"
-                transform="rotate(-90 90 90)" />
-            `;
-            strokeOffset += dashLength;
-            donutLegend += `
-              <div class="legend-item">
-                <span class="legend-dot" style="background:${p.color};"></span>
-                <span>${escapeHtml(p.name)} (${Math.round(percent * 100)}%)</span>
-              </div>
-            `;
-          }
-        });
-      } else {
-        donutSvg = `<circle cx="90" cy="90" r="${radius}" fill="transparent" stroke="#e2e8f0" stroke-width="26" />`;
-        donutLegend = `<div style="font-size:0.75rem; color:var(--text-muted);">No focus time logged this week.</div>`;
-      }
+      // Base background circle (Unscheduled / Free Time)
+      donutSvg += `
+        <circle cx="100" cy="100" r="${radius}" fill="transparent"
+          stroke="#f1f5f9" stroke-width="20" />
+      `;
+
+      ALL_PROJECTS.forEach(p => {
+        const sec = aggregatedTimes[p.id] || 0;
+        if (sec > 0) {
+          const percentOfCapacity = sec / TOTAL_WEEK_CAPACITY_SEC;
+          const percentOfTracked = totalWeeklySec > 0 ? (sec / totalWeeklySec) * 100 : 0;
+          const dashLength = percentOfCapacity * circumference;
+
+          donutSvg += `
+            <circle cx="100" cy="100" r="${radius}" fill="transparent"
+              stroke="${p.color}" stroke-width="20"
+              stroke-dasharray="${dashLength} ${circumference - dashLength}"
+              stroke-dashoffset="${-strokeOffset}"
+              transform="rotate(-90 100 100)"
+              style="transition: stroke-dasharray 0.4s ease;" />
+          `;
+          strokeOffset += dashLength;
+
+          donutLegend += `
+            <div class="legend-item">
+              <span class="legend-dot" style="background:${p.color};"></span>
+              <span>${escapeHtml(p.name)} (${Math.round(percentOfTracked)}%)</span>
+            </div>
+          `;
+        }
+      });
+
+      const unscheduledPercent = Math.round((unscheduledSec / TOTAL_WEEK_CAPACITY_SEC) * 100);
+      donutLegend += `
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#cbd5e1;"></span>
+          <span style="color:var(--text-muted);">Unscheduled (${unscheduledPercent}%)</span>
+        </div>
+      `;
 
       // 2. Build 24-Hour Gantt Timeline
       const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
@@ -2592,7 +2608,7 @@
             startMin = createdAt.getHours() * 60 + createdAt.getMinutes() - durationMins;
             if (startMin < 0) startMin = 0;
           }
-          if (startMin === null) startMin = 540; // Default fallback to 09:00 AM
+          if (startMin === null) startMin = 540; // Fallback 9:00 AM
 
           const leftPercent = Math.max(0, Math.min(100, (startMin / 1440) * 100));
           const widthPercent = Math.max(0.7, Math.min(100 - leftPercent, (durationMins / 1440) * 100));
@@ -2622,16 +2638,23 @@
         <div class="analytics-grid">
           <!-- DONUT PIE CHART -->
           <div class="bento-card donut-chart-container">
-            <div style="font-weight:800; font-size:0.85rem; width:100%; text-align:left;">🥧 PROJECT SHARE</div>
-            <div style="position:relative; width:180px; height:180px; display:flex; align-items:center; justify-content:center;">
-              <svg width="180" height="180" viewBox="0 0 180 180">
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+              <div style="font-weight:800; font-size:0.85rem;">🥧 WEEKLY ALLOCATION</div>
+              <div style="font-family:var(--font-mono); font-size:0.68rem; color:var(--text-muted); font-weight:700;">168h TOTAL</div>
+            </div>
+            
+            <div style="position:relative; width:200px; height:200px; display:flex; align-items:center; justify-content:center;">
+              <svg width="200" height="200" viewBox="0 0 200 200">
                 ${donutSvg}
               </svg>
-              <div style="position:absolute; text-align:center;">
-                <div style="font-family:var(--font-mono); font-size:1.1rem; font-weight:800; color:var(--text);">${formatTime(totalWeeklySec)}</div>
-                <div style="font-size:0.68rem; color:var(--text-muted); text-transform:uppercase; font-weight:700;">Total</div>
+              <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; pointer-events:none;">
+                <div style="font-family:var(--font-mono); font-size:1.05rem; font-weight:800; color:var(--text); line-height:1.2; letter-spacing:-0.02em;">
+                  ${formatTime(totalWeeklySec)}
+                </div>
+                <div style="font-size:0.65rem; color:var(--text-muted); text-transform:uppercase; font-weight:800; letter-spacing:0.06em; margin-top:2px;">TRACKED</div>
               </div>
             </div>
+            
             <div class="donut-legend">${donutLegend}</div>
           </div>
 
